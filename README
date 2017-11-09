@@ -7,5 +7,5 @@ type: the type of model to be used. Currently, these are the options:
  -t 2 : deterministic MS-CFLP (Avella instances) 
  -t 4 : robust MS-CFLP (OR Library instances)
 
-
-
+instance: the instance to be used. Currently, the OR Library instance are
+          provided. They are under data/orLibrary.
