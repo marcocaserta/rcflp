@@ -1,5 +1,0 @@
-data/orLibrary/capa1       19777655.53638 MIP_abort_feasible              18143764.47671            0.0826130           43.5003779
-data/orLibrary/capa1       19242039.62942 MIP_abort_feasible              18854362.52699            0.0201474          567.3348789
-data/orLibrary/capb1       13656379.57755 optimal_tolerance               13655500.03517            0.0000644           80.6375868
-data/orLibrary/capb1       13656379.57755 optimal_tolerance               13655500.03517            0.0000644           72.2321515
-data/orLibrary/capb1       13656706.48309 optimal_tolerance               13656678.46810            0.0000021          544.8009584
