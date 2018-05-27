@@ -1,0 +1,20 @@
+27.05.18 : First implementation of the Capacitated Facility Location.
+
+Compile it using:
+
+> make
+
+and run it with:
+
+> ./bin/cflp -h
+
+The option "-h" provides some guidance on how to setup the command line to
+define some parameters. For example, use:
+
+> ./bin/cflp -i data/orLibrary/cap61 -t 1 -v 2
+
+to solve a small problem from the OR Library using the Multi-source
+formulation. Other options can be obtained calling the "-h" flag.
+
+
+
