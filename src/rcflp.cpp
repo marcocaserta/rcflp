@@ -133,6 +133,7 @@ int displayLimit = 4;
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
 void printOptions(char * _FILENAME, int fType, int version, INSTANCE inp, int timeLimit);
 void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
+void define_MS_CFLP2(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit);
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
     if (version == 1) // single source nominal
         define_SS_CFLP(inp, fType, model, cplex);
     else if (version == 2) // multi source nominal
-        define_MS_CFLP(inp, fType, model, cplex);
+        define_MS_CFLP2(inp, fType, model, cplex);
     else if (version == 3) // multi source ellipsoidal
         define_SOCP_CFLP(inp, fType, model, cplex);
 
@@ -212,6 +213,81 @@ void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk)
 }
 
 /// Define the Multi-source Capacitated Facility Location Model [Nominal]
+void define_MS_CFLP2(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
+{
+
+    char varName[100];
+    IloEnv env = model.getEnv();
+
+    // location variables 
+    y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
+
+    // allocation variables
+    x_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT);
+
+    // set var names
+    for (int i = 0; i < inp.nF; i++)
+    {
+        sprintf(varName, "y.%d", (int)i);
+        for (int j = 0; j < inp.nC; j++)
+        {
+            sprintf(varName, "x.%d.%d", (int)i, (int) j);
+            x_ilo[i][j].setName(varName);
+        }
+    }
+
+    // customers demand
+    for (int j = 0; j < inp.nC; j++)
+    {
+        IloExpr sum(env);
+        for (int i = 0; i < inp.nF; i++)
+            sum += x_ilo[i][j];
+        model.add(sum == 1.0);
+    }
+
+    // facility capacity (depends on instance type)
+    for (int i = 0; i < inp.nF; i++)
+    {
+        IloExpr sum(env);
+        for (int j = 0; j < inp.nC; j++)
+            sum += x_ilo[i][j]*inp.d[j];
+        sum -= y_ilo[i]*inp.s[i];
+
+        model.add(sum <= 0.0);
+    }
+
+    // does it tighten the formulation?
+    /*     double coeff;
+     *     for (int i = 0; i < inp.nF; i++)
+     *         for (int j = 0; j < inp.nC; j++)
+     *         {
+     *             if (fType == 1 || version == 1)
+     *                 coeff = 1.0;
+     *             else
+     *                 // only in case fTYpe = 2 (Avella) and version = 2 (Single-source)
+     *                 coeff = inp.s[i];
+     *
+     *             model.add(x_ilo[i][j] - coeff*y_ilo[i] <= 0.0);
+     *         } */
+
+    for (int i = 0; i < inp.nF; i++)
+        for (int j = 0; j < inp.nC; j++)
+            model.add(x_ilo[i][j] - y_ilo[i] <= 0.0)
+
+    // objective function
+    IloExpr totCost(env);
+    for (int i = 0; i < inp.nF; i++)
+    {
+        totCost += y_ilo[i]*inp.f[i];
+        for (int j = 0; j < inp.nC; j++)
+            totCost += inp.d[j]*x_ilo[i][j]*inp.c[i][j];
+    }
+
+    model.add(IloMinimize(env,totCost));
+}
+
 void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 {
 

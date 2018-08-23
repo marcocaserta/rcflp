@@ -55,7 +55,10 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 
         for (int i = 0; i < inp.nF; i++)
             for (int j = 0; j < inp.nC; j++)
+            {
                 fReader >> inp.c[i][j];
+                inp.c[i][j] /= inp.d[j];
+            }
     }
     // read Avella instances
     else if (fType == 2)
