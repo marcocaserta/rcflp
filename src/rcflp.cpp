@@ -272,9 +272,6 @@ void define_MS_CFLP2(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex
      *             model.add(x_ilo[i][j] - coeff*y_ilo[i] <= 0.0);
      *         } */
 
-    for (int i = 0; i < inp.nF; i++)
-        for (int j = 0; j < inp.nC; j++)
-            model.add(x_ilo[i][j] - y_ilo[i] <= 0.0)
 
     // objective function
     IloExpr totCost(env);
