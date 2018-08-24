@@ -111,8 +111,9 @@ string versionType;
 
 /// Structure used to define the instance data
 struct INSTANCE {
-    int nF;
-    int nC;
+    int nF;        // number of facilities
+    int nC;        // number of customers
+    int nR;        // number of constraints polyhedron uncertainty set
     double  *f;    // fixed costs
     double  *s;    // capacity
     double  *d;    // demand
@@ -141,6 +142,9 @@ TwoD x_ilo;
 IloNumVarArray y_ilo;
 IloNumVarArray q_ilo;
 IloNumVar w_ilo;
+TwoD psi_ilo;
+IloNumVarArray u_ilo;
+IloNumVarArray delta_ilo;
 int timeLimit;
 double Omega     = 1.0;
 double epsi      = 0.1;
@@ -154,9 +158,10 @@ void printOptions(char * _FILENAME, int fType, int version, INSTANCE inp, int ti
 void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
+void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit);
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt);
-void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk);
+void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, bool fullOutput);
 /****************** FUNCTIONS DECLARATION ***************************/
 
 /************************ main program ******************************/
@@ -170,17 +175,20 @@ int main(int argc, char *argv[])
     readProblemData(_FILENAME, fType, inp);
     printOptions(_FILENAME, fType, version, inp, timeLimit);
 
+
     if (version == 1) // single source nominal
         define_SS_CFLP(inp, fType, model, cplex);
     else if (version == 2) // multi source nominal
         define_MS_CFLP(inp, fType, model, cplex);
     else if (version == 3) // multi source ellipsoidal
         define_SOCP_CFLP(inp, fType, model, cplex);
+    else if (version == 4)
+        define_POLY_CFLP(inp, fType, model, cplex);
 
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
     getCplexSol(inp, cplex, opt);
-    printSolution(_FILENAME, inp, opt, true);
+    printSolution(_FILENAME, inp, opt, true, true);
 
     env.end();
     return 0;
@@ -215,12 +223,13 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 
 
 /// Print solution to screen (and disk, if required)
-void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk)
+void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, 
+bool fullOutput)
 {
     cout << endl << "** SOLUTION **" << endl;
     cout << " ..z*     = " << setprecision(15) << opt.zStar << endl;
     cout << " ..status = " << opt.zStatus << endl;
-    if (toDisk)
+
     {
         ofstream fWriter("solution.txt", ios::out);
         fWriter << _FILENAME << "\t" << instanceType << "\t"
@@ -228,6 +237,21 @@ void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk)
                 << "\t" << opt.zStatus << endl;
         fWriter.close();
     }
+
+    if (fullOutput)
+    {
+        cout << "Open Facilities: ";
+        for (int i = 0; i < inp.nF; i++)
+            if (opt.ySol[i] == 1)
+                cout << setw(4) << i;
+        cout << endl;
+        for (int i = 0; i < inp.nF; i++)
+            for (int j = 0; j < inp.nC; j++)
+                if (opt.xSol[i][j] > 0.0)
+                    cout << "x(" << i << "," << j << ") = " << setprecision(3) << opt.xSol[i][j] << endl;
+    }
+
+
 }
 
 /// Define the Multi-source Capacitated Facility Location Model [Nominal]
@@ -249,6 +273,7 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
     for (int i = 0; i < inp.nF; i++)
     {
         sprintf(varName, "y.%d", (int)i);
+        y_ilo[i].setName(varName);
         for (int j = 0; j < inp.nC; j++)
         {
             sprintf(varName, "x.%d.%d", (int)i, (int) j);
@@ -276,26 +301,9 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
         model.add(sum <= 0.0);
     }
 
-    // does it tighten the formulation?
-<<<<<<< HEAD
-    /*     double coeff;
-     *     for (int i = 0; i < inp.nF; i++)
-     *         for (int j = 0; j < inp.nC; j++)
-     *         {
-     *             if (fType == 1 || version == 1)
-     *                 coeff = 1.0;
-     *             else
-     *                 // only in case fTYpe = 2 (Avella) and version = 2 (Single-source)
-     *                 coeff = inp.s[i];
-     *
-     *             model.add(x_ilo[i][j] - coeff*y_ilo[i] <= 0.0);
-     *         } */
-
-=======
     /* for (int i = 0; i < inp.nF; i++)
      *     for (int j = 0; j < inp.nC; j++)
      *         model.add(x_ilo[i][j] - y_ilo[i] <= 0.0); */
->>>>>>> 6fd40283a6c79ce83130c75c6596c1452d155f14
 
     // objective function
     IloExpr totCost(env);
@@ -329,6 +337,7 @@ void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
     for (int i = 0; i < inp.nF; i++)
     {
         sprintf(varName, "y.%d", (int)i);
+        y_ilo[i].setName(varName);
         for (int j = 0; j < inp.nC; j++)
         {
             sprintf(varName, "x.%d.%d", (int)i, (int) j);
@@ -459,6 +468,8 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
         cplex.setParam(IloCplex::IntSolLim, solLimit);
         cplex.setParam(IloCplex::TiLim, timeLimit);
 
+        cplex.exportModel("cflp.lp");
+
         if (!cplex.solve())
         {
             env.error() << "Failed to Optimize MIP " << endl;
@@ -473,3 +484,114 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
     }
 }
 
+void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
+{
+    inp.nR = 2*inp.nC; // this is equivalent to a BOX UNCERTAINTY set
+    int lower_epsilon = 0;   // box width around nominal value
+    int upper_epsilon = 1;   // box width around nominal value
+
+    char varName[100];
+    IloEnv env = model.getEnv();
+
+    // location variables
+    y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
+
+    // allocation variables
+    x_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT);
+        /* x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); */
+
+    // set var names
+    for (int i = 0; i < inp.nF; i++)
+    {
+        sprintf(varName, "y.%d", (int)i);
+        y_ilo[i].setName(varName);
+        for (int j = 0; j < inp.nC; j++)
+        {
+            sprintf(varName, "x.%d.%d", (int)i, (int) j);
+            x_ilo[i][j].setName(varName);
+        }
+    }
+
+    // psi variables
+    psi_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        psi_ilo[i] = IloNumVarArray(env, inp.nR, 0.0, IloInfinity, ILOFLOAT);
+
+    // u variables
+    u_ilo = IloNumVarArray(env, inp.nR, 0.0, IloInfinity, ILOFLOAT);
+    
+    // set vars names
+    for (int i = 0; i < inp.nF; i++)
+        for (int t = 0; t < inp.nR; t++)
+        {
+            sprintf(varName, "psi.%d.%d", (int)i, (int) t);
+            psi_ilo[i][t].setName(varName);
+        }
+    for (int t = 0; t < inp.nR; t++)
+    {
+        sprintf(varName, "u.%d", (int)t);
+        u_ilo[t].setName(varName);
+    }
+
+    // delta variable
+    delta_ilo = IloNumVarArray(env, 1, 0.0, IloInfinity, ILOFLOAT);
+    delta_ilo[0].setName("delta");
+
+
+
+    // customers demand
+    for (int j = 0; j < inp.nC; j++)
+    {
+        IloExpr sum(env);
+        for (int i = 0; i < inp.nF; i++)
+            sum += x_ilo[i][j];
+        model.add(sum == 1.0);
+    }
+
+    // "robust" capacity demand
+    for (int i = 0; i < inp.nF; i++)
+        for (int j = 0; j < inp.nC; j++)
+            model.add(-1.0*psi_ilo[i][j] + 1.0*psi_ilo[i][j+inp.nC] - x_ilo[i][j] >= 0.0);
+    for (int i = 0; i < inp.nF; i++)
+    {
+        IloExpr sum(env);
+        for (int j = 0; j < inp.nC; j++)
+        {
+            sum += -(inp.d[j]-lower_epsilon)*psi_ilo[i][j];
+            sum +=  (inp.d[j]+upper_epsilon)*psi_ilo[i][j+inp.nC];
+        }
+        sum -= inp.s[i]*y_ilo[i];
+        model.add(sum <= 0.0);
+    }
+
+    // "robust" objective function
+    IloExpr sum(env);
+    for (int j = 0; j < inp.nC; j++)
+    {
+        sum += -(inp.d[j]-lower_epsilon)*u_ilo[j];
+        sum +=  (inp.d[j]+upper_epsilon)*u_ilo[j+inp.nC];
+    }
+    sum -= delta_ilo[0];
+    model.add(sum <= 0.0);
+    for (int j = 0; j < inp.nC; j++)
+    {
+        IloExpr sum(env);
+        for (int i = 0; i < inp.nF; i++)
+            sum += inp.c[i][j]*x_ilo[i][j];
+
+        model.add(-1.0*u_ilo[j] + 1.0*u_ilo[j+inp.nC] - sum >= 0.0);
+    }
+
+
+    // objective function
+    IloExpr totCost(env);
+    for (int i = 0; i < inp.nF; i++)
+        totCost += y_ilo[i]*inp.f[i];
+    totCost += delta_ilo[0];
+
+    model.add(IloMinimize(env,totCost));
+    
+
+}

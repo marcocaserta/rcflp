@@ -99,7 +99,7 @@ int parseOptions(int argc, char* argv[])
 	       cout << "OPTIONS :: " << endl;
 	       cout << "-i : problem instance file" << endl;
 	       cout << "-l : time limit (real)" << endl;
-	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP)" << endl;
+	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP; 4- Poly)" << endl;
 	       cout << "-t : instance type (1-OR Library; 2-Avella)" << endl;
 	       cout << endl;
 	       return -1;
@@ -122,6 +122,8 @@ int parseOptions(int argc, char* argv[])
             versionType = "Multi-source-Nominal";
         else if (version == 3)
             versionType = "Multi-source-Ellipsoidal";
+        else if (version == 4)
+            versionType = "Polyhedral Uncertainty (Wd <= h)";
 
         return 0;
    }

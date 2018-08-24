@@ -8,6 +8,7 @@ using namespace std;
 struct INSTANCE {
     int nF;
     int nC;
+    int nR;
     double  *f;
     double  *s;
     double  *d;
