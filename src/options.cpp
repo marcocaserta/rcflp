@@ -99,8 +99,8 @@ int parseOptions(int argc, char* argv[])
 	       cout << "OPTIONS :: " << endl;
 	       cout << "-i : problem instance file" << endl;
 	       cout << "-l : time limit (real)" << endl;
-	       cout << "-v : problem version (1-SS; 2-MS)" << endl;
-	       cout << "-t : instance type (1-OR Library; 2-Avella; 3-SS-OR Library)" << endl;
+	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP)" << endl;
+	       cout << "-t : instance type (1-OR Library; 2-Avella)" << endl;
 	       cout << endl;
 	       return -1;
 	 }
