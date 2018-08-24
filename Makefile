@@ -14,8 +14,8 @@ OBJDIR        = obj
 SYSTEM     = x86-64_linux
 LIBFORMAT  = static_pic
 # ---------------------------------------------------------------------
-CONCERTDIR    = /home/marco/opt/ILOG/cplex127/concert
-CPLEXDIR      = /home/marco/opt/ILOG/cplex127/cplex
+CONCERTDIR    = /home/mcaserta/opt/ILOG/cplex127/concert
+CPLEXDIR      = /home/mcaserta/opt/ILOG/cplex127/cplex
 CPLEXBINDIR   = $(CPLEXDIR)/bin/$(BINDIST)
 CPLEXLIBDIR   = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
 CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
