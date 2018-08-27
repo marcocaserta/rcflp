@@ -20,6 +20,12 @@ struct INSTANCE {
 extern string instanceType;
 extern string versionType;
 
+/// Read benchmark instances
+/**
+ * Currently, two types of instances can be imported:
+ * type 1: OR Library
+ * type 2: Avella (Test Bed 1, Test Bed A. Test Bed B)
+ */
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 {
     inp.totS = 0.0;
@@ -30,7 +36,7 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
         cout << "cannot open file " << _FILENAME << endl;
         exit(1);
     }
-    // read orlibrary instances
+    // read OR Library instances
     if (fType == 1)
     {
         
@@ -99,8 +105,6 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 /// Print instance info and algorithmic parameters.
 void printOptions(char * _FILENAME, int fType, int version, INSTANCE inp, int timeLimit)
 {
-
-
    cout << "-------------------------------------" << endl;
    cout << "- OPTIONS : " << endl;
    cout << "-------------------------------------" << endl;
@@ -112,5 +116,4 @@ void printOptions(char * _FILENAME, int fType, int version, INSTANCE inp, int ti
    cout << "  Nr. Customers  = " << inp.nC << endl;
    cout << "-------------------------------------" <<  endl << endl;   
 }
-
 

@@ -41,7 +41,7 @@ DEBUG = -ggdb
 OPTLEVEL = -O -DEBIAN_BUILDARCH=pentium
 
 #set flags
-FLAGS =  -fomit-frame-pointer -pipe -Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wpointer-arith -Wwrite-strings
+FLAGS =  -fomit-frame-pointer -pipe -Wparentheses -Wreturn-type -Wcast-qual -Wpointer-arith -Wwrite-strings
 #-Wconversion
 
 default: $(OBJDIR)/rcflp.o $(OBJDIR)/options.o $(OBJDIR)/inout.o 

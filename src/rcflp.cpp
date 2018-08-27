@@ -130,11 +130,11 @@ struct SOLUTION {
     double zStar;
     IloAlgorithm::Status zStatus;
 };
-SOLUTION opt;
+SOLUTION opt; // solution data structure
 
-typedef IloArray <IloNumVarArray> TwoD;
 
 /**** CPLEX DEFINITION ****/
+typedef IloArray <IloNumVarArray> TwoD;
 IloEnv env;
 IloModel model(env, "cflp");
 IloCplex cplex(model);
@@ -145,12 +145,11 @@ IloNumVar w_ilo;
 TwoD psi_ilo;
 IloNumVarArray u_ilo;
 IloNumVarArray delta_ilo;
+int solLimit     = 9999;
+int displayLimit = 4;
 int timeLimit;
 double Omega     = 1.0;
 double epsi      = 0.1;
-int solLimit     = 9999;
-int displayLimit = 4;
-/****************** VARIABLES DECLARATION ***************************/
 
 /****************** FUNCTIONS DECLARATION ***************************/
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
@@ -182,7 +181,7 @@ int main(int argc, char *argv[])
         define_MS_CFLP(inp, fType, model, cplex);
     else if (version == 3) // multi source ellipsoidal
         define_SOCP_CFLP(inp, fType, model, cplex);
-    else if (version == 4)
+    else if (version == 4) // robust polyhedral uncertainty set (both SS and MS)
         define_POLY_CFLP(inp, fType, model, cplex);
 
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
@@ -245,13 +244,12 @@ bool fullOutput)
             if (opt.ySol[i] == 1)
                 cout << setw(4) << i;
         cout << endl;
+        cout << "Allocation variables :: " << endl;
         for (int i = 0; i < inp.nF; i++)
             for (int j = 0; j < inp.nC; j++)
-                if (opt.xSol[i][j] > 0.0)
+                if (opt.xSol[i][j] >= EPSI)
                     cout << "x(" << i << "," << j << ") = " << setprecision(3) << opt.xSol[i][j] << endl;
     }
-
-
 }
 
 /// Define the Multi-source Capacitated Facility Location Model [Nominal]
@@ -269,7 +267,7 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
     for (int i = 0; i < inp.nF; i++)
         x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT);
 
-    // set var names
+    // set vars name
     for (int i = 0; i < inp.nF; i++)
     {
         sprintf(varName, "y.%d", (int)i);
@@ -290,7 +288,7 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
         model.add(sum == 1.0);
     }
 
-    // facility capacity (depends on instance type)
+    // facility capacity 
     for (int i = 0; i < inp.nF; i++)
     {
         IloExpr sum(env);
@@ -301,6 +299,7 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
         model.add(sum <= 0.0);
     }
 
+    // thightening the model (does not seem to be beneficial)
     /* for (int i = 0; i < inp.nF; i++)
      *     for (int j = 0; j < inp.nC; j++)
      *         model.add(x_ilo[i][j] - y_ilo[i] <= 0.0); */
@@ -456,39 +455,31 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     model.add(IloMinimize(env,totCost));
 }
 
-/// Set cplex parameters and solve the optimization problem
-int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit)
-{
-    try
-    {
-        IloEnv env = model.getEnv();
-        /* cplex.setOut(env.getNullStream()); */
-        cplex.setParam(IloCplex::MIPInterval, 5000);
-        cplex.setParam(IloCplex::MIPDisplay, displayLimit);
-        cplex.setParam(IloCplex::IntSolLim, solLimit);
-        cplex.setParam(IloCplex::TiLim, timeLimit);
-
-        cplex.exportModel("cflp.lp");
-
-        if (!cplex.solve())
-        {
-            env.error() << "Failed to Optimize MIP " << endl;
-            throw(-1);
-        }
-        return 1;
-    }
-    catch (...)
-    {
-        cout << "Exception caught ... " << endl;
-        return -1;
-    }
-}
-
+/// Define robust model based on polyhedral uncertainty set
+/**
+ * The current implementation allows to define a box around the nominal values,
+ * i.e., without the implementation of a budget support. We need to define how
+ * such budget constraints should be created, i.e., which facilities should
+ * enter in each budget support (a random scheme?)
+ *
+ * We implement here both the SINGLE SOURCE and the MULTI SOURCE versions. Just
+ * change the way in which the allocation variables are defined, to switch
+ * between the SS and the MS versions.
+ *
+ * To test it, use the toy problem, whose instance values are defined in the
+ * file 'toy.txt'. These values are the one reported in the paper, under the
+ * example section. The budget constraint, though, has not been implemented
+ * yet. The following tests can be executed:
+ * 1. nominal version: Set lower_epsilon and upper_epsilon = 0
+ * 2. multi-source: Define allocation variables as float (and give some slack
+ * to the demand assigning positive values to lower and upper epsilon.
+ * 3. single-source: Define allocation variables are integer.
+ */
 void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 {
     inp.nR = 2*inp.nC; // this is equivalent to a BOX UNCERTAINTY set
-    int lower_epsilon = 0;   // box width around nominal value
-    int upper_epsilon = 1;   // box width around nominal value
+    int lower_epsilon = 0;   // box width around nominal value (lower limit)
+    int upper_epsilon = 1;   // box width around nominal value (upper limit)
 
     char varName[100];
     IloEnv env = model.getEnv();
@@ -499,8 +490,8 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     // allocation variables
     x_ilo = TwoD(env, inp.nF);
     for (int i = 0; i < inp.nF; i++)
-        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT);
-        /* x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); */
+        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // SS
+        // x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); // MS 
 
     // set var names
     for (int i = 0; i < inp.nF; i++)
@@ -535,11 +526,9 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
         u_ilo[t].setName(varName);
     }
 
-    // delta variable
+    // delta variable (for the objective function)
     delta_ilo = IloNumVarArray(env, 1, 0.0, IloInfinity, ILOFLOAT);
     delta_ilo[0].setName("delta");
-
-
 
     // customers demand
     for (int j = 0; j < inp.nC; j++)
@@ -584,7 +573,6 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
         model.add(-1.0*u_ilo[j] + 1.0*u_ilo[j+inp.nC] - sum >= 0.0);
     }
 
-
     // objective function
     IloExpr totCost(env);
     for (int i = 0; i < inp.nF; i++)
@@ -592,6 +580,33 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     totCost += delta_ilo[0];
 
     model.add(IloMinimize(env,totCost));
-    
-
 }
+
+/// Set cplex parameters and solve the optimization problem
+int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit)
+{
+    try
+    {
+        IloEnv env = model.getEnv();
+        /* cplex.setOut(env.getNullStream()); */
+        cplex.setParam(IloCplex::MIPInterval, 5000);
+        cplex.setParam(IloCplex::MIPDisplay, displayLimit);
+        cplex.setParam(IloCplex::IntSolLim, solLimit);
+        cplex.setParam(IloCplex::TiLim, timeLimit);
+
+        cplex.exportModel("cflp.lp");
+
+        if (!cplex.solve())
+        {
+            env.error() << "Failed to Optimize MIP " << endl;
+            throw(-1);
+        }
+        return 1;
+    }
+    catch (...)
+    {
+        cout << "Exception caught ... " << endl;
+        return -1;
+    }
+}
+

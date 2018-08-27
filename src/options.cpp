@@ -24,26 +24,27 @@
     -t type:
     1 -> orLibrary
     2 -> Avella
-    3 -> SS-orLibrary
-    4 -> Robust orLibrary
 
-    -v version (1 -> Single-source; 2 -> Multi-source)
-
+    -v version:
+    1 -> Single-source
+    2 -> Multi-source
+    3 -> Ellipsoidal
+    4 -> Polyhedral
 */
 
 #include <iostream>
 #include <cstdlib>
 /**********************************************************/
 #define   _TIMELIMITdef  3600   //!< default wall-clock time limit
-#define   _VERSIONdef    1     //!< single source by default
+#define   _VERSIONdef    1      //!< single source by default
 /**********************************************************/
 
 using namespace std;
 
 extern char* _FILENAME; 	//!< name of the instance file
 extern int timeLimit;		//!< wall-clock time limit
-extern int fType;           //!< instance type (1-4)
-extern int version;         //!< 1-SS; 2-MS
+extern int fType;           //!< instance type (1-2)
+extern int version;         //!< 1-SS; 2-MS; 3-Ellipsoidal; 4-Polyhedral
 extern string instanceType;
 extern string versionType;
 
@@ -61,7 +62,6 @@ int parseOptions(int argc, char* argv[])
       cout << "No options specified. Try -h " << endl;
       return -1;
    }  
-  
  
    int i = 0;
    while (++i < argc)
