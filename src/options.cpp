@@ -45,8 +45,10 @@ extern char* _FILENAME; 	//!< name of the instance file
 extern int timeLimit;		//!< wall-clock time limit
 extern int fType;           //!< instance type (1-2)
 extern int version;         //!< 1-SS; 2-MS; 3-Ellipsoidal; 4-Polyhedral
+extern int support;         //!< 1-Box; 2-Budget
 extern string instanceType;
 extern string versionType;
+extern string supportType;
 
 
 /// Parse command line options
@@ -95,12 +97,17 @@ int parseOptions(int argc, char* argv[])
 	       version = atol(argv[i+1]);
 	       i++;
 	       break;
+	    case 'u':
+	       support = atol(argv[i+1]);
+	       i++;
+	       break;
 	    case 'h':
 	       cout << "OPTIONS :: " << endl;
 	       cout << "-i : problem instance file" << endl;
 	       cout << "-l : time limit (real)" << endl;
 	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP; 4- Poly)" << endl;
 	       cout << "-t : instance type (1-OR Library; 2-Avella)" << endl;
+	       cout << "-u : support type (1-Box; 2-Budget)" << endl;
 	       cout << endl;
 	       return -1;
 	 }
@@ -124,6 +131,11 @@ int parseOptions(int argc, char* argv[])
             versionType = "Multi-source-Ellipsoidal";
         else if (version == 4)
             versionType = "Polyhedral Uncertainty (Wd <= h)";
+
+        if (support == 1)
+            supportType = "Box Uncertainty Set";
+        else if (support == 2)
+            supportType = "Budget Uncertainty Set";
 
         return 0;
    }

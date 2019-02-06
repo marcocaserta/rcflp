@@ -8,17 +8,24 @@ using namespace std;
 struct INSTANCE {
     int nF;
     int nC;
-    int nR;
     double  *f;
     double  *s;
     double  *d;
     double **c;
     double   totS;
     double   totD;
+
+    int nR;        // number of constraints polyhedron uncertainty set
+    double  *h;    // rhs of polyhedron definining support
+    int     *W;    // matrix W in column major format
+    int *index;    // index of column major format for w
+    int *start;    // starting position for elements of column j
 };
 
 extern string instanceType;
 extern string versionType;
+extern string supportType;
+
 
 /// Read benchmark instances
 /**
@@ -66,6 +73,7 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
                 fReader >> inp.c[i][j];
                 inp.c[i][j] /= inp.d[j];
             }
+
     }
     // read Avella instances
     else if (fType == 2)
@@ -103,7 +111,7 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 }
 
 /// Print instance info and algorithmic parameters.
-void printOptions(char * _FILENAME, int fType, int version, INSTANCE inp, int timeLimit)
+void printOptions(char * _FILENAME, INSTANCE inp, int timeLimit)
 {
    cout << "-------------------------------------" << endl;
    cout << "- OPTIONS : " << endl;
@@ -111,6 +119,7 @@ void printOptions(char * _FILENAME, int fType, int version, INSTANCE inp, int ti
    cout << "  DATA FILE      = " << _FILENAME        << endl;
    cout << "  Instance type  = " << instanceType << endl;
    cout << "  Version        = " << versionType << endl;
+   cout << "  Support        = " << supportType << endl;
    cout << "  Time Limit     = " << timeLimit << endl;
    cout << "  Nr. Facilities = " << inp.nF << endl;
    cout << "  Nr. Customers  = " << inp.nC << endl;
