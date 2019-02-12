@@ -174,6 +174,8 @@ struct SOLUTION {
     double **xSol;
     double zStar;
     IloAlgorithm::Status zStatus;
+    IloNum startTime;
+    IloNum cpuTime;
 };
 SOLUTION opt; //!< Solution data structure
 
@@ -220,6 +222,7 @@ void read_instance_from_disk(double & epsilon, double & delta, double & gamma,
 /************************ main program ******************************/
 int main(int argc, char *argv[])
 {
+
     int err = parseOptions(argc, argv);
     if (err != 0) exit(1);
 
@@ -247,6 +250,7 @@ int main(int argc, char *argv[])
 
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
+    opt.startTime = cplex.getTime();
     getCplexSol(inp, cplex, opt);
     printSolution(_FILENAME, inp, opt, true, 1);
 
@@ -261,6 +265,8 @@ int main(int argc, char *argv[])
 /// Get and store cplex solution in data structure opt
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 {
+    opt.cpuTime = cplex.getTime()-opt.startTime;
+
     opt.ySol = new int[inp.nF];
     opt.xSol = new double*[inp.nF];
     for (int i = 0; i < inp.nF; i++)
@@ -286,15 +292,16 @@ void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk,
 int fullOutput)
 {
     cout << endl << "** SOLUTION **" << endl;
-    cout << " ..z*     = " << setprecision(15) << opt.zStar << endl;
-    cout << " ..status = " << opt.zStatus << endl;
+    cout << " ..z*     \t= " << setprecision(15) << opt.zStar << endl;
+    cout << " ..time   \t= " << opt.cpuTime << endl;
+    cout << " ..status \t= " << opt.zStatus << endl;
 
     {
         ofstream fWriter("solution.txt", ios::out);
         fWriter << _FILENAME << "\t" << instanceType << "\t"
                 << versionType << "\t" << supportType << "\t" 
                 << setprecision(15) << opt.zStar << "\t" 
-                << opt.zStatus << endl;
+                << opt.zStatus << "\t" << opt.cpuTime << endl;
         fWriter.close();
     }
 

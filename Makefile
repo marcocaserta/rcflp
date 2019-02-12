@@ -23,7 +23,7 @@ CONCERTINCDIR = $(CONCERTDIR)/include
 CPLEXINCDIR   = $(CPLEXDIR)/include
 
 # BE CAREFULL: All warnings have been disables!!!!
-CCOPT     = -m64 -O -w -fPIC -fexceptions  -DIL_STD ## -DOPTIMAL -DNDEBUG
+CCOPT     = -std=c++11 -std=gnu++11 -m64 -O -w -fPIC -fexceptions  -DIL_STD ## -DOPTIMAL -DNDEBUG
 CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -pthread 
 CCFLAGS   = $(CCOPT) -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) 
 
