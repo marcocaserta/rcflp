@@ -1,0 +1,886 @@
+\section{src/rcflp.cpp File Reference}
+\label{rcflp_8cpp}\index{src/rcflp.\+cpp@{src/rcflp.\+cpp}}
+
+
+General Implementation of the compact formulations for the (R)-\/\+C\+F\+LP.  
+
+
+{\ttfamily \#include $<$ilcplex/ilocplex.\+h$>$}\newline
+{\ttfamily \#include $<$limits$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$iomanip$>$}\newline
+{\ttfamily \#include $<$cstdlib$>$}\newline
+{\ttfamily \#include $<$ctime$>$}\newline
+{\ttfamily \#include $<$fstream$>$}\newline
+{\ttfamily \#include $<$cstring$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$cmath$>$}\newline
+{\ttfamily \#include $<$climits$>$}\newline
+{\ttfamily \#include $<$cfloat$>$}\newline
+{\ttfamily \#include $<$cassert$>$}\newline
+{\ttfamily \#include $<$random$>$}\newline
+{\ttfamily \#include $<$algorithm$>$}\newline
+{\ttfamily \#include \char`\"{}options.\+h\char`\"{}}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \textbf{ I\+N\+S\+T\+A\+N\+CE}
+\begin{DoxyCompactList}\small\item\em Structure used to define the instance data. \end{DoxyCompactList}\item 
+struct \textbf{ S\+O\+L\+U\+T\+I\+ON}
+\begin{DoxyCompactList}\small\item\em Optimal solution and obj function value. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef std\+::vector$<$ int $>$ \textbf{ My\+Vect}
+\item 
+typedef Ilo\+Array$<$ Ilo\+Num\+Var\+Array $>$ \textbf{ TwoD}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+mt19937\+\_\+64 \textbf{ gen} (\textbf{ seed})
+\begin{DoxyCompactList}\small\item\em 64-\/bit Mersenne Twister by Matsumoto and Nishimura, 2000 \end{DoxyCompactList}\item 
+Ilo\+Model \textbf{ model} (\textbf{ env}, \char`\"{}cflp\char`\"{})
+\item 
+Ilo\+Cplex \textbf{ cplex} (\textbf{ model})
+\item 
+int \textbf{ read\+Problem\+Data} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, int \textbf{ f\+Type}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp})
+\begin{DoxyCompactList}\small\item\em Read benchmark instances. \end{DoxyCompactList}\item 
+void \textbf{ print\+Options} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ time\+Limit})
+\begin{DoxyCompactList}\small\item\em Print instance info and algorithmic parameters. \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+\+M\+S\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex})
+\begin{DoxyCompactList}\small\item\em Define the Multi-\/source Capacitated Facility Location Model [Nominal]. \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+\+S\+S\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex})
+\begin{DoxyCompactList}\small\item\em Define the Single-\/source Capacitated Facility Location Model [Nominal]. \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex})
+\begin{DoxyCompactList}\small\item\em Define the Multi-\/source Capacitated Facility Location Model [Ellipsoidal]. \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex}, int \textbf{ support})
+\begin{DoxyCompactList}\small\item\em Define robust model based on polyhedral uncertainty set. \end{DoxyCompactList}\item 
+int \textbf{ solve\+Cplex\+Problem} (Ilo\+Model \textbf{ model}, Ilo\+Cplex \textbf{ cplex}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ sol\+Limit}, int \textbf{ time\+Limit}, int \textbf{ display\+Limit})
+\begin{DoxyCompactList}\small\item\em Set cplex parameters and solve the optimization problem. \end{DoxyCompactList}\item 
+void \textbf{ get\+Cplex\+Sol} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, Ilo\+Cplex \textbf{ cplex}, \textbf{ S\+O\+L\+U\+T\+I\+ON} \&\textbf{ opt})
+\begin{DoxyCompactList}\small\item\em E\+ND main program. \end{DoxyCompactList}\item 
+void \textbf{ print\+Solution} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, \textbf{ S\+O\+L\+U\+T\+I\+ON} \textbf{ opt}, bool to\+Disk, int full\+Output)
+\begin{DoxyCompactList}\small\item\em Print solution to screen (and disk, if required) \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+parameters\+\_\+box} (double \&delta)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the Box support. \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+parameters\+\_\+ellipsoidal} (double \&epsilon, double \&Omega)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the ellipsoidal uncertainty set. \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+parameters\+\_\+budget} (double \&epsilon, double \&delta, double \&gamma, int \&L)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the budget support. \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+box\+\_\+support} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp})
+\begin{DoxyCompactList}\small\item\em Define $W$ and $\mathbf{h}$, given the value of {\ttfamily epsilon}. \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+budget\+\_\+support} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp}, bool from\+Disk)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the Budget support. \end{DoxyCompactList}\item 
+void \textbf{ save\+\_\+instance\+\_\+2\+\_\+disk} (double epsilon, double delta, double gamma, int L, int n\+Bl, int $\ast$$\ast$Bl, double $\ast$budget)
+\begin{DoxyCompactList}\small\item\em Save Budget Uncertainty Set Info on disk. \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+instance\+\_\+from\+\_\+disk} (double \&epsilon, double \&delta, double \&gamma, int \&L, int \&n\+Bl, int $\ast$$\ast$Bl, double $\ast$budget)
+\begin{DoxyCompactList}\small\item\em Read a robust instance based on budget uncertainty set. \end{DoxyCompactList}\item 
+int \textbf{ main} (int argc, char $\ast$argv[$\,$])
+\begin{DoxyCompactList}\small\item\em main program \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+double \textbf{ I\+N\+F\+TY} = std\+::numeric\+\_\+limits$<$double$>$\+::infinity()
+\item 
+const long \textbf{ \+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM} = 2147483647
+\item 
+const double \textbf{ Z\+E\+RO} = 0.\+0e0
+\item 
+const double \textbf{ E\+P\+SI} = 0.\+00001
+\item 
+const int \textbf{ seed} = 27
+\begin{DoxyCompactList}\small\item\em Initialization of Random Number Generator. \end{DoxyCompactList}\item 
+char $\ast$ \textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}
+\begin{DoxyCompactList}\small\item\em Instance name file. \end{DoxyCompactList}\item 
+int \textbf{ f\+Type}
+\begin{DoxyCompactList}\small\item\em instance type (1-\/4) \end{DoxyCompactList}\item 
+int \textbf{ version}
+\begin{DoxyCompactList}\small\item\em 1-\/\+SS; 2-\/\+MS; 3-\/\+S\+O\+CP \end{DoxyCompactList}\item 
+int \textbf{ support}
+\begin{DoxyCompactList}\small\item\em 1-\/\+Box; 2-\/\+Budget \end{DoxyCompactList}\item 
+string \textbf{ instance\+Type}
+\item 
+string \textbf{ version\+Type}
+\item 
+string \textbf{ support\+Type}
+\item 
+\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}
+\begin{DoxyCompactList}\small\item\em Instance data. \end{DoxyCompactList}\item 
+\textbf{ S\+O\+L\+U\+T\+I\+ON} \textbf{ opt}
+\begin{DoxyCompactList}\small\item\em Solution data structure. \end{DoxyCompactList}\item 
+Ilo\+Env \textbf{ env}
+\item 
+\textbf{ TwoD} \textbf{ x\+\_\+ilo}
+\item 
+Ilo\+Num\+Var\+Array \textbf{ y\+\_\+ilo}
+\item 
+Ilo\+Num\+Var\+Array \textbf{ q\+\_\+ilo}
+\item 
+Ilo\+Num\+Var \textbf{ w\+\_\+ilo}
+\item 
+\textbf{ TwoD} \textbf{ psi\+\_\+ilo}
+\item 
+Ilo\+Num\+Var\+Array \textbf{ u\+\_\+ilo}
+\item 
+Ilo\+Num\+Var\+Array \textbf{ delta\+\_\+ilo}
+\item 
+int \textbf{ sol\+Limit} = 9999
+\item 
+int \textbf{ display\+Limit} = 4
+\item 
+int \textbf{ time\+Limit}
+\begin{DoxyCompactList}\small\item\em wall-\/clock time limit \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+General Implementation of the compact formulations for the (R)-\/\+C\+F\+LP. 
+
+\paragraph*{Different Versions of the C\+F\+LP}
+
+We define here the following variants of the C\+F\+LP. For a full description of the different variants, along with other parameters, see \doxyref{options.\+cpp}{p.}{options_8cpp}.
+
+Current versions of the C\+F\+LP implemented here are (controlled via the command line flag {\bfseries -\/v})\+:
+\begin{DoxyItemize}
+\item Single Source Nominal\+: see \doxyref{define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P()}{p.}{rcflp_8cpp_af1312cb9aebcde45191f782a656540dd}
+\item Multi Source Nominal\+: see \doxyref{define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P()}{p.}{rcflp_8cpp_a631455a8ea43ae2c3bcbf99e1231751f}
+\item Ellipsoidal Support Set (multi-\/source only?)\+: see \doxyref{define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P()}{p.}{rcflp_8cpp_a7b67eb1f594b9c8024b1d8999be92ec6}
+\item Polyhedra Support Set (both single and multi-\/source)\+: see \doxyref{define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P()}{p.}{rcflp_8cpp_a638af0fd0ef79ab389271c4b6767bfe4}
+\end{DoxyItemize}
+
+\paragraph*{Instance Types}
+
+In addition, we need to define the type of instance used. We are currently working with the following instances (controlled via the command line flag {\bfseries -\/t})\+:
+\begin{DoxyItemize}
+\item 1 \+: OR Library instances
+\item 2 \+: Avella instances (Type 1, Type A, Type B)
+\end{DoxyItemize}
+
+{\bfseries Note}\+: These instances define the costs in different ways and, therefore the way in which the $x_{ij}$ variables are defined changes. More precisely\+:
+\begin{DoxyItemize}
+\item For the OR Library instances, the $c_{ij}$ values are the cost of delivering the {\bfseries entire demand} to the customer. Thus, we define $x_{ij}$ as fractional and multiply $c_{ij}\times x_{ij}$ to get the real cost.
+\item For the Avella instances, $c_{ij}$ is the cost of transporting {\bfseries one unit}. Thus, $x_{ij}$ is no longer the fraction of demand, but the actual number of units transported.
+\end{DoxyItemize}
+
+Obviously, this different treatment of the $x_{ij}$ variables has an effect on the definition of the demand and capacity constraints as well. Therefore, to make the treatment of the two types of instances uniform, the cost $c_{ij}$ of the OR Library is divided by the total demand\+: \[ c_{ij} = \frac{c_{ij}}{d_j} \]
+
+To summarize, after the transformation, for both instance types (OR Library and Avella), we have\+:
+\begin{DoxyItemize}
+\item $x_{ij} \in [0,1]$ \+: percentage of demand
+\item $c_{ij}$ \+: cost of delivering one unit of demand
+\item $d_j$ \+: total demand of customer $j$
+\end{DoxyItemize}
+
+This allows to define the demand constraint as\+: \[ \sum_{i=1}^m x_{ij} = 1 \] and the capacity constraint as\+: \[ \sum_{j=1}^m d_j x_{ij} \leq s_iy_i \] Finally, the transportation cost is computed as\+: \[ \sum_{i=1}^m \sum_{j=1}^n d_jx_{ij}c_{ij} \]
+
+\paragraph*{M\+IP Solver}
+
+We use cplex to solve the different programs. See the makefile to determine how to link the library to the code. 
+
+\subsection{Typedef Documentation}
+\mbox{\label{rcflp_8cpp_ad0c1733d50c08fefe0eefe81a462746b}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!My\+Vect@{My\+Vect}}
+\index{My\+Vect@{My\+Vect}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{My\+Vect}
+{\footnotesize\ttfamily typedef std\+::vector$<$int$>$ \textbf{ My\+Vect}}
+
+\mbox{\label{rcflp_8cpp_a8a1c5ce8d147cbfcc7ed6725c0ad0428}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!TwoD@{TwoD}}
+\index{TwoD@{TwoD}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{TwoD}
+{\footnotesize\ttfamily typedef Ilo\+Array$<$Ilo\+Num\+Var\+Array$>$ \textbf{ TwoD}}
+
+
+
+\subsection{Function Documentation}
+\mbox{\label{rcflp_8cpp_a4e8693851c7ef55d3e64ffaad41cc125}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!cplex@{cplex}}
+\index{cplex@{cplex}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{cplex()}
+{\footnotesize\ttfamily Ilo\+Cplex cplex (\begin{DoxyParamCaption}\item[{\textbf{ model}}]{ }\end{DoxyParamCaption})}
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_adc4fe02646b5d1a012d8c2ae63cf4f62}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+box\+\_\+support@{define\+\_\+box\+\_\+support}}
+\index{define\+\_\+box\+\_\+support@{define\+\_\+box\+\_\+support}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{define\+\_\+box\+\_\+support()}
+{\footnotesize\ttfamily void define\+\_\+box\+\_\+support (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE} \&}]{inp }\end{DoxyParamCaption})}
+
+
+
+Define $W$ and $\mathbf{h}$, given the value of {\ttfamily epsilon}. 
+
+We need to define $W\mathbf{d} \leq \mathbf{h}$, where\+:
+\begin{DoxyItemize}
+\item $W$ is of size [r x n]
+\item $\mathbf{h}$ is of size [r x 1] where\+:
+\item $r = 2n$ (two elements for each column $j$)
+\item $n =$ number of customers
+\end{DoxyItemize}
+
+Since matrix $W$ is sparse, we use a column major format as follows. Consider the toy problem, for which matrix $W$ and vector $\mathbf{h}$ are\+: \[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} =\left[ \begin{array}{r} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \end{array}\right] \]
+
+Vector h is kept as is it, while matrix W uses a column major format\+:
+
+\begin{quote}
+W = [-\/1 1 -\/1 1 -\/1 1] \end{quote}
+
+
+\begin{quote}
+start = [0 2 4 6] \end{quote}
+
+
+\begin{quote}
+index = [0 3 1 4 2 5] \end{quote}
+
+
+where elements of column {\ttfamily j} in {\ttfamily W} and {\ttfamily index} are found in positions going from {\ttfamily start}[j] to {\ttfamily start}[j+1] (note that vector {\ttfamily start} contains a final extra element to close the cycle). Thus, e.\+g., the elements of the second column of {\ttfamily W (j = 1)} are obtained as\+: 
+\begin{DoxyCode}
+\textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} l = start[j]; l < start[j+1]; l++)
+     W[l] is the element in row index[l] of the matrix
+\end{DoxyCode}
+ 
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::d, I\+N\+S\+T\+A\+N\+C\+E\+::h, I\+N\+S\+T\+A\+N\+C\+E\+::index, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nR, read\+\_\+parameters\+\_\+box(), I\+N\+S\+T\+A\+N\+C\+E\+::start, and I\+N\+S\+T\+A\+N\+C\+E\+::W.
+
+
+
+Referenced by define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_a9f4b77051bfce7da6ff6e224587980b7}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+budget\+\_\+support@{define\+\_\+budget\+\_\+support}}
+\index{define\+\_\+budget\+\_\+support@{define\+\_\+budget\+\_\+support}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{define\+\_\+budget\+\_\+support()}
+{\footnotesize\ttfamily void define\+\_\+budget\+\_\+support (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE} \&}]{inp,  }\item[{bool}]{from\+Disk }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the Budget support. 
+
+We allow for two options here\+:
+\begin{DoxyItemize}
+\item {\bfseries case 1}\+: Create the budget support from the nominal values of the instance. In this case, we read the parameters from the disk file (see below) and we generate the polyhedron. This is a stochastic process, since the set of columns included in each budget constrain is randomly generated. Therefore, to ensure reproducibility, we save these values in a disk file, within the folder \char`\"{}support.\char`\"{}
+\item {\bfseries case 2}\+: Read the budget support from the disk. This allows to reproduce the results of an instance, by recreating the same budget support set.
+\end{DoxyItemize}
+
+The file {\ttfamily params\+Budget.\+txt} has the following format\+:
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, as above
+\item second row\+: {\ttfamily delta}, i.\+e., how the $b_l$ value (the r.\+h.\+s. value of each budget constraint) is defined. We define $b_l$ as a percentage of the total demand of customers included in the budget constraint, i.\+e.\+: \[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
+\item third row \+: {\ttfamily gamma}, i.\+e., percentage of columns included in each budget constraint\+: \[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\item forth row \+: $L \geq 1$, i.\+e., number of budget constraints.
+\end{DoxyItemize}
+
+The structure of $W$ and $\mathbf{h}$ and the column-\/major format used is simular to the one employed in \doxyref{define\+\_\+box\+\_\+support()}{p.}{rcflp_8cpp_adc4fe02646b5d1a012d8c2ae63cf4f62}. The first $2n$ rows of $W$ are identical to the box support. Next, we define $L$ extra rows, to include the budget constraints. Consider budget constraint $l$, associated to set $B_l$. This row is defined as follows\+: \[ w_{lj} = \left\{ \begin{array}{ll} 1, & j \in B_l \\ 0, & \mbox{otherwise} \end{array} \right. \] For example, if we want to add the following budget constraint (following the example from the paper)\+: \[ d_1 + d_2 + d_3 \leq 4 \] where we have $L=1$, $B_l =\left\{1,2,3\right\}$, we obtain\+: \[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} =\left[ \begin{array}{r} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \\ 4 \\ \end{array}\right] \]
+
+Consequently, in terms of column-\/major format, we get\+:
+
+\begin{quote}
+W = [-\/1 1 1 -\/1 1 1 -\/1 1 1] \end{quote}
+
+
+\begin{quote}
+start = [0 3 6 9] \end{quote}
+
+
+\begin{quote}
+index = [0 3 6 1 4 6 2 5 6]\end{quote}
+
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::d, gen(), I\+N\+S\+T\+A\+N\+C\+E\+::h, I\+N\+S\+T\+A\+N\+C\+E\+::index, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nR, read\+\_\+instance\+\_\+from\+\_\+disk(), read\+\_\+parameters\+\_\+budget(), save\+\_\+instance\+\_\+2\+\_\+disk(), I\+N\+S\+T\+A\+N\+C\+E\+::start, and I\+N\+S\+T\+A\+N\+C\+E\+::W.
+
+
+
+Referenced by define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_a631455a8ea43ae2c3bcbf99e1231751f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+\+M\+S\+\_\+\+C\+F\+LP@{define\+\_\+\+M\+S\+\_\+\+C\+F\+LP}}
+\index{define\+\_\+\+M\+S\+\_\+\+C\+F\+LP@{define\+\_\+\+M\+S\+\_\+\+C\+F\+LP}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P()}
+{\footnotesize\ttfamily void define\+\_\+\+M\+S\+\_\+\+C\+F\+LP (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{f\+Type,  }\item[{Ilo\+Model \&}]{model,  }\item[{Ilo\+Cplex \&}]{cplex }\end{DoxyParamCaption})}
+
+
+
+Define the Multi-\/source Capacitated Facility Location Model [Nominal]. 
+
+
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::c, I\+N\+S\+T\+A\+N\+C\+E\+::d, env, I\+N\+S\+T\+A\+N\+C\+E\+::f, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, I\+N\+S\+T\+A\+N\+C\+E\+::s, x\+\_\+ilo, and y\+\_\+ilo.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a638af0fd0ef79ab389271c4b6767bfe4}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP@{define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP}}
+\index{define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP@{define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P()}
+{\footnotesize\ttfamily void define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{f\+Type,  }\item[{Ilo\+Model \&}]{model,  }\item[{Ilo\+Cplex \&}]{cplex,  }\item[{int}]{support }\end{DoxyParamCaption})}
+
+
+
+Define robust model based on polyhedral uncertainty set. 
+
+We implement here both the S\+I\+N\+G\+LE S\+O\+U\+R\+CE and the M\+U\+L\+TI S\+O\+U\+R\+CE versions. Just change the way in which the allocation variables {\ttfamily x\+\_\+ilo} are defined, to switch between the SS and the MS versions. The notation here follows the one presented in the paper.
+
+Each support type is build from the nominal instance. That is, we read the instance from disk, we read a few parameters (depending on the support type) and we then build the support set around the nominal values provided by the instance.
+
+The polyhedral uncertainty set is defined in the form\+: \[ W\mathbf{d} \leq \mathbf{h} \] Therefore, before we can solve the corresponding model, we need to define the structure of $W$ and $\mathbf{h}$\+:
+
+
+\begin{DoxyItemize}
+\item $W$ is of size $r \times n$, where $r$ is the number of budget constraints we want to define;
+\item $\mathbf{h}$ is of size $r \times 1$.
+\end{DoxyItemize}
+
+The support set is defined in a different function, depending on the type of support we want to define (box, budget, etc.) The functions {\ttfamily define\+\_\+type\+\_\+support()} is used to create $W$ and $\mathbf{h}$. Each support type requires a set of parameters. These parameters are read from disk and are stored in a file saved in the folder \char`\"{}parameters\char`\"{}. The file name is of type {\ttfamily params\+Support\+Type.\+txt}. Each file contains comments w.\+r.\+t. how to interpret the parameters. However, the interpretation is as follows\+:
+
+
+\begin{DoxyItemize}
+\item File \+: {\ttfamily params\+Box.\+txt}
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, i.\+e., the parameter used to define the with of the box. Given a nominal demand value $d_j$, we define the interval around $d_j$ as\+: \[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \]
+\end{DoxyItemize}
+\item File \+: {\ttfamily params\+Budget.\+txt}
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, as above
+\item second row\+: {\ttfamily delta}, i.\+e., how the $b_l$ value (the r.\+h.\+s. value of each budget constraint) is defined. We define $b_l$ as a percentage of the total demand of customers included in the budget constraint, i.\+e.\+: \[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
+\item third row \+: {\ttfamily gamma}, i.\+e., percentage of columns included in each budget constraint\+: \[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\item forth row \+: $L \geq 1$, i.\+e., number of budget constraints.
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+To define which columns are included in each budget constraint, we first compute the cardinality of each set $B_l$ (using {\ttfamily gamma}); next, we randomly select $\gamma \times n$ columns from the set $N = \left\{0, ..., n-1\right\}$.
+
+{\bfseries Note}\+: Sets $B_l$, with $l = 1, ..., L$, are N\+OT disjoint, i.\+e., the same customer j can appear in more than one budget constraint.
+
+To test it, use the toy problem, whose instance values are defined in the file \textquotesingle{}data/toy.\+txt\textquotesingle{}. These values are the one reported in the paper, under the example section. Changing the value of the parametes above, we can transform a robust problem into a nomimal one (e.\+g., setting $\epsilon = 0$ in box support.) 
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::c, define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), delta\+\_\+ilo, env, I\+N\+S\+T\+A\+N\+C\+E\+::f, I\+N\+S\+T\+A\+N\+C\+E\+::h, I\+N\+S\+T\+A\+N\+C\+E\+::index, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, I\+N\+S\+T\+A\+N\+C\+E\+::nR, psi\+\_\+ilo, I\+N\+S\+T\+A\+N\+C\+E\+::s, I\+N\+S\+T\+A\+N\+C\+E\+::start, u\+\_\+ilo, I\+N\+S\+T\+A\+N\+C\+E\+::W, x\+\_\+ilo, and y\+\_\+ilo.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a7b67eb1f594b9c8024b1d8999be92ec6}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP@{define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP}}
+\index{define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP@{define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P()}
+{\footnotesize\ttfamily void define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{f\+Type,  }\item[{Ilo\+Model \&}]{model,  }\item[{Ilo\+Cplex \&}]{cplex }\end{DoxyParamCaption})}
+
+
+
+Define the Multi-\/source Capacitated Facility Location Model [Ellipsoidal]. 
+
+
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::c, I\+N\+S\+T\+A\+N\+C\+E\+::d, env, I\+N\+S\+T\+A\+N\+C\+E\+::f, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, q\+\_\+ilo, read\+\_\+parameters\+\_\+ellipsoidal(), I\+N\+S\+T\+A\+N\+C\+E\+::s, w\+\_\+ilo, x\+\_\+ilo, and y\+\_\+ilo.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_af1312cb9aebcde45191f782a656540dd}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+\+S\+S\+\_\+\+C\+F\+LP@{define\+\_\+\+S\+S\+\_\+\+C\+F\+LP}}
+\index{define\+\_\+\+S\+S\+\_\+\+C\+F\+LP@{define\+\_\+\+S\+S\+\_\+\+C\+F\+LP}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P()}
+{\footnotesize\ttfamily void define\+\_\+\+S\+S\+\_\+\+C\+F\+LP (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{f\+Type,  }\item[{Ilo\+Model \&}]{model,  }\item[{Ilo\+Cplex \&}]{cplex }\end{DoxyParamCaption})}
+
+
+
+Define the Single-\/source Capacitated Facility Location Model [Nominal]. 
+
+
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::c, I\+N\+S\+T\+A\+N\+C\+E\+::d, env, I\+N\+S\+T\+A\+N\+C\+E\+::f, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, I\+N\+S\+T\+A\+N\+C\+E\+::s, x\+\_\+ilo, and y\+\_\+ilo.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a99d2151501c165980815bd666ce1f5a4}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!gen@{gen}}
+\index{gen@{gen}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{gen()}
+{\footnotesize\ttfamily mt19937\+\_\+64 gen (\begin{DoxyParamCaption}\item[{\textbf{ seed}}]{ }\end{DoxyParamCaption})}
+
+
+
+64-\/bit Mersenne Twister by Matsumoto and Nishimura, 2000 
+
+
+
+Referenced by define\+\_\+budget\+\_\+support().
+
+\mbox{\label{rcflp_8cpp_a85ed16cba2763a88cef0783d87a35151}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!get\+Cplex\+Sol@{get\+Cplex\+Sol}}
+\index{get\+Cplex\+Sol@{get\+Cplex\+Sol}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{get\+Cplex\+Sol()}
+{\footnotesize\ttfamily void get\+Cplex\+Sol (\begin{DoxyParamCaption}\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{Ilo\+Cplex}]{cplex,  }\item[{\textbf{ S\+O\+L\+U\+T\+I\+ON} \&}]{opt }\end{DoxyParamCaption})}
+
+
+
+E\+ND main program. 
+
+Get and store cplex solution in data structure opt 
+
+References E\+P\+SI, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, x\+\_\+ilo, S\+O\+L\+U\+T\+I\+O\+N\+::x\+Sol, y\+\_\+ilo, S\+O\+L\+U\+T\+I\+O\+N\+::y\+Sol, S\+O\+L\+U\+T\+I\+O\+N\+::z\+Star, and S\+O\+L\+U\+T\+I\+O\+N\+::z\+Status.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a0ddf1224851353fc92bfbff6f499fa97}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!main@{main}}
+\index{main@{main}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{main()}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv[$\,$] }\end{DoxyParamCaption})}
+
+
+
+main program 
+
+
+
+References \+\_\+\+F\+I\+L\+E\+N\+A\+ME, cplex(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), display\+Limit, env, f\+Type, get\+Cplex\+Sol(), model(), parse\+Options(), print\+Options(), print\+Solution(), read\+Problem\+Data(), sol\+Limit, solve\+Cplex\+Problem(), support, time\+Limit, and version.
+
+\mbox{\label{rcflp_8cpp_ad9843758d551832b033c55d7bcc64417}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!model@{model}}
+\index{model@{model}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{model()}
+{\footnotesize\ttfamily Ilo\+Model model (\begin{DoxyParamCaption}\item[{\textbf{ env}}]{,  }\item[{\char`\"{}cflp\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a98548654c51508f12f8dbdaf1d9574bf}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!print\+Options@{print\+Options}}
+\index{print\+Options@{print\+Options}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{print\+Options()}
+{\footnotesize\ttfamily void print\+Options (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{time\+Limit }\end{DoxyParamCaption})}
+
+
+
+Print instance info and algorithmic parameters. 
+
+
+
+References instance\+Type, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, support\+Type, and version\+Type.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a8377724103a533c563a5050137b1b467}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!print\+Solution@{print\+Solution}}
+\index{print\+Solution@{print\+Solution}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{print\+Solution()}
+{\footnotesize\ttfamily void print\+Solution (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{\textbf{ S\+O\+L\+U\+T\+I\+ON}}]{opt,  }\item[{bool}]{to\+Disk,  }\item[{int}]{full\+Output }\end{DoxyParamCaption})}
+
+
+
+Print solution to screen (and disk, if required) 
+
+
+
+References E\+P\+SI, instance\+Type, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, support\+Type, version\+Type, S\+O\+L\+U\+T\+I\+O\+N\+::x\+Sol, S\+O\+L\+U\+T\+I\+O\+N\+::y\+Sol, S\+O\+L\+U\+T\+I\+O\+N\+::z\+Star, and S\+O\+L\+U\+T\+I\+O\+N\+::z\+Status.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_ae557a2d951038f4519fc97ef5792fd09}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!read\+\_\+instance\+\_\+from\+\_\+disk@{read\+\_\+instance\+\_\+from\+\_\+disk}}
+\index{read\+\_\+instance\+\_\+from\+\_\+disk@{read\+\_\+instance\+\_\+from\+\_\+disk}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{read\+\_\+instance\+\_\+from\+\_\+disk()}
+{\footnotesize\ttfamily void read\+\_\+instance\+\_\+from\+\_\+disk (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{delta,  }\item[{double \&}]{gamma,  }\item[{int \&}]{L,  }\item[{int \&}]{n\+Bl,  }\item[{int $\ast$$\ast$}]{Bl,  }\item[{double $\ast$}]{budget }\end{DoxyParamCaption})}
+
+
+
+Read a robust instance based on budget uncertainty set. 
+
+This ensures reproducibility. We read the set $B_l$ and the budget values $b_l$. Thus, the robust instance can fully be reconstructed. 
+
+References \+\_\+\+F\+I\+L\+E\+N\+A\+ME.
+
+
+
+Referenced by define\+\_\+budget\+\_\+support().
+
+\mbox{\label{rcflp_8cpp_a20b602c3f502e6d6972db386bbf026c2}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!read\+\_\+parameters\+\_\+box@{read\+\_\+parameters\+\_\+box}}
+\index{read\+\_\+parameters\+\_\+box@{read\+\_\+parameters\+\_\+box}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{read\+\_\+parameters\+\_\+box()}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+box (\begin{DoxyParamCaption}\item[{double \&}]{epsilon }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the Box support. 
+
+The file \textquotesingle{}params\+Box.\+txt\textquotesingle{} has the following format\+:
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, i.\+e., the parameter used to define the with of the box. Given a nominal demand value $d_j$, we define the interval around $d_j$ as\+: \[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \] 
+\end{DoxyItemize}
+
+Referenced by define\+\_\+box\+\_\+support().
+
+\mbox{\label{rcflp_8cpp_a2f56c555090ec900ef22670c4fc774e0}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!read\+\_\+parameters\+\_\+budget@{read\+\_\+parameters\+\_\+budget}}
+\index{read\+\_\+parameters\+\_\+budget@{read\+\_\+parameters\+\_\+budget}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{read\+\_\+parameters\+\_\+budget()}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+budget (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{delta,  }\item[{double \&}]{gamma,  }\item[{int \&}]{L }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the budget support. 
+
+
+\begin{DoxyItemize}
+\item File \+: {\ttfamily params\+Budget.\+txt}
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, as above
+\item second row\+: {\ttfamily delta}, i.\+e., how the $b_l$ value (the r.\+h.\+s. value of each budget constraint) is defined. We define $b_l$ as a percentage of the total demand of customers included in the budget constraint, i.\+e.\+: \[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
+\item third row \+: {\ttfamily gamma}, i.\+e., percentage of columns included in each budget constraint\+: \[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\item forth row \+: $L \geq 1$, i.\+e., number of budget constraints. 
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+Referenced by define\+\_\+budget\+\_\+support().
+
+\mbox{\label{rcflp_8cpp_ad0cfc2a0a7960353ae10a37028cf97aa}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!read\+\_\+parameters\+\_\+ellipsoidal@{read\+\_\+parameters\+\_\+ellipsoidal}}
+\index{read\+\_\+parameters\+\_\+ellipsoidal@{read\+\_\+parameters\+\_\+ellipsoidal}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{read\+\_\+parameters\+\_\+ellipsoidal()}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+ellipsoidal (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{Omega }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the ellipsoidal uncertainty set. 
+
+We need to define two parameters\+:
+\begin{DoxyItemize}
+\item {\ttfamily Omega} \+: It determines the size of the ellipsoidal, i.\+e., the size of the uncertainty set.
+\item {\ttfamily epsilon}\+: It defines the variance of each variable $x_{ij}$. We assume that the covariance matrix is diagonal and with constant values $\epsilon$ for each element. 
+\end{DoxyItemize}
+
+Referenced by define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_a928c7901465e3f7fe726fe3b5757788e}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!read\+Problem\+Data@{read\+Problem\+Data}}
+\index{read\+Problem\+Data@{read\+Problem\+Data}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{read\+Problem\+Data()}
+{\footnotesize\ttfamily int read\+Problem\+Data (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{int}]{f\+Type,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE} \&}]{inp }\end{DoxyParamCaption})}
+
+
+
+Read benchmark instances. 
+
+Currently, two types of instances can be imported\+: type 1\+: OR Library type 2\+: Avella (Test Bed 1, Test Bed A. Test Bed B) 
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::c, I\+N\+S\+T\+A\+N\+C\+E\+::d, I\+N\+S\+T\+A\+N\+C\+E\+::f, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, I\+N\+S\+T\+A\+N\+C\+E\+::s, I\+N\+S\+T\+A\+N\+C\+E\+::totD, and I\+N\+S\+T\+A\+N\+C\+E\+::totS.
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_aa1ed199c88138cfce98475ba73f39a87}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!save\+\_\+instance\+\_\+2\+\_\+disk@{save\+\_\+instance\+\_\+2\+\_\+disk}}
+\index{save\+\_\+instance\+\_\+2\+\_\+disk@{save\+\_\+instance\+\_\+2\+\_\+disk}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{save\+\_\+instance\+\_\+2\+\_\+disk()}
+{\footnotesize\ttfamily void save\+\_\+instance\+\_\+2\+\_\+disk (\begin{DoxyParamCaption}\item[{double}]{epsilon,  }\item[{double}]{delta,  }\item[{double}]{gamma,  }\item[{int}]{L,  }\item[{int}]{n\+Bl,  }\item[{int $\ast$$\ast$}]{Bl,  }\item[{double $\ast$}]{budget }\end{DoxyParamCaption})}
+
+
+
+Save Budget Uncertainty Set Info on disk. 
+
+We save the parameters and the data needed to recreate the budget instance. This is done to ensure reproducibility of a robust instance. If we decide to save multiple versions of robust instances starting from the same nominal instances, we will have to come up with a different name coding. 
+
+References \+\_\+\+F\+I\+L\+E\+N\+A\+ME.
+
+
+
+Referenced by define\+\_\+budget\+\_\+support().
+
+\mbox{\label{rcflp_8cpp_a9d22b534f1cd60e564b9f39c311cfbbf}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!solve\+Cplex\+Problem@{solve\+Cplex\+Problem}}
+\index{solve\+Cplex\+Problem@{solve\+Cplex\+Problem}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{solve\+Cplex\+Problem()}
+{\footnotesize\ttfamily int solve\+Cplex\+Problem (\begin{DoxyParamCaption}\item[{Ilo\+Model}]{model,  }\item[{Ilo\+Cplex}]{cplex,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{sol\+Limit,  }\item[{int}]{time\+Limit,  }\item[{int}]{display\+Limit }\end{DoxyParamCaption})}
+
+
+
+Set cplex parameters and solve the optimization problem. 
+
+
+
+References env.
+
+
+
+Referenced by main().
+
+
+
+\subsection{Variable Documentation}
+\mbox{\label{rcflp_8cpp_ab602cefd46d5e616c87e034f4db68854}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!\+\_\+\+F\+I\+L\+E\+N\+A\+ME@{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}}
+\index{\+\_\+\+F\+I\+L\+E\+N\+A\+ME@{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}
+{\footnotesize\ttfamily char$\ast$ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}
+
+
+
+Instance name file. 
+
+name of the instance file 
+
+Referenced by main(), parse\+Options(), read\+\_\+instance\+\_\+from\+\_\+disk(), and save\+\_\+instance\+\_\+2\+\_\+disk().
+
+\mbox{\label{rcflp_8cpp_afb0434d2199db18bfeb33447df812cd7}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!\+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM@{\+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM}}
+\index{\+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM@{\+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{\+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM}
+{\footnotesize\ttfamily const long \+\_\+\+M\+A\+X\+R\+A\+N\+D\+OM = 2147483647}
+
+\mbox{\label{rcflp_8cpp_acb3ca99920ae4e8a3d60865054250bf3}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!delta\+\_\+ilo@{delta\+\_\+ilo}}
+\index{delta\+\_\+ilo@{delta\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{delta\+\_\+ilo}
+{\footnotesize\ttfamily Ilo\+Num\+Var\+Array delta\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_acd6c88b04bd6fcb2bf12202711e558b1}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!display\+Limit@{display\+Limit}}
+\index{display\+Limit@{display\+Limit}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{display\+Limit}
+{\footnotesize\ttfamily int display\+Limit = 4}
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_a3c66c7bd15d2c2b58dd4556b700e08e7}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!env@{env}}
+\index{env@{env}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{env}
+{\footnotesize\ttfamily Ilo\+Env env}
+
+
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), main(), and solve\+Cplex\+Problem().
+
+\mbox{\label{rcflp_8cpp_a105cffc337d03ec0d7e59ac45ab6a8f6}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!E\+P\+SI@{E\+P\+SI}}
+\index{E\+P\+SI@{E\+P\+SI}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{E\+P\+SI}
+{\footnotesize\ttfamily const double E\+P\+SI = 0.\+00001}
+
+
+
+Referenced by get\+Cplex\+Sol(), and print\+Solution().
+
+\mbox{\label{rcflp_8cpp_adf90957b4e032f69aba1e81ab396fa2f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!f\+Type@{f\+Type}}
+\index{f\+Type@{f\+Type}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{f\+Type}
+{\footnotesize\ttfamily int f\+Type}
+
+
+
+instance type (1-\/4) 
+
+instance type (1-\/2) 
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{rcflp_8cpp_a8740a38734c4fd909d484dca62e5fa8e}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!I\+N\+F\+TY@{I\+N\+F\+TY}}
+\index{I\+N\+F\+TY@{I\+N\+F\+TY}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{I\+N\+F\+TY}
+{\footnotesize\ttfamily double I\+N\+F\+TY = std\+::numeric\+\_\+limits$<$double$>$\+::infinity()}
+
+\mbox{\label{rcflp_8cpp_ad0784329db0725b04cf57dae3fd22fb7}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!inp@{inp}}
+\index{inp@{inp}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{inp}
+{\footnotesize\ttfamily \textbf{ I\+N\+S\+T\+A\+N\+CE} inp}
+
+
+
+Instance data. 
+
+\mbox{\label{rcflp_8cpp_a98f2e84701105ad45ed7158de7bfdfd0}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!instance\+Type@{instance\+Type}}
+\index{instance\+Type@{instance\+Type}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{instance\+Type}
+{\footnotesize\ttfamily string instance\+Type}
+
+
+
+Referenced by parse\+Options(), print\+Options(), and print\+Solution().
+
+\mbox{\label{rcflp_8cpp_a0eed01505a94fdc3a0e194b170ee363f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!opt@{opt}}
+\index{opt@{opt}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{opt}
+{\footnotesize\ttfamily \textbf{ S\+O\+L\+U\+T\+I\+ON} opt}
+
+
+
+Solution data structure. 
+
+\mbox{\label{rcflp_8cpp_a79228d82aba0dd1fc6a26b601fcf2835}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!psi\+\_\+ilo@{psi\+\_\+ilo}}
+\index{psi\+\_\+ilo@{psi\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{psi\+\_\+ilo}
+{\footnotesize\ttfamily \textbf{ TwoD} psi\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_a292d30a839579e7872c5f34aa1a6b0f2}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!q\+\_\+ilo@{q\+\_\+ilo}}
+\index{q\+\_\+ilo@{q\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{q\+\_\+ilo}
+{\footnotesize\ttfamily Ilo\+Num\+Var\+Array q\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_ab1633aa266a0a720540840343194b2cf}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!seed@{seed}}
+\index{seed@{seed}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{seed}
+{\footnotesize\ttfamily const int seed = 27}
+
+
+
+Initialization of Random Number Generator. 
+
+\mbox{\label{rcflp_8cpp_a84dac44f40477b7be9eefceb905f01f9}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!sol\+Limit@{sol\+Limit}}
+\index{sol\+Limit@{sol\+Limit}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{sol\+Limit}
+{\footnotesize\ttfamily int sol\+Limit = 9999}
+
+
+
+Referenced by main().
+
+\mbox{\label{rcflp_8cpp_ae8470b9dfef111e0d72a983ce72e4c9c}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!support@{support}}
+\index{support@{support}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{support}
+{\footnotesize\ttfamily int support}
+
+
+
+1-\/\+Box; 2-\/\+Budget 
+
+
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{rcflp_8cpp_a3853824cedf4d86c04beb83f79c09c92}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!support\+Type@{support\+Type}}
+\index{support\+Type@{support\+Type}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{support\+Type}
+{\footnotesize\ttfamily string support\+Type}
+
+
+
+Referenced by parse\+Options(), print\+Options(), and print\+Solution().
+
+\mbox{\label{rcflp_8cpp_a4c4841c2a2303b528024625ed83c3b4f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!time\+Limit@{time\+Limit}}
+\index{time\+Limit@{time\+Limit}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{time\+Limit}
+{\footnotesize\ttfamily int time\+Limit}
+
+
+
+wall-\/clock time limit 
+
+
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{rcflp_8cpp_ad49c86bb2fe978f06cc9b3ecb7f22ac1}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!u\+\_\+ilo@{u\+\_\+ilo}}
+\index{u\+\_\+ilo@{u\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{u\+\_\+ilo}
+{\footnotesize\ttfamily Ilo\+Num\+Var\+Array u\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_aad880fc4455c253781e8968f2239d56f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!version@{version}}
+\index{version@{version}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{version}
+{\footnotesize\ttfamily int version}
+
+
+
+1-\/\+SS; 2-\/\+MS; 3-\/\+S\+O\+CP 
+
+1-\/\+SS; 2-\/\+MS; 3-\/\+Ellipsoidal; 4-\/\+Polyhedral 
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{rcflp_8cpp_a5623197573ddafe3e66247fc9eda58ac}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!version\+Type@{version\+Type}}
+\index{version\+Type@{version\+Type}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{version\+Type}
+{\footnotesize\ttfamily string version\+Type}
+
+
+
+Referenced by parse\+Options(), print\+Options(), and print\+Solution().
+
+\mbox{\label{rcflp_8cpp_ae91103519a960db21cd6f17e46fde2c6}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!w\+\_\+ilo@{w\+\_\+ilo}}
+\index{w\+\_\+ilo@{w\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{w\+\_\+ilo}
+{\footnotesize\ttfamily Ilo\+Num\+Var w\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{rcflp_8cpp_a1c5356b9e49243e4703e211d0b3bd36f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!x\+\_\+ilo@{x\+\_\+ilo}}
+\index{x\+\_\+ilo@{x\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{x\+\_\+ilo}
+{\footnotesize\ttfamily \textbf{ TwoD} x\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and get\+Cplex\+Sol().
+
+\mbox{\label{rcflp_8cpp_a41fa06bf71dd865d3cc18182db8a8d42}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!y\+\_\+ilo@{y\+\_\+ilo}}
+\index{y\+\_\+ilo@{y\+\_\+ilo}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{y\+\_\+ilo}
+{\footnotesize\ttfamily Ilo\+Num\+Var\+Array y\+\_\+ilo}
+
+
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and get\+Cplex\+Sol().
+
+\mbox{\label{rcflp_8cpp_acbcd55b11cabe6b839efa09e97098c4f}} 
+\index{rcflp.\+cpp@{rcflp.\+cpp}!Z\+E\+RO@{Z\+E\+RO}}
+\index{Z\+E\+RO@{Z\+E\+RO}!rcflp.\+cpp@{rcflp.\+cpp}}
+\subsubsection{Z\+E\+RO}
+{\footnotesize\ttfamily const double Z\+E\+RO = 0.\+0e0}
+

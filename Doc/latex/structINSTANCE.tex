@@ -1,0 +1,230 @@
+\section{I\+N\+S\+T\+A\+N\+CE Struct Reference}
+\label{structINSTANCE}\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+
+
+Structure used to define the instance data.  
+
+
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \textbf{ nF}
+\begin{DoxyCompactList}\small\item\em See same data structure define in \doxyref{rcflp.\+cpp}{p.}{rcflp_8cpp}. \end{DoxyCompactList}\item 
+int \textbf{ nC}
+\begin{DoxyCompactList}\small\item\em Number of customers. \end{DoxyCompactList}\item 
+double $\ast$ \textbf{ f}
+\begin{DoxyCompactList}\small\item\em Fixed costs. \end{DoxyCompactList}\item 
+double $\ast$ \textbf{ s}
+\begin{DoxyCompactList}\small\item\em Capacity. \end{DoxyCompactList}\item 
+double $\ast$ \textbf{ d}
+\begin{DoxyCompactList}\small\item\em Demand. \end{DoxyCompactList}\item 
+double $\ast$$\ast$ \textbf{ c}
+\begin{DoxyCompactList}\small\item\em Allocation costs. \end{DoxyCompactList}\item 
+double \textbf{ totS}
+\begin{DoxyCompactList}\small\item\em Total supply. \end{DoxyCompactList}\item 
+double \textbf{ totD}
+\begin{DoxyCompactList}\small\item\em Total demand. \end{DoxyCompactList}\item 
+int \textbf{ nR}
+\begin{DoxyCompactList}\small\item\em Number of constraints polyhedron uncertainty set. \end{DoxyCompactList}\item 
+double $\ast$ \textbf{ h}
+\begin{DoxyCompactList}\small\item\em Rhs of polyhedron definining support. \end{DoxyCompactList}\item 
+int $\ast$ \textbf{ W}
+\begin{DoxyCompactList}\small\item\em Matrix W in column major format. \end{DoxyCompactList}\item 
+int $\ast$ \textbf{ index}
+\begin{DoxyCompactList}\small\item\em Index of column major format for w. \end{DoxyCompactList}\item 
+int $\ast$ \textbf{ start}
+\begin{DoxyCompactList}\small\item\em Starting position for elements of column j. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Structure used to define the instance data. 
+
+\subsection{Member Data Documentation}
+\mbox{\label{structINSTANCE_a5ee01578df081fd456d1de5b5dc9e408}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!c@{c}}
+\index{c@{c}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{c}
+{\footnotesize\ttfamily double $\ast$$\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::c}
+
+
+
+Allocation costs. 
+
+
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_a00874e63b46c70e0026936f1665d628a}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!d@{d}}
+\index{d@{d}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{d}
+{\footnotesize\ttfamily double $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::d}
+
+
+
+Demand. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_aa7de92540b6e7ae91b99d9e5496558f8}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!f@{f}}
+\index{f@{f}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{f}
+{\footnotesize\ttfamily double $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::f}
+
+
+
+Fixed costs. 
+
+
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_a2f7e162c34135519e7f8bdefb25f1ba1}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!h@{h}}
+\index{h@{h}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{h}
+{\footnotesize\ttfamily double $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::h}
+
+
+
+Rhs of polyhedron definining support. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{structINSTANCE_a93a64cd052f91a00e14b0e62e4a624a2}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!index@{index}}
+\index{index@{index}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{index}
+{\footnotesize\ttfamily int $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::index}
+
+
+
+Index of column major format for w. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{structINSTANCE_af6905f684cf4316a2b705bab350fd9d0}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!nC@{nC}}
+\index{nC@{nC}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{nC}
+{\footnotesize\ttfamily int I\+N\+S\+T\+A\+N\+C\+E\+::nC}
+
+
+
+Number of customers. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Options(), print\+Solution(), and read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_a54e4bf10cfa62c3a5dbe009bb551aebf}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!nF@{nF}}
+\index{nF@{nF}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{nF}
+{\footnotesize\ttfamily int I\+N\+S\+T\+A\+N\+C\+E\+::nF}
+
+
+
+See same data structure define in \doxyref{rcflp.\+cpp}{p.}{rcflp_8cpp}. 
+
+Number of facilities. 
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Options(), print\+Solution(), and read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_abab3dd99a8b8918a21414121498ec223}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!nR@{nR}}
+\index{nR@{nR}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{nR}
+{\footnotesize\ttfamily int I\+N\+S\+T\+A\+N\+C\+E\+::nR}
+
+
+
+Number of constraints polyhedron uncertainty set. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{structINSTANCE_acaf03f2d06fe92857fa693d69925c7fa}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!s@{s}}
+\index{s@{s}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{s}
+{\footnotesize\ttfamily double $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::s}
+
+
+
+Capacity. 
+
+
+
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_ae6f8f841169c539d43f46246ef432bc5}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!start@{start}}
+\index{start@{start}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{start}
+{\footnotesize\ttfamily int $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::start}
+
+
+
+Starting position for elements of column j. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{structINSTANCE_a22c08ad1ed5ff7035bf58ac919ce3caa}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!totD@{totD}}
+\index{totD@{totD}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{totD}
+{\footnotesize\ttfamily double I\+N\+S\+T\+A\+N\+C\+E\+::totD}
+
+
+
+Total demand. 
+
+
+
+Referenced by read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_aca47cf1a7a477140cdc470ce9e49d963}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!totS@{totS}}
+\index{totS@{totS}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{totS}
+{\footnotesize\ttfamily double I\+N\+S\+T\+A\+N\+C\+E\+::totS}
+
+
+
+Total supply. 
+
+
+
+Referenced by read\+Problem\+Data().
+
+\mbox{\label{structINSTANCE_a175e1e5bf67ad949af5c6cef6bd2847c}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!W@{W}}
+\index{W@{W}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{W}
+{\footnotesize\ttfamily int $\ast$ I\+N\+S\+T\+A\+N\+C\+E\+::W}
+
+
+
+Matrix W in column major format. 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/\textbf{ inout.\+cpp}\item 
+src/\textbf{ rcflp.\+cpp}\end{DoxyCompactItemize}

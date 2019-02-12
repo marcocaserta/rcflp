@@ -62,8 +62,8 @@ clean:
 
 # create doxygen documentation using "doxygen.conf" file
 # the documentation is put into the directory Doc	
-doc: $(SRCDIR)/rcflp.cpp doxygen.conf
-	doxygen doxygen.conf
+doc: $(SRCDIR)/rcflp.cpp doxygen/doxygen.conf
+	doxygen doxygen/doxygen.conf
 
 
 #	

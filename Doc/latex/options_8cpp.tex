@@ -1,0 +1,223 @@
+\section{src/options.cpp File Reference}
+\label{options_8cpp}\index{src/options.\+cpp@{src/options.\+cpp}}
+
+
+Read options from command line.  
+
+
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$cstdlib$>$}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \textbf{ \+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}~3600
+\begin{DoxyCompactList}\small\item\em default wall-\/clock time limit \end{DoxyCompactList}\item 
+\#define \textbf{ \+\_\+\+V\+E\+R\+S\+I\+O\+Ndef}~1
+\begin{DoxyCompactList}\small\item\em single source by default \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \textbf{ parse\+Options} (int argc, char $\ast$argv[$\,$])
+\begin{DoxyCompactList}\small\item\em Parse command line options. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+char $\ast$ \textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}
+\begin{DoxyCompactList}\small\item\em name of the instance file \end{DoxyCompactList}\item 
+int \textbf{ time\+Limit}
+\begin{DoxyCompactList}\small\item\em wall-\/clock time limit \end{DoxyCompactList}\item 
+int \textbf{ f\+Type}
+\begin{DoxyCompactList}\small\item\em instance type (1-\/2) \end{DoxyCompactList}\item 
+int \textbf{ version}
+\begin{DoxyCompactList}\small\item\em 1-\/\+SS; 2-\/\+MS; 3-\/\+Ellipsoidal; 4-\/\+Polyhedral \end{DoxyCompactList}\item 
+int \textbf{ support}
+\begin{DoxyCompactList}\small\item\em 1-\/\+Box; 2-\/\+Budget \end{DoxyCompactList}\item 
+string \textbf{ instance\+Type}
+\item 
+string \textbf{ version\+Type}
+\item 
+string \textbf{ support\+Type}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Read options from command line. 
+
+Command line options are\+:
+
+
+\begin{DoxyItemize}
+\item {\bfseries -\/h} \+: help (visualize the list of options)
+\item {\bfseries -\/i} \+: inputfile
+\item {\bfseries -\/t} \+: instance type\+:
+\begin{DoxyEnumerate}
+\item or\+Library
+\item Avella
+\end{DoxyEnumerate}
+\item {\bfseries -\/v} \+: version\+:
+\begin{DoxyEnumerate}
+\item Single-\/source
+\item Multi-\/source
+\item Ellipsoidal
+\item Polyhedral
+\end{DoxyEnumerate}
+\item {\bfseries -\/u} \+: uncertainty set
+\begin{DoxyEnumerate}
+\item Box uncertainty set
+\item Budget uncertanty set 
+\end{DoxyEnumerate}
+\end{DoxyItemize}
+
+\subsection{Macro Definition Documentation}
+\mbox{\label{options_8cpp_a5021799111603289a1084abb31211d59}} 
+\index{options.\+cpp@{options.\+cpp}!\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef@{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}}
+\index{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef@{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}!options.\+cpp@{options.\+cpp}}
+\subsubsection{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}
+{\footnotesize\ttfamily \#define \+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef~3600}
+
+
+
+default wall-\/clock time limit 
+
+
+
+Referenced by parse\+Options().
+
+\mbox{\label{options_8cpp_a23960294bead220b397fe29bcb293ac5}} 
+\index{options.\+cpp@{options.\+cpp}!\+\_\+\+V\+E\+R\+S\+I\+O\+Ndef@{\+\_\+\+V\+E\+R\+S\+I\+O\+Ndef}}
+\index{\+\_\+\+V\+E\+R\+S\+I\+O\+Ndef@{\+\_\+\+V\+E\+R\+S\+I\+O\+Ndef}!options.\+cpp@{options.\+cpp}}
+\subsubsection{\+\_\+\+V\+E\+R\+S\+I\+O\+Ndef}
+{\footnotesize\ttfamily \#define \+\_\+\+V\+E\+R\+S\+I\+O\+Ndef~1}
+
+
+
+single source by default 
+
+
+
+Referenced by parse\+Options().
+
+
+
+\subsection{Function Documentation}
+\mbox{\label{options_8cpp_a8ddddf1e9743696419ce3747d49a54e6}} 
+\index{options.\+cpp@{options.\+cpp}!parse\+Options@{parse\+Options}}
+\index{parse\+Options@{parse\+Options}!options.\+cpp@{options.\+cpp}}
+\subsubsection{parse\+Options()}
+{\footnotesize\ttfamily int parse\+Options (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv[$\,$] }\end{DoxyParamCaption})}
+
+
+
+Parse command line options. 
+
+Use -\/h to visualize the list of options. 
+
+References \+\_\+\+F\+I\+L\+E\+N\+A\+ME, \+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef, \+\_\+\+V\+E\+R\+S\+I\+O\+Ndef, f\+Type, instance\+Type, support, support\+Type, time\+Limit, version, and version\+Type.
+
+
+
+Referenced by main().
+
+
+
+\subsection{Variable Documentation}
+\mbox{\label{options_8cpp_ab602cefd46d5e616c87e034f4db68854}} 
+\index{options.\+cpp@{options.\+cpp}!\+\_\+\+F\+I\+L\+E\+N\+A\+ME@{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}}
+\index{\+\_\+\+F\+I\+L\+E\+N\+A\+ME@{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}!options.\+cpp@{options.\+cpp}}
+\subsubsection{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}
+{\footnotesize\ttfamily char$\ast$ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}
+
+
+
+name of the instance file 
+
+name of the instance file 
+
+Referenced by main(), parse\+Options(), read\+\_\+instance\+\_\+from\+\_\+disk(), and save\+\_\+instance\+\_\+2\+\_\+disk().
+
+\mbox{\label{options_8cpp_adf90957b4e032f69aba1e81ab396fa2f}} 
+\index{options.\+cpp@{options.\+cpp}!f\+Type@{f\+Type}}
+\index{f\+Type@{f\+Type}!options.\+cpp@{options.\+cpp}}
+\subsubsection{f\+Type}
+{\footnotesize\ttfamily int f\+Type}
+
+
+
+instance type (1-\/2) 
+
+instance type (1-\/2) 
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{options_8cpp_a98f2e84701105ad45ed7158de7bfdfd0}} 
+\index{options.\+cpp@{options.\+cpp}!instance\+Type@{instance\+Type}}
+\index{instance\+Type@{instance\+Type}!options.\+cpp@{options.\+cpp}}
+\subsubsection{instance\+Type}
+{\footnotesize\ttfamily string instance\+Type}
+
+
+
+Referenced by parse\+Options().
+
+\mbox{\label{options_8cpp_ae8470b9dfef111e0d72a983ce72e4c9c}} 
+\index{options.\+cpp@{options.\+cpp}!support@{support}}
+\index{support@{support}!options.\+cpp@{options.\+cpp}}
+\subsubsection{support}
+{\footnotesize\ttfamily int support}
+
+
+
+1-\/\+Box; 2-\/\+Budget 
+
+
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{options_8cpp_a3853824cedf4d86c04beb83f79c09c92}} 
+\index{options.\+cpp@{options.\+cpp}!support\+Type@{support\+Type}}
+\index{support\+Type@{support\+Type}!options.\+cpp@{options.\+cpp}}
+\subsubsection{support\+Type}
+{\footnotesize\ttfamily string support\+Type}
+
+
+
+Referenced by parse\+Options().
+
+\mbox{\label{options_8cpp_a4c4841c2a2303b528024625ed83c3b4f}} 
+\index{options.\+cpp@{options.\+cpp}!time\+Limit@{time\+Limit}}
+\index{time\+Limit@{time\+Limit}!options.\+cpp@{options.\+cpp}}
+\subsubsection{time\+Limit}
+{\footnotesize\ttfamily int time\+Limit}
+
+
+
+wall-\/clock time limit 
+
+
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{options_8cpp_aad880fc4455c253781e8968f2239d56f}} 
+\index{options.\+cpp@{options.\+cpp}!version@{version}}
+\index{version@{version}!options.\+cpp@{options.\+cpp}}
+\subsubsection{version}
+{\footnotesize\ttfamily int version}
+
+
+
+1-\/\+SS; 2-\/\+MS; 3-\/\+Ellipsoidal; 4-\/\+Polyhedral 
+
+1-\/\+SS; 2-\/\+MS; 3-\/\+Ellipsoidal; 4-\/\+Polyhedral 
+
+Referenced by main(), and parse\+Options().
+
+\mbox{\label{options_8cpp_a5623197573ddafe3e66247fc9eda58ac}} 
+\index{options.\+cpp@{options.\+cpp}!version\+Type@{version\+Type}}
+\index{version\+Type@{version\+Type}!options.\+cpp@{options.\+cpp}}
+\subsubsection{version\+Type}
+{\footnotesize\ttfamily string version\+Type}
+
+
+
+Referenced by parse\+Options().
+

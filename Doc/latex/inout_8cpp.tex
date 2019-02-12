@@ -1,0 +1,182 @@
+\section{src/inout.cpp File Reference}
+\label{inout_8cpp}\index{src/inout.\+cpp@{src/inout.\+cpp}}
+
+
+Manage input/output.  
+
+
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$iomanip$>$}\newline
+{\ttfamily \#include $<$cstdlib$>$}\newline
+{\ttfamily \#include $<$fstream$>$}\newline
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \textbf{ I\+N\+S\+T\+A\+N\+CE}
+\begin{DoxyCompactList}\small\item\em Structure used to define the instance data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \textbf{ read\+Problem\+Data} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, int \textbf{ f\+Type}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp})
+\begin{DoxyCompactList}\small\item\em Read benchmark instances. \end{DoxyCompactList}\item 
+void \textbf{ print\+Options} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ time\+Limit})
+\begin{DoxyCompactList}\small\item\em Print instance info and algorithmic parameters. \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+parameters\+\_\+ellipsoidal} (double \&epsilon, double \&Omega)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the ellipsoidal uncertainty set. \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+parameters\+\_\+box} (double \&epsilon)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the Box support. \end{DoxyCompactList}\item 
+void \textbf{ read\+\_\+parameters\+\_\+budget} (double \&epsilon, double \&delta, double \&gamma, int \&L)
+\begin{DoxyCompactList}\small\item\em Read parameters to define the budget support. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+string \textbf{ instance\+Type}
+\item 
+string \textbf{ version\+Type}
+\item 
+string \textbf{ support\+Type}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Manage input/output. 
+
+We manage here the following operations\+:
+\begin{DoxyItemize}
+\item Read nominal instance from disk (both OR Library and Avella). See the introduction part of \doxyref{rcflp.\+cpp}{p.}{rcflp_8cpp} to see how the costs $c_{ij}$ are managed in the two instance types.
+\item Read parameters for the different support sets. Currently, we read parameters for the following sets\+:
+\begin{DoxyItemize}
+\item Ellipsoidal support set. See \doxyref{read\+\_\+parameters\+\_\+ellipsoidal()}{p.}{inout_8cpp_ad0cfc2a0a7960353ae10a37028cf97aa}
+\item Box support set. See \doxyref{read\+\_\+parameters\+\_\+box()}{p.}{inout_8cpp_a62d78cce6f4f2da0b01932777977f854}
+\item Budget support set. See \doxyref{read\+\_\+parameters\+\_\+budget()}{p.}{inout_8cpp_a2f56c555090ec900ef22670c4fc774e0} 
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+\subsection{Function Documentation}
+\mbox{\label{inout_8cpp_a98548654c51508f12f8dbdaf1d9574bf}} 
+\index{inout.\+cpp@{inout.\+cpp}!print\+Options@{print\+Options}}
+\index{print\+Options@{print\+Options}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{print\+Options()}
+{\footnotesize\ttfamily void print\+Options (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{time\+Limit }\end{DoxyParamCaption})}
+
+
+
+Print instance info and algorithmic parameters. 
+
+
+
+References instance\+Type, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, support\+Type, and version\+Type.
+
+
+
+Referenced by main().
+
+\mbox{\label{inout_8cpp_a62d78cce6f4f2da0b01932777977f854}} 
+\index{inout.\+cpp@{inout.\+cpp}!read\+\_\+parameters\+\_\+box@{read\+\_\+parameters\+\_\+box}}
+\index{read\+\_\+parameters\+\_\+box@{read\+\_\+parameters\+\_\+box}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{read\+\_\+parameters\+\_\+box()}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+box (\begin{DoxyParamCaption}\item[{double \&}]{epsilon }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the Box support. 
+
+The file \textquotesingle{}params\+Box.\+txt\textquotesingle{} has the following format\+:
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, i.\+e., the parameter used to define the with of the box. Given a nominal demand value $d_j$, we define the interval around $d_j$ as\+: \[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \] 
+\end{DoxyItemize}
+
+Referenced by define\+\_\+box\+\_\+support().
+
+\mbox{\label{inout_8cpp_a2f56c555090ec900ef22670c4fc774e0}} 
+\index{inout.\+cpp@{inout.\+cpp}!read\+\_\+parameters\+\_\+budget@{read\+\_\+parameters\+\_\+budget}}
+\index{read\+\_\+parameters\+\_\+budget@{read\+\_\+parameters\+\_\+budget}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{read\+\_\+parameters\+\_\+budget()}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+budget (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{delta,  }\item[{double \&}]{gamma,  }\item[{int \&}]{L }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the budget support. 
+
+
+\begin{DoxyItemize}
+\item File \+: {\ttfamily params\+Budget.\+txt}
+\begin{DoxyItemize}
+\item first row \+: {\ttfamily epsilon}, as above
+\item second row\+: {\ttfamily delta}, i.\+e., how the $b_l$ value (the r.\+h.\+s. value of each budget constraint) is defined. We define $b_l$ as a percentage of the total demand of customers included in the budget constraint, i.\+e.\+: \[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
+\item third row \+: {\ttfamily gamma}, i.\+e., percentage of columns included in each budget constraint\+: \[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\item forth row \+: $L \geq 1$, i.\+e., number of budget constraints. 
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+Referenced by define\+\_\+budget\+\_\+support().
+
+\mbox{\label{inout_8cpp_ad0cfc2a0a7960353ae10a37028cf97aa}} 
+\index{inout.\+cpp@{inout.\+cpp}!read\+\_\+parameters\+\_\+ellipsoidal@{read\+\_\+parameters\+\_\+ellipsoidal}}
+\index{read\+\_\+parameters\+\_\+ellipsoidal@{read\+\_\+parameters\+\_\+ellipsoidal}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{read\+\_\+parameters\+\_\+ellipsoidal()}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+ellipsoidal (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{Omega }\end{DoxyParamCaption})}
+
+
+
+Read parameters to define the ellipsoidal uncertainty set. 
+
+We need to define two parameters\+:
+\begin{DoxyItemize}
+\item {\ttfamily Omega} \+: It determines the size of the ellipsoidal, i.\+e., the size of the uncertainty set.
+\item {\ttfamily epsilon}\+: It defines the variance of each variable $x_{ij}$. We assume that the covariance matrix is diagonal and with constant values $\epsilon$ for each element. 
+\end{DoxyItemize}
+
+Referenced by define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{inout_8cpp_a928c7901465e3f7fe726fe3b5757788e}} 
+\index{inout.\+cpp@{inout.\+cpp}!read\+Problem\+Data@{read\+Problem\+Data}}
+\index{read\+Problem\+Data@{read\+Problem\+Data}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{read\+Problem\+Data()}
+{\footnotesize\ttfamily int read\+Problem\+Data (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{int}]{f\+Type,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE} \&}]{inp }\end{DoxyParamCaption})}
+
+
+
+Read benchmark instances. 
+
+Currently, two types of instances can be imported\+: type 1\+: OR Library type 2\+: Avella (Test Bed 1, Test Bed A. Test Bed B) 
+
+References I\+N\+S\+T\+A\+N\+C\+E\+::c, I\+N\+S\+T\+A\+N\+C\+E\+::d, I\+N\+S\+T\+A\+N\+C\+E\+::f, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, I\+N\+S\+T\+A\+N\+C\+E\+::s, I\+N\+S\+T\+A\+N\+C\+E\+::totD, and I\+N\+S\+T\+A\+N\+C\+E\+::totS.
+
+
+
+Referenced by main().
+
+
+
+\subsection{Variable Documentation}
+\mbox{\label{inout_8cpp_a98f2e84701105ad45ed7158de7bfdfd0}} 
+\index{inout.\+cpp@{inout.\+cpp}!instance\+Type@{instance\+Type}}
+\index{instance\+Type@{instance\+Type}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{instance\+Type}
+{\footnotesize\ttfamily string instance\+Type}
+
+
+
+Referenced by print\+Options(), and print\+Solution().
+
+\mbox{\label{inout_8cpp_a3853824cedf4d86c04beb83f79c09c92}} 
+\index{inout.\+cpp@{inout.\+cpp}!support\+Type@{support\+Type}}
+\index{support\+Type@{support\+Type}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{support\+Type}
+{\footnotesize\ttfamily string support\+Type}
+
+
+
+Referenced by print\+Options(), and print\+Solution().
+
+\mbox{\label{inout_8cpp_a5623197573ddafe3e66247fc9eda58ac}} 
+\index{inout.\+cpp@{inout.\+cpp}!version\+Type@{version\+Type}}
+\index{version\+Type@{version\+Type}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{version\+Type}
+{\footnotesize\ttfamily string version\+Type}
+
+
+
+Referenced by print\+Options(), and print\+Solution().
+

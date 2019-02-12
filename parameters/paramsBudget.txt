@@ -1,0 +1,4 @@
+0.1     # epsilon (width of the interval to define min and max as d_j*(1 +/- epsilon)
+0.95    # delta (% of total demand allowed in each budget constraint)
+0.01    # gamma (% of columns included in each budget constraint --> |B_l| = floor(gamma*nCustomers)
+0       # L (number of budget constraints)

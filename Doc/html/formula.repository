@@ -1,0 +1,65 @@
+\form#0:\[ \]
+\form#1:\[ \sum_{i=1}^m x_{ij} = 1 \]
+\form#2:\[ \sum_{j=1}^m d_j x_{ij} \leq s_iy_i \]
+\form#3:\[ d_jx_{ij}c_{ij} \]
+\form#4:$x_ij$
+\form#5:$x_{ij}$
+\form#6:$c_{ij}$
+\form#7:$c_{ij}\times x_{ij}$
+\form#8:\[ c_{ij} = \frac{c_{ij}}d_j \]
+\form#9:\[ c_{ij} = \frac{c_{ij}}{d_j} \]
+\form#10:$x_{ij} \in [0,1]$
+\form#11:$d_j$
+\form#12:$j$
+\form#13:\[ \sum_{i=1}^m \sum_{j=1}^n d_jx_{ij}c_{ij} \]
+\form#14:\[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j \]
+\form#15:$\epsilon$
+\form#16:$ 0 <= \epsilon <= 1 (or more) $
+\form#17:$ 0 \leq \epsilon \leq 1 (or more) $
+\form#18:\[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \]
+\form#19:$b_l$
+\form#20:\[ b_l = \delta* (\sum_{j \in B_l} d_j)\]
+\form#21:\[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
+\form#22:\[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\form#23:$L \geq 1$
+\form#24:$B_l$
+\form#25:$\gamma \times n$
+\form#26:$N = {0, ..., n-1}$
+\form#27:$N = \left\{0, ..., n-1\right\}$
+\form#28:$l = 1, ..., L$
+\form#29:$\epsilon = 0$
+\form#30:\[ Wd \leq h \]
+\form#31:$W$
+\form#32:$\mathbf{h}$
+\form#33:\[ W\mathbf{d} \leq \mathbf{h} \]
+\form#34:$r \times n$
+\form#35:$r \times 1$
+\form#36:$r$
+\form#37:$W\mathbf{d} \leq \mathbf{h}$
+\form#38:$r = 2n$
+\form#39:$n =$
+\form#40:\[ W = \begin{array} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \end{array} \quad \textbf{d} = \begin{array} d_1 \\ d_2 \\ d_3 \end{array} \quad \textbf{h} = \begin{array} -1 \\ -1 \\ -1 \\ 2 \\ 2 \\ 2 \\ 4 \end{array} \]
+\form#41:\[ \textbf{h} = \begin{array}{cccccc} -1 \\ -1 \\ -1 \\ 2 \\ 2 \\ 2 \\ 4 \end{array} \]
+\form#42:\[ \textbf{h} = \begin{array}{ccccccc} -1 \\ -1 \\ -1 \\ 2 \\ 2 \\ 2 \\ 4 \end{array} \]
+\form#43:\[ W = \begin{array}{ccc} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \end{array} \quad \textbf{d} = \begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array} \quad \textbf{h} = \begin{array}{c} -1 \\ -1 \\ -1 \\ 2 \\ 2 \\ 2 \\ 4 \end{array} \]
+\form#44:\[ W = \left[\begin{array}{ccc} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \end{array}\right] \quad \textbf{d} = \begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array} \quad \textbf{h} = \begin{array}{c} -1 \\ -1 \\ -1 \\ 2 \\ 2 \\ 2 \\ 4 \end{array} \]
+\form#45:\[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \end{array}\right] \quad \textbf{d} = \begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array} \quad \textbf{h} = \begin{array}{c} -1 \\ -1 \\ -1 \\ 2 \\ 2 \\ 2 \\ 4 \end{array} \]
+\form#46:\[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} = \begin{array}{c} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \end{array} \]
+\form#47:\[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} =\left[ \begin{array}{c} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \end{array}\right] \]
+\form#48:\[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} =\left[ \begin{array}{r} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \end{array}\right] \]
+\form#49:$2n$
+\form#50:$L$
+\form#51:$l$
+\form#52:\[ w_{lj} = \begin{cases} 1 & j \in B_l\\ 0 & \text{otherwise}\\ \end{cases} \]
+\form#53:\[ w_{lj} = \begin{array}{ll} 1 & j $\in B_l$\\ 0 & \mbox{otherwise}\\ \end{array} \]
+\form#54:\[ w_{lj} = \left\{\begin{array}{ll} 1 & $j \in B_l$\\ 0 & otherwise\\ \end{array}\right. \]
+\form#55:\[ w_{lj} = \]
+\form#56:\[ w_{lj} = \begin{array}{ll} 1 & a\\ 0 & b \end{array} \]
+\form#57:\[ w_{lj} = \begin{array}{ll} 1 & j in B_l \\ 0 & b \end{array} \]
+\form#58:\[ w_{lj} = \begin{array}{ll} 1 & j \in B_l \\ 0 & b \end{array} \]
+\form#59:\[ w_{lj} = \begin{array}{ll} 1 & j \in B_l \\ 0 & \mbox{otherwise} \end{array} \]
+\form#60:\[ w_{lj} = \left\{ \begin{array}{ll} 1, & j \in B_l \\ 0, & \mbox{otherwise} \end{array} \right. \]
+\form#61:\[ d_1 + d_2 + d_3 \leq 4 \]
+\form#62:$L=1$
+\form#63:$B_l =\left\{1,2,3\right\}$
+\form#64:\[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} =\left[ \begin{array}{r} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \\ 4 \\ \end{array}\right] \]

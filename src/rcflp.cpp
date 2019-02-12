@@ -17,49 +17,72 @@
 
 /*! \mainpage Robust Capacitated Facility Location Problem
 
-  Description here
+  Description here.
 
-  \author 
+  \authors
   \version v. 1.0.0
   \date Begins: 25.05.18
   \date Ends:
 
-  The model is:
+  The project is compiled using a makefile and run via command line:
+  ~~~
+  make
+  ./bin/rcflp -h
+  ~~~
 
-  \f[ 
-  \f]
+  The flag`-h` allows to visualize the options available via command line.
 
+  The basic organization of the files is as follows:
+  - options.cpp: Managing the command line. 
+  - inout.cpp: Managing the input/output. Here we both read the instance and 
+               define the support sets.
+  - rcflp.cpp: Main implementation of the CFLP models.
 
   \file rcflp.cpp
   \brief General Implementation of the compact formulations for the (R)-CFLP.
 
-  We define here the following variants of the CFLP, controlled via command 
-  line with the flag -v:
-  -v 1 :: Single Source
-  -v 2 :: Multi Source
+  ### Different Versions of the CFLP
+
+  We define here the following variants of the CFLP. For a full description of 
+  the different variants, along with other parameters, see options.cpp.
+
+  Current versions of the CFLP implemented here are (controlled via the command 
+  line flag **-v**):
+  - Single Source Nominal: see define_SS_CFLP()
+  - Multi Source Nominal: see define_MS_CFLP()
+  - Ellipsoidal Support Set (multi-source only?): see define_SOCP_CFLP()
+  - Polyhedra Support Set (both single and multi-source): see define_POLY_CFLP()
+
+  ### Instance Types
 
   In addition, we need to define the type of instance used. We are currently
-  working with the following instances:
-  -t 1 :: OR Library instances
-  -t 2 :: Avella instances (Type 1, Type A, Type B)
-  Note that these instances define the costs in different ways and, therefore
-  the way in which the x_ij variables are defined changes. More precisely:
-  - for the OR Library instances, the c_ij values are the cost of delivering
-  the entire demand to the customer. Thus, we define x_ij as fractional and
-  multiply c_ij*x_ij to get the real cost
-  - for the Avella instances, c_ij is the cost of transporting one unit. Thus,
-  x_ij is no longer the fraction of demand, but the actual number of units
-  transported.
-  Obviously, this different treatment of the x_ij variables has an effect on 
-  the definition of the demand and capacity constraints as well.
+  working with the following instances (controlled via the command line 
+  flag **-t**):
+  - 1 : OR Library instances
+  - 2 : Avella instances (Type 1, Type A, Type B)
 
+  __Note__: These instances define the costs in different ways and, therefore
+  the way in which the \f$x_{ij}\f$ variables are defined changes. More precisely:
+  - For the OR Library instances, the \f$c_{ij}\f$ values are the cost of delivering
+  the **entire demand** to the customer. Thus, we define \f$x_{ij}\f$ as fractional 
+  and multiply \f$c_{ij}\times x_{ij}\f$ to get the real cost.
+  - For the Avella instances, \f$c_{ij}\f$ is the cost of transporting **one unit**. 
+  Thus, \f$x_{ij}\f$ is no longer the fraction of demand, but the actual number 
+  of units transported.
+
+  Obviously, this different treatment of the \f$x_{ij}\f$ variables has an effect on 
+  the definition of the demand and capacity constraints as well.
   Therefore, to make the treatment of the two types of instances uniform, the
-  cost c_ij of the OR Library is divided by the total demand:
-    c_ij = c_ij / d_j
-  To summarize, for both instance types (OR Library and Avella), we have:
-  - x_ij \in [0,1] : percentage of demand
-  - c_ij : cost of delivering one unit of demand
-  - d_j  : total demand of customer j
+  cost \f$c_{ij}\f$ of the OR Library is divided by the total demand:
+  \f[
+    c_{ij} = \frac{c_{ij}}{d_j}
+  \f]
+
+  To summarize, after the transformation, for both instance types (OR Library and Avella), 
+  we have:
+  - \f$x_{ij} \in [0,1]\f$ : percentage of demand
+  - \f$c_{ij}\f$ : cost of delivering one unit of demand
+  - \f$d_j\f$  : total demand of customer \f$j\f$
 
   This allows to define the demand constraint as:
   \f[
@@ -71,8 +94,14 @@
   \f]
   Finally, the transportation cost is computed as:
   \f[
-    d_jx_{ij}c_{ij}
+    \sum_{i=1}^m \sum_{j=1}^n d_jx_{ij}c_{ij}
   \f]
+
+  ### MIP Solver
+
+  We use cplex to solve the different programs. See the makefile to determine how 
+  to link the library to the code.
+
 */
 
 #include <ilcplex/ilocplex.h>
@@ -103,10 +132,8 @@ double INFTY = std::numeric_limits<double>::infinity();
 const long _MAXRANDOM  = 2147483647;
 const double ZERO      = 0.0e0;
 const double EPSI      = 0.00001;
-// Initialization of Random Number Generator
-const int seed = 27;
-// 64-bit Mersenne Twister by Matsumoto and Nishimura, 2000
-mt19937_64 gen(seed);
+const int seed = 27; //!< Initialization of Random Number Generator
+mt19937_64 gen(seed); //!< 64-bit Mersenne Twister by Matsumoto and Nishimura, 2000
 /* mt19937_64 gen(seed()); */
 
 /****************** VARIABLES DECLARATION ***************************/
@@ -123,32 +150,32 @@ typedef std::vector <int> MyVect;
 /// Structure used to define the instance data
 // NOTE: Change the same structure in the file inout.cpp !!!
 struct INSTANCE {
-    int nF;        // number of facilities
-    int nC;        // number of customers
-    double  *f;    // fixed costs
-    double  *s;    // capacity
-    double  *d;    // demand
-    double **c;    // allocation costs
-    double   totS; // total supply
-    double   totD; // total demand
+    int nF;        //!< Number of facilities
+    int nC;        //!< Number of customers
+    double  *f;    //!< Fixed costs
+    double  *s;    //!< Capacity
+    double  *d;    //!< Demand
+    double **c;    //!< Allocation costs
+    double   totS; //!< Total supply
+    double   totD; //!< Total demand
 
-    int     nR;    // number of constraints polyhedron uncertainty set
-    double  *h;    // rhs of polyhedron definining support
-    int     *W;    // matrix W in column major format
-    int *index;    // index of column major format for w
-    int *start;    // starting position for elements of column j
+    int     nR;    //!< Number of constraints polyhedron uncertainty set
+    double  *h;    //!< Rhs of polyhedron definining support
+    int     *W;    //!< Matrix W in column major format
+    int *index;    //!< Index of column major format for w
+    int *start;    //!< Starting position for elements of column j
 
 };
-INSTANCE inp; // instance data
+INSTANCE inp; //!< Instance data
 
-// optimal solution and obj function value
+/// Optimal solution and obj function value
 struct SOLUTION {
     int  *ySol;
     double **xSol;
     double zStar;
     IloAlgorithm::Status zStatus;
 };
-SOLUTION opt; // solution data structure
+SOLUTION opt; //!< Solution data structure
 
 
 /**** CPLEX DEFINITION ****/
@@ -166,8 +193,6 @@ IloNumVarArray delta_ilo;
 int solLimit     = 9999;
 int displayLimit = 4;
 int timeLimit;
-double Omega     = 1.0;
-double epsi      = 0.1;
 
 /****************** FUNCTIONS DECLARATION ***************************/
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
@@ -180,10 +205,14 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt);
 void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, int fullOutput);
 void read_parameters_box(double & delta);
+void read_parameters_ellipsoidal(double & epsilon, double & Omega);
+void read_parameters_budget(double & epsilon, double & delta, double & gamma, int & L);
 void define_box_support(INSTANCE & inp);
 void define_budget_support(INSTANCE & inp, bool fromDisk);
 void save_instance_2_disk(double epsilon, double delta, double gamma, int L, 
                           int nBl, int ** Bl, double * budget);
+void read_instance_from_disk(double & epsilon, double & delta, double & gamma, 
+                             int & L, int & nBl, int ** Bl, double * budget);
 /****************** FUNCTIONS DECLARATION ***************************/
 
 /************************ main program ******************************/
@@ -197,16 +226,24 @@ int main(int argc, char *argv[])
     readProblemData(_FILENAME, fType, inp);
     printOptions(_FILENAME, inp, timeLimit);
 
-
-
-    if (version == 1) // single source nominal
-        define_SS_CFLP(inp, fType, model, cplex);
-    else if (version == 2) // multi source nominal
-        define_MS_CFLP(inp, fType, model, cplex);
-    else if (version == 3) // multi source ellipsoidal
-        define_SOCP_CFLP(inp, fType, model, cplex);
-    else if (version == 4) // robust polyhedral uncertainty set (both SS and MS)
-        define_POLY_CFLP(inp, fType, model, cplex, support);
+    switch(version)
+    {
+        case 1 :  // single source nominal
+            define_SS_CFLP(inp, fType, model, cplex);
+            break;
+        case 2 : // multi source nominal
+            define_MS_CFLP(inp, fType, model, cplex);
+            break;
+        case 3 : // multi source ellipsoidal
+            define_SOCP_CFLP(inp, fType, model, cplex);
+            break;
+        case 4 : // robust polyhedral uncertainty set (both SS and MS)
+            define_POLY_CFLP(inp, fType, model, cplex, support);
+            break;
+        default :
+            cout << "ERROR : Version type not defined.\n" << endl;
+            exit(123);
+    }
 
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
@@ -412,6 +449,10 @@ void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 /// Define the Multi-source Capacitated Facility Location Model [Ellipsoidal]
 void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 {
+    double epsilon = 0.0;
+    double Omega   = 0.0;
+    read_parameters_ellipsoidal(epsilon, Omega);
+
     IloEnv env = model.getEnv();
 
     // location variables 
@@ -443,7 +484,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     sum = -w_ilo*w_ilo;
     for (int i = 0; i < inp.nF; i++)
         for (int j = 0; j < inp.nC; j++)
-            sum += x_ilo[i][j]*x_ilo[i][j]*inp.c[i][j]*epsi*inp.c[i][j]*epsi;
+            sum += x_ilo[i][j]*x_ilo[i][j]*inp.c[i][j]*epsilon*inp.c[i][j]*epsilon;
     model.add(sum <= 0.0);
 
     // Q conic constraints
@@ -453,7 +494,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
         // sum = -q_ilo[i];
         sum = -q_ilo[i]*q_ilo[i];
         for (int j = 0; j < inp.nC; j++)
-            sum += x_ilo[i][j]*x_ilo[i][j]*epsi*epsi;
+            sum += x_ilo[i][j]*x_ilo[i][j]*epsilon*epsilon;
         model.add(sum <= 0.0);
     }
 
@@ -487,22 +528,72 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
 /**
  *
  * We implement here both the SINGLE SOURCE and the MULTI SOURCE versions. Just
- * change the way in which the allocation variables are defined, to switch
- * between the SS and the MS versions.
+ * change the way in which the allocation variables \c x_ilo are defined, to 
+ * switch between the SS and the MS versions. The notation here follows the one
+ * presented in the paper.
+ *
+ * Each support type is build from the nominal instance. That is, we read the
+ * instance from disk, we read a few parameters (depending on the support type)
+ * and we then build the support set around the nominal values provided by the
+ * instance.
+ *
+ * The polyhedral uncertainty set is defined in the form:
+ * \f[ W\mathbf{d} \leq \mathbf{h} \f]
+ * Therefore, before we can solve the corresponding model, we need to define
+ * the structure of \f$W\f$ and \f$\mathbf{h}\f$:
+ *
+ * * \f$W\f$ is of size \f$r \times n\f$, where \f$r\f$ is the number of budget
+ *   constraints we want to define;
+ * * \f$\mathbf{h}\f$ is of size \f$r \times 1\f$.
+ *
+ * The support set is defined in a different function, depending on the type of 
+ * support we want to define (box, budget, etc.) The functions
+ * `define_type_support()` is used to create \f$W\f$ and \f$\mathbf{h}\f$.
+ * Each support type requires a set of parameters. These parameters are read
+ * from disk and are stored in a file saved in the folder "parameters". The
+ * file name is of type `paramsSupportType.txt`. Each file contains comments
+ * w.r.t. how to interpret the parameters. However, the interpretation is as
+ * follows:
+ *
+ * * File : `paramsBox.txt`
+ *      - first row : `epsilon`, i.e., the parameter used to define the with of
+ *                    the box. Given a nominal demand value \f$d_j\f$, we define 
+ *                    the interval around \f$d_j\f$ as:
+ *                    \f[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0
+ *                    \leq \epsilon \leq 1 \f]
+ *
+ * * File : `paramsBudget.txt`
+ *      - first row : `epsilon`, as above
+ *      - second row: `delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
+ *                    budget constraint) is defined. We define \f$b_l\f$ as a
+ *                    percentage of the total demand of customers included in
+ *                    the budget constraint, i.e.:
+ *                    \f[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq
+ *                    \delta \leq 1 \f]
+ *      - third row : `gamma`, i.e., percentage of columns included in each
+ *                    budget constraint:
+                      \f[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\f]
+ *      - forth row : \f$L \geq 1\f$, i.e., number of budget constraints.
+ *
+ * To define which columns are included in each budget constraint, we first
+ * compute the cardinality of each set \f$B_l\f$ (using `gamma`); next, we randomly
+ * select \f$\gamma \times n\f$ columns from the set \f$N = \left\{0, ..., n-1\right\}\f$.
+ *
+ * **Note**: Sets \f$B_l\f$, with \f$l = 1, ..., L\f$, are NOT disjoint, i.e., the same
+ * customer j can appear in more than one budget constraint.
  *
  * To test it, use the toy problem, whose instance values are defined in the
- * file 'toy.txt'. These values are the one reported in the paper, under the
- * example section. The budget constraint, though, has not been implemented
- * yet. The following tests can be executed:
- * 1. nominal version: Set lower_epsilon and upper_epsilon = 0
- * 2. multi-source: Define allocation variables as float (and give some slack
- * to the demand assigning positive values to lower and upper epsilon.
- * 3. single-source: Define allocation variables are integer.
+ * file 'data/toy.txt'. These values are the one reported in the paper, under the
+ * example section. Changing the value of the parametes above, we can transform
+ * a robust problem into a nomimal one (e.g., setting \f$\epsilon = 0\f$ in box
+ * support.)
  */
 void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex,
                       int support)
 {
 
+    // select support type
+    // here we get W and h, depending on the type of support
     switch (support)
     {
         case 1 :
@@ -522,7 +613,7 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     // location variables
     y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
 
-    // allocation variables
+    // allocation variables (Note: Change here to switch between MS and SS)
     x_ilo = TwoD(env, inp.nF);
     for (int i = 0; i < inp.nF; i++)
         x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS
@@ -661,79 +752,55 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
     }
 }
 
-void read_parameters_box(double & epsilon)
-{
-    ifstream fReader("parameters/paramsBox.txt", ios::in);
-    if (!fReader)
-    {
-        cout << "Cannot open file 'paramsBox.txt'." << endl;
-        exit(111);
-    }
 
-    cout << "[** Reading parameters from file 'paramsBox.txt'.]" << endl;
-    fReader >> epsilon;
-    cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon << "]" << endl;
-
-    fReader.close();
-}
-
-void read_parameters_budget(double & epsilon, double & delta, double & gamma, 
-                            int & L)
-{
-    ifstream fReader("parameters/paramsBudget.txt", ios::in);
-    if (!fReader)
-    {
-        cout << "Cannot open file 'paramsBudget.txt'." << endl;
-        exit(111);
-    }
-    cout << "[** Reading parameters from file 'paramsBudget.txt'.]" << endl;
-    string line;
-    fReader >> epsilon; 
-    getline(fReader, line); // read comment on same line
-    /* line.erase( find( line.begin(), line.end(), '#' ), line.end() ); */
-
-    fReader >> delta;
-    getline(fReader, line); // read comment on same line
-    fReader >> gamma;
-    getline(fReader, line); // read comment on same line
-    fReader >> L;
-    cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon 
-         << "; delta = " << delta << "; gamma = " << gamma << "; L = " << L 
-         << "]" << endl;
-
-    fReader.close();
-}
-
-/// Define W and h, given the value of epsilon
+/// Define \f$W\f$ and \f$\mathbf{h}\f$, given the value of `epsilon`.
 /**
- * We need to define Wd <= h, where:
- *      W is of size [r x n]
- *      h is of size [r x 1]
+ * We need to define \f$W\mathbf{d} \leq \mathbf{h}\f$, where:
+ * * \f$W\f$ is of size [r x n]
+ * * \f$\mathbf{h}\f$ is of size [r x 1]
  * where:
- * r = 2*n (two elements for each column j)
- * n = number of customers
+ * * \f$r = 2n\f$ (two elements for each column \f$j\f$)
+ * * \f$n =\f$ number of customers
  * 
- * Since matrix W is sparse, we use a column major format as follows. Consider
- * the toy problem, for which matrix W and vector h are: 
- *  
- *    |-1  0  0 |           |-d_0*(1-epsilon)|
- *    | 0 -1  0 |           |-d_1*(1-epsilon)|
- * W =| 0  0  0 |           |-d_2*(1-epsilon)|
- *    | 1  0  0 |       h = | d_0*(1+epsilon)|
- *    | 0  1  0 |           | d_1*(1+epsilon)|
- *    | 0  0  1 |           | d_2*(1+epsilon)|
+ * Since matrix \f$W\f$ is sparse, we use a column major format as follows. 
+ * Consider the toy problem, for which matrix \f$W\f$ and vector \f$\mathbf{h}\f$
+ * are: 
+    \f[
+    W = \left[\begin{array}{rrr}
+    -1 & 0 & 0 \\
+    0  & -1 & 0 \\
+    0  & 0 & -1 \\
+    1 & 0 & 0 \\
+    0 & 1 & 0 \\
+    0 & 0 & 1 \\
+    \end{array}\right] \quad
+    \textbf{d} = \left[\begin{array}{ccc}
+    d_1 \\
+    d_2 \\
+    d_3
+    \end{array}\right] \quad
+    \textbf{h} =\left[
+    \begin{array}{r}
+    -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) 
+    \end{array}\right]
+    \f]
  *
  * Vector h is kept as is it, while matrix W uses a column major format:
- * W     = [-1 1  -1 1  -1 1]
- * start = [0 2 4 6]
- * index = [0 3  1 4  2 5]
+ *
+ * > W     = [-1 1  -1 1  -1 1]
+ *
+ * > start = [0 2 4 6]
+ *
+ * > index = [0 3  1 4  2 5]
  * 
- * where elements of column j in W and index are found in positions going from
- * start[j] to start[j+1] (note that vector "start" contains a final extra
- * element to close the cycle). Thus, e.g.,  the elements of the second column
- * of W (j = 1) are obtained as:
- * for l = start[j], ..., start[j+1]
+ * where elements of column \c j in \c W and \c index are found in positions 
+ * going from \c start[j] to \c start[j+1] (note that vector \c start contains 
+ * a final extra element to close the cycle). Thus, e.g.,  the elements of the 
+ * second column of `W (j = 1)` are obtained as:
+ * \code{.cpp}
+ * for (int l = start[j]; l < start[j+1]; l++)
  *      W[l] is the element in row index[l] of the matrix
+ * \endcode
  */
 void define_box_support(INSTANCE & inp)
 {
@@ -769,27 +836,111 @@ void define_box_support(INSTANCE & inp)
 }
 
 
+/// Read parameters to define the Budget support.
+/**
+ * We allow for two options here:
+ * * __case 1__: Create the budget support from the nominal values of the instance.
+ * In this case, we read the parameters from the disk file (see below) and we
+ * generate the polyhedron. This is a stochastic process, since the set of
+ * columns included in each budget constrain is randomly generated. Therefore,
+ * to ensure reproducibility, we save these values in a disk file, within the
+ * folder "support."
+ * 
+ * * __case 2__: Read the budget support from the disk. This allows to reproduce the
+ * results of an instance, by recreating the same budget support set.
+ *
+ * The file `paramsBudget.txt` has the following format:
+ *      - first row : `epsilon`, as above
+ *      - second row: `delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
+ *                    budget constraint) is defined. We define \f$b_l\f$ as a
+ *                    percentage of the total demand of customers included in
+ *                    the budget constraint, i.e.:
+ *                    \f[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq
+ *                    \delta \leq 1 \f]
+ *      - third row : `gamma`, i.e., percentage of columns included in each
+ *                    budget constraint:
+                      \f[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\f]
+ *      - forth row : \f$L \geq 1\f$, i.e., number of budget constraints.
+ *
+ *  The structure of \f$W\f$ and \f$\mathbf{h}\f$ and the column-major format
+ *  used is simular to the one employed in define_box_support(). The first
+ *  \f$2n\f$ rows of \f$W\f$ are identical to the box support. Next, we define
+ *  \f$L\f$ extra rows, to include the budget constraints. Consider budget
+ *  constraint \f$l\f$, associated to set \f$B_l\f$. This row is defined as
+ *  follows:
+ *  \f[
+ *  w_{lj} =  \left\{
+ *  \begin{array}{ll}
+ *  1, & j \in B_l \\
+ *  0, & \mbox{otherwise}
+ *  \end{array}
+ *  \right.
+ *  \f]
+ *  For example, if we want to add the following budget constraint (following
+ *  the example from the paper):
+ *  \f[
+ *  d_1 + d_2 + d_3 \leq 4
+ *  \f]
+ *  where we have \f$L=1\f$, \f$B_l =\left\{1,2,3\right\}\f$, we obtain:
+    \f[
+    W = \left[\begin{array}{rrr}
+    -1 & 0 & 0 \\
+    0  & -1 & 0 \\
+    0  & 0 & -1 \\
+    1 & 0 & 0 \\
+    0 & 1 & 0 \\
+    0 & 0 & 1 \\
+    1 & 1 & 1 \\
+    \end{array}\right] \quad
+    \textbf{d} = \left[\begin{array}{ccc}
+    d_1 \\
+    d_2 \\
+    d_3
+    \end{array}\right] \quad
+    \textbf{h} =\left[
+    \begin{array}{r}
+    -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \\ 4 \\
+    \end{array}\right]
+    \f]
+ *
+ *  Consequently, in terms of column-major format, we get:
+
+ * > W     = [-1 1 1 -1 1 1  -1 1 1]
+ *
+ * > start = [0 3 6 9]
+ *
+ * > index = [0 3 6 1 4 6  2 5 6]
+ *
+ */
 void define_budget_support(INSTANCE & inp, bool fromDisk)
 {
 
+    // initialization
     double epsilon = 0.0;
     double delta   = 0.0;
     double gamma   = 0.0;
     int    L       = 0;
+    int    nBl     = 0;
+    int  **Bl;
+    double *budget;
+    fromDisk =true;
     if (fromDisk==false)
     {
         read_parameters_budget(epsilon, delta, gamma, L);
 
+        // initialize random generator (uniform distribution)
         uniform_int_distribution<> d(0,inp.nC);
 
-        // cardinality of sets B_l
-        int nBl = floor(gamma*(double)inp.nC);
-        cout << "[** |B_l| = " << nBl << "]" << endl;
-        int ** Bl = new int*[L];
-        double  * budget = new double[L];
+        nBl    = floor(gamma*(double)inp.nC); // cardinality of each B_l
+        Bl     = new int*[L];
+        budget = new double[L];
         for (int l = 0; l < L; l++)
             Bl[l] = new int[nBl];
+        
+        // cardinality of sets B_l
+        cout << "[** |B_l| = " << nBl << "]\n" << endl;
 
+        // randomly generate sets B_l and compute budget b_l
         for (int l = 0; l < L; l++)
         {
             budget[l] = 0.0;
@@ -803,10 +954,8 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         }
         // adjust b_l values
         for (int l = 0; l < L; l++)
-        {
             budget[l] = floor(delta*budget[l]);
-            cout << "budget = " << budget[l] << endl;
-        }
+
         for (int l = 0; l < L; l++)
         {
             for (int k = 0; k < nBl; k++)
@@ -814,62 +963,73 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
             cout << endl;
         }
 
-        // define mapping: list of budget constraints including column j 
-        MyVect * mapping = new MyVect[inp.nC];
-        for (int l = 0; l < L; l++)
-            for (int k = 0; k < nBl; k++)
-                mapping[Bl[l][k]].push_back(l);
-
-
-       // total number of rows of W and h
-       inp.nR = 2*inp.nC + L;
-        // define vector h
-       inp.h  = new double[inp.nR];
-       for (int j = 0; j < inp.nC; j++)
-       {
-           inp.h[j]        = -inp.d[j]*(1.0-epsilon);
-           inp.h[j+inp.nC] =  inp.d[j]*(1.0+epsilon);
-       }
-
-        for (int l = 0; l < L; l++)
-            inp.h[2*inp.nC+l] = budget[l];
-
-       // define matrix W in column major format
-       int nEls  = 2*inp.nC + L*nBl;
-       inp.W     = new int[nEls];
-       inp.index = new int[nEls];
-       inp.start = new int[inp.nC+1]; // one extra element in last position
-
-        int pos = 0;
-        for (int j = 0; j < inp.nC; j++)
-        {
-            inp.start[j]     = pos;
-            inp.W[pos]       = -1;
-            inp.index[pos++] = j;
-            inp.W[pos]       = 1;
-            inp.index[pos++] = j+inp.nC;
-            if (mapping[j].size() > 0)
-            {
-                for (MyVect::iterator it = mapping[j].begin(); it != mapping[j].end(); it++)
-                {
-                    inp.W[pos]       = 1;
-                    inp.index[pos++] = 2*inp.nC + *it;
-                }
-            }
-        }
-        inp.start[inp.nC] = pos;
-        // NOTE : Remove ASSERT from final version
-        assert(pos == nEls);
-
         // do we want to save the sets B_l (and the parameters?)
         bool save2Disk = false;
         if (save2Disk==true)
             save_instance_2_disk(epsilon, delta, gamma, L, nBl, Bl, budget);
     }
+    else // read file from disk to recreate a budget support for this instance
+    {
+        read_instance_from_disk(epsilon, delta, gamma, L, nBl, Bl, budget);
+        cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon 
+             << "; delta = " << delta << "; gamma = " << gamma << "; L = " << L 
+             << "]\n" << endl;
+    }
+
+    // define mapping: list of budget constraints including column j 
+    MyVect * mapping = new MyVect[inp.nC];
+    for (int l = 0; l < L; l++)
+        for (int k = 0; k < nBl; k++)
+            mapping[Bl[l][k]].push_back(l);
+
+   // total number of rows of W and h
+   inp.nR = 2*inp.nC + L;
+    // define vector h
+    // a. box part
+   inp.h  = new double[inp.nR];
+   for (int j = 0; j < inp.nC; j++)
+   {
+       inp.h[j]        = -inp.d[j]*(1.0-epsilon);
+       inp.h[j+inp.nC] =  inp.d[j]*(1.0+epsilon);
+   }
+    // b. budget part
+    for (int l = 0; l < L; l++)
+        inp.h[2*inp.nC+l] = budget[l];
+
+   // define matrix W in column major format
+   int nEls  = 2*inp.nC + L*nBl;
+   inp.W     = new int[nEls];
+   inp.index = new int[nEls];
+   inp.start = new int[inp.nC+1]; // one extra element in last position
+
+    int pos = 0;
+    for (int j = 0; j < inp.nC; j++)
+    {
+        inp.start[j]     = pos;
+        inp.W[pos]       = -1;
+        inp.index[pos++] = j;
+        inp.W[pos]       = 1;
+        inp.index[pos++] = j+inp.nC;
+        if (mapping[j].size() > 0)
+        {
+            for (MyVect::iterator it = mapping[j].begin(); it != mapping[j].end(); it++)
+            {
+                inp.W[pos]       = 1;
+                inp.index[pos++] = 2*inp.nC + *it;
+            }
+        }
+    }
+    inp.start[inp.nC] = pos;
+    // NOTE : Remove ASSERT from final version
+    assert(pos == nEls);
+
 }
 
-/// Save Budget Uncertainty Set Info on disk
+/// Save Budget Uncertainty Set Info on disk.
 /** We save the parameters and the data needed to recreate the budget instance.
+ *  This is done to ensure reproducibility of a robust instance. If we decide
+ *  to save multiple versions of robust instances starting from the same
+ *  nominal instances, we will have to come up with a different name coding.
  */
 void save_instance_2_disk(double epsilon, double delta, double gamma, int L, 
                           int nBl, int ** Bl, double * budget)
@@ -895,4 +1055,40 @@ void save_instance_2_disk(double epsilon, double delta, double gamma, int L,
 
     fWriter.close();
     cout << "[** Instance saved on disk. File '" << filename << "']" << endl;
+}
+
+/// Read a robust instance based on budget uncertainty set.
+/**
+ *  This ensures reproducibility. We read the set \f$B_l\f$ and the budget
+ *  values \f$b_l\f$. Thus, the robust instance can fully be reconstructed.
+ * */
+void read_instance_from_disk(double & epsilon, double & delta, double & gamma, 
+                             int & L, int & nBl, int ** Bl, double * budget)
+{
+    string  s1      = string(_FILENAME);
+    s1              = s1.substr(s1.find_last_of("\\/"), 100);
+    string filename = "support" + s1 + ".budget";
+
+    ifstream fReader(filename, ios::in);
+    if (!fReader)
+    {
+        cout << "Cannot open file 'paramsBudget.txt'." << endl;
+        exit(111);
+    }
+    fReader >> epsilon >> delta >> gamma >> L;
+    Bl     = new int*[L];
+    budget = new double[L];
+    for (int l = 0; l < L; l++)
+    {
+        fReader >> nBl;
+        Bl[l] = new int[nBl];
+
+        for (int k = 0; k < nBl; k++)
+            fReader >> Bl[l][k];
+        fReader >> budget[l];
+    }
+
+    fReader.close();
+    cout << "[** Instance read from disk. File '" << filename << "']" << endl;
+
 }

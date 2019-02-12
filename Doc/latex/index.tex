@@ -1,0 +1,28 @@
+Description here.
+
+\begin{DoxyAuthor}{Authors}
+
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+v. 1.\+0.\+0 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+Begins\+: 25.\+05.\+18 
+
+Ends\+:
+\end{DoxyDate}
+The project is compiled using a makefile and run via command line\+: 
+\begin{DoxyCode}
+make
+./bin/rcflp -h
+\end{DoxyCode}
+
+
+The flag{\ttfamily -\/h} allows to visualize the options available via command line.
+
+The basic organization of the files is as follows\+:
+\begin{DoxyItemize}
+\item \doxyref{options.\+cpp}{p.}{options_8cpp}\+: Managing the command line.
+\item \doxyref{inout.\+cpp}{p.}{inout_8cpp}\+: Managing the input/output. Here we both read the instance and define the support sets.
+\item \doxyref{rcflp.\+cpp}{p.}{rcflp_8cpp}\+: Main implementation of the C\+F\+LP models. 
+\end{DoxyItemize}

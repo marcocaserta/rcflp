@@ -18,18 +18,25 @@
 /*! \file options.cpp 
   \brief Read options from command line.
 
-    Command line options (see parseCommandLine):
-    -i inputfile
+    Command line options are:
 
-    -t type:
-    1 -> orLibrary
-    2 -> Avella
+    - **-h** : help (visualize the list of options)
 
-    -v version:
-    1 -> Single-source
-    2 -> Multi-source
-    3 -> Ellipsoidal
-    4 -> Polyhedral
+    - **-i** : inputfile
+
+    - **-t** : instance type:
+            -# orLibrary
+            -# Avella
+
+    - **-v** : version:
+            -# Single-source
+            -# Multi-source
+            -# Ellipsoidal
+            -# Polyhedral
+
+    - **-u** : uncertainty set
+            -# Box uncertainty set
+            -# Budget uncertanty set
 */
 
 #include <iostream>
@@ -51,7 +58,9 @@ extern string versionType;
 extern string supportType;
 
 
-/// Parse command line options
+/// Parse command line options.
+/** Use -h to visualize the list of options.
+ */
 int parseOptions(int argc, char* argv[])
 {
    bool setFile = false;
