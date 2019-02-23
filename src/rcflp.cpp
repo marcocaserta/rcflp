@@ -99,7 +99,12 @@
 
   ### MIP Solver
 
-  We use cplex to solve the different programs. See the makefile to determine how 
+  We use __cplex branch-and-cut__ to solve the different programs. 
+
+  In addition, we can also use __cplex Benders__ as implemented in this version 
+  of the solver. To activate Benders, see define_benders().
+  
+  See the makefile to determine how 
   to link the library to the code.
 
 */
@@ -184,7 +189,7 @@ SOLUTION opt; //!< Solution data structure
 typedef IloArray <IloNumVarArray> TwoD;
 IloEnv env;
 IloModel model(env, "cflp");
-IloCplex cplex(model);
+/* IloCplex cplex(model); */
 TwoD x_ilo;
 IloNumVarArray y_ilo;
 IloNumVarArray q_ilo;
@@ -232,6 +237,7 @@ int main(int argc, char *argv[])
 
 
 
+    IloCplex cplex(model);
     switch(version)
     {
         case 1 :  // single source nominal
@@ -239,7 +245,6 @@ int main(int argc, char *argv[])
             break;
         case 2 : // multi source nominal
             define_MS_CFLP(inp, fType, model, cplex);
-            define_benders(model, cplex, inp);
             break;
         case 3 : // multi source ellipsoidal
             define_SOCP_CFLP(inp, fType, model, cplex);
@@ -253,6 +258,9 @@ int main(int argc, char *argv[])
     }
 
     opt.startTime = cplex.getTime();
+
+    define_benders(model, cplex, inp);
+
     cout << "Starttime is = " << opt.startTime << endl;
     cout << "** " << cplex.getTime() << endl;
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
@@ -348,8 +356,8 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
     // set vars name
     for (int i = 0; i < inp.nF; i++)
     {
-        sprintf(varName, "y.%d", (int)i);
-        y_ilo[i].setName(varName);
+        /* sprintf(varName, "y.%d", (int)i);
+         * y_ilo[i].setName(varName); */
         for (int j = 0; j < inp.nC; j++)
         {
             sprintf(varName, "x.%d.%d", (int)i, (int) j);
@@ -1108,19 +1116,31 @@ void read_instance_from_disk(double & epsilon, double & delta, double & gamma,
 
 }
 
-/// NOT WORKING (not able to annotate variables, use default decomposition)
+/// Benders decomposition algorithm
+/** We use the Benders algorithm provided by cplex, with the following
+ * strategy:
+ * - `IloCplex::BendersUser`
+ * In reality, the default strategy `BendersFull`, in which cplex chooses how
+ * to assign variables to the master, would also work.
+ * 
+ */
 void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp)
 {
     IloEnv env = model.getEnv();
 
-    // IloCplex::LongAnnotation benders = cplex.newLongAnnotation("cpxBendersPartition");
+    // by default, variables are assigned to the subproblem (value 1)
+    IloCplex::LongAnnotation benders = cplex.newLongAnnotation("cpxBendersPartition",1);
 
 	 // Set benders strategy 
-	// cplex.setParam(IloCplex::Param::Benders::Strategy, IloCplex::BendersUser);
-	cplex.setParam(IloCplex::Param::Benders::Strategy, IloCplex::BendersFull);
+    cplex.setParam(IloCplex::Param::Benders::Strategy, IloCplex::BendersUser);
+	// cplex.setParam(IloCplex::Param::Benders::Strategy, IloCplex::BendersFull);
 
-    /* for (int i = 0; i < inp.nF; i++)
-     *     cplex.setAnnotation(benders, y_ilo[i], 0); */
+    // assign location variables to the master
+    for (int i = 0; i < inp.nF; i++)
+        cplex.setAnnotation(benders, y_ilo[i], 0);
+
+    // save annotation to disk
+    cplex.writeBendersAnnotation("benders.ann");
 
 
 }
