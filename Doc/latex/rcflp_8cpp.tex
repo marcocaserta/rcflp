@@ -42,23 +42,21 @@ mt19937\+\_\+64 \textbf{ gen} (\textbf{ seed})
 \begin{DoxyCompactList}\small\item\em 64-\/bit Mersenne Twister by Matsumoto and Nishimura, 2000 \end{DoxyCompactList}\item 
 Ilo\+Model \textbf{ model} (\textbf{ env}, \char`\"{}cflp\char`\"{})
 \item 
-Ilo\+Cplex \textbf{ cplex} (\textbf{ model})
-\item 
 int \textbf{ read\+Problem\+Data} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, int \textbf{ f\+Type}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp})
 \begin{DoxyCompactList}\small\item\em Read benchmark instances. \end{DoxyCompactList}\item 
 void \textbf{ print\+Options} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ time\+Limit})
 \begin{DoxyCompactList}\small\item\em Print instance info and algorithmic parameters. \end{DoxyCompactList}\item 
-void \textbf{ define\+\_\+\+M\+S\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex})
+void \textbf{ define\+\_\+\+M\+S\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&cplex)
 \begin{DoxyCompactList}\small\item\em Define the Multi-\/source Capacitated Facility Location Model [Nominal]. \end{DoxyCompactList}\item 
-void \textbf{ define\+\_\+\+S\+S\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex})
+void \textbf{ define\+\_\+\+S\+S\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&cplex)
 \begin{DoxyCompactList}\small\item\em Define the Single-\/source Capacitated Facility Location Model [Nominal]. \end{DoxyCompactList}\item 
-void \textbf{ define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex})
+void \textbf{ define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&cplex)
 \begin{DoxyCompactList}\small\item\em Define the Multi-\/source Capacitated Facility Location Model [Ellipsoidal]. \end{DoxyCompactList}\item 
-void \textbf{ define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex}, int \textbf{ support})
+void \textbf{ define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+LP} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ f\+Type}, Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&cplex, int \textbf{ support})
 \begin{DoxyCompactList}\small\item\em Define robust model based on polyhedral uncertainty set. \end{DoxyCompactList}\item 
-int \textbf{ solve\+Cplex\+Problem} (Ilo\+Model \textbf{ model}, Ilo\+Cplex \textbf{ cplex}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ sol\+Limit}, int \textbf{ time\+Limit}, int \textbf{ display\+Limit})
+int \textbf{ solve\+Cplex\+Problem} (Ilo\+Model \textbf{ model}, Ilo\+Cplex cplex, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ sol\+Limit}, int \textbf{ time\+Limit}, int \textbf{ display\+Limit})
 \begin{DoxyCompactList}\small\item\em Set cplex parameters and solve the optimization problem. \end{DoxyCompactList}\item 
-void \textbf{ get\+Cplex\+Sol} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, Ilo\+Cplex \textbf{ cplex}, \textbf{ S\+O\+L\+U\+T\+I\+ON} \&\textbf{ opt})
+void \textbf{ get\+Cplex\+Sol} (\textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, Ilo\+Cplex cplex, \textbf{ S\+O\+L\+U\+T\+I\+ON} \&\textbf{ opt})
 \begin{DoxyCompactList}\small\item\em E\+ND main program. \end{DoxyCompactList}\item 
 void \textbf{ print\+Solution} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, \textbf{ S\+O\+L\+U\+T\+I\+ON} \textbf{ opt}, bool to\+Disk, int full\+Output)
 \begin{DoxyCompactList}\small\item\em Print solution to screen (and disk, if required) \end{DoxyCompactList}\item 
@@ -76,8 +74,8 @@ void \textbf{ save\+\_\+instance\+\_\+2\+\_\+disk} (double epsilon, double delta
 \begin{DoxyCompactList}\small\item\em Save Budget Uncertainty Set Info on disk. \end{DoxyCompactList}\item 
 void \textbf{ read\+\_\+instance\+\_\+from\+\_\+disk} (double \&epsilon, double \&delta, double \&gamma, int \&L, int \&n\+Bl, int $\ast$$\ast$Bl, double $\ast$budget)
 \begin{DoxyCompactList}\small\item\em Read a robust instance based on budget uncertainty set. \end{DoxyCompactList}\item 
-void \textbf{ define\+\_\+benders} (Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&\textbf{ cplex}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp})
-\begin{DoxyCompactList}\small\item\em N\+OT W\+O\+R\+K\+I\+NG (not able to annotate variables, use default decomposition) \end{DoxyCompactList}\item 
+void \textbf{ define\+\_\+benders} (Ilo\+Model \&\textbf{ model}, Ilo\+Cplex \&cplex, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp})
+\begin{DoxyCompactList}\small\item\em Benders decomposition algorithm. \end{DoxyCompactList}\item 
 int \textbf{ main} (int argc, char $\ast$argv[$\,$])
 \begin{DoxyCompactList}\small\item\em main program \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
@@ -177,7 +175,11 @@ This allows to define the demand constraint as\+: \[ \sum_{i=1}^m x_{ij} = 1 \] 
 
 \paragraph*{M\+IP Solver}
 
-We use cplex to solve the different programs. See the makefile to determine how to link the library to the code. 
+We use {\bfseries cplex branch-\/and-\/cut} to solve the different programs.
+
+In addition, we can also use {\bfseries cplex Benders} as implemented in this version of the solver. To activate Benders, see \doxyref{define\+\_\+benders()}{p.}{rcflp_8cpp_af4986c3a752b2ea8424ae77522d072cc}.
+
+See the makefile to determine how to link the library to the code. 
 
 \subsection{Typedef Documentation}
 \mbox{\label{rcflp_8cpp_ad0c1733d50c08fefe0eefe81a462746b}} 
@@ -195,16 +197,6 @@ We use cplex to solve the different programs. See the makefile to determine how 
 
 
 \subsection{Function Documentation}
-\mbox{\label{rcflp_8cpp_a4e8693851c7ef55d3e64ffaad41cc125}} 
-\index{rcflp.\+cpp@{rcflp.\+cpp}!cplex@{cplex}}
-\index{cplex@{cplex}!rcflp.\+cpp@{rcflp.\+cpp}}
-\subsubsection{cplex()}
-{\footnotesize\ttfamily Ilo\+Cplex cplex (\begin{DoxyParamCaption}\item[{\textbf{ model}}]{ }\end{DoxyParamCaption})}
-
-
-
-Referenced by main().
-
 \mbox{\label{rcflp_8cpp_af4986c3a752b2ea8424ae77522d072cc}} 
 \index{rcflp.\+cpp@{rcflp.\+cpp}!define\+\_\+benders@{define\+\_\+benders}}
 \index{define\+\_\+benders@{define\+\_\+benders}!rcflp.\+cpp@{rcflp.\+cpp}}
@@ -213,11 +205,14 @@ Referenced by main().
 
 
 
-N\+OT W\+O\+R\+K\+I\+NG (not able to annotate variables, use default decomposition) 
+Benders decomposition algorithm. 
 
+We use the Benders algorithm provided by cplex, with the following strategy\+:
+\begin{DoxyItemize}
+\item {\ttfamily Ilo\+Cplex\+::\+Benders\+User} In reality, the default strategy {\ttfamily Benders\+Full}, in which cplex chooses how to assign variables to the master, would also work. 
+\end{DoxyItemize}
 
-
-References env.
+References env, I\+N\+S\+T\+A\+N\+C\+E\+::nF, and y\+\_\+ilo.
 
 
 
@@ -465,7 +460,7 @@ main program
 
 
 
-References \+\_\+\+F\+I\+L\+E\+N\+A\+ME, cplex(), define\+\_\+benders(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), display\+Limit, env, f\+Type, get\+Cplex\+Sol(), model(), parse\+Options(), print\+Options(), print\+Solution(), read\+Problem\+Data(), sol\+Limit, solve\+Cplex\+Problem(), S\+O\+L\+U\+T\+I\+O\+N\+::start\+Time, support, time\+Limit, and version.
+References \+\_\+\+F\+I\+L\+E\+N\+A\+ME, define\+\_\+benders(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), display\+Limit, env, f\+Type, get\+Cplex\+Sol(), model(), parse\+Options(), print\+Options(), print\+Solution(), read\+Problem\+Data(), sol\+Limit, solve\+Cplex\+Problem(), S\+O\+L\+U\+T\+I\+O\+N\+::start\+Time, support, time\+Limit, and version.
 
 \mbox{\label{rcflp_8cpp_ad9843758d551832b033c55d7bcc64417}} 
 \index{rcflp.\+cpp@{rcflp.\+cpp}!model@{model}}
@@ -896,7 +891,7 @@ Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+
 
 
 
-Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and get\+Cplex\+Sol().
+Referenced by define\+\_\+benders(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and get\+Cplex\+Sol().
 
 \mbox{\label{rcflp_8cpp_acbcd55b11cabe6b839efa09e97098c4f}} 
 \index{rcflp.\+cpp@{rcflp.\+cpp}!Z\+E\+RO@{Z\+E\+RO}}
