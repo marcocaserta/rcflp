@@ -215,6 +215,7 @@ void save_instance_2_disk(double epsilon, double delta, double gamma, int L,
                           int nBl, int ** Bl, double * budget);
 void read_instance_from_disk(double & epsilon, double & delta, double & gamma, 
                              int & L, int & nBl, int ** Bl, double * budget);
+void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
 /****************** FUNCTIONS DECLARATION ***************************/
 
 /************************ main program ******************************/
@@ -229,6 +230,8 @@ int main(int argc, char *argv[])
     readProblemData(_FILENAME, fType, inp);
     printOptions(_FILENAME, inp, timeLimit);
 
+
+
     switch(version)
     {
         case 1 :  // single source nominal
@@ -236,6 +239,7 @@ int main(int argc, char *argv[])
             break;
         case 2 : // multi source nominal
             define_MS_CFLP(inp, fType, model, cplex);
+            define_benders(model, cplex, inp);
             break;
         case 3 : // multi source ellipsoidal
             define_SOCP_CFLP(inp, fType, model, cplex);
@@ -248,9 +252,11 @@ int main(int argc, char *argv[])
             exit(123);
     }
 
+    opt.startTime = cplex.getTime();
+    cout << "Starttime is = " << opt.startTime << endl;
+    cout << "** " << cplex.getTime() << endl;
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
-    opt.startTime = cplex.getTime();
     getCplexSol(inp, cplex, opt);
     printSolution(_FILENAME, inp, opt, true, 1);
 
@@ -327,9 +333,9 @@ int fullOutput)
 /// Define the Multi-source Capacitated Facility Location Model [Nominal]
 void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 {
+    IloEnv env = model.getEnv();
 
     char varName[100];
-    IloEnv env = model.getEnv();
 
     // location variables 
     y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
@@ -348,6 +354,7 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
         {
             sprintf(varName, "x.%d.%d", (int)i, (int) j);
             x_ilo[i][j].setName(varName);
+
         }
     }
 
@@ -738,6 +745,7 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
     {
         IloEnv env = model.getEnv();
         /* cplex.setOut(env.getNullStream()); */
+        cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall clock
         cplex.setParam(IloCplex::MIPInterval, 5000);
         cplex.setParam(IloCplex::MIPDisplay, displayLimit);
         cplex.setParam(IloCplex::IntSolLim, solLimit);
@@ -1097,5 +1105,22 @@ void read_instance_from_disk(double & epsilon, double & delta, double & gamma,
 
     fReader.close();
     cout << "[** Instance read from disk. File '" << filename << "']" << endl;
+
+}
+
+/// NOT WORKING (not able to annotate variables, use default decomposition)
+void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp)
+{
+    IloEnv env = model.getEnv();
+
+    // IloCplex::LongAnnotation benders = cplex.newLongAnnotation("cpxBendersPartition");
+
+	 // Set benders strategy 
+	// cplex.setParam(IloCplex::Param::Benders::Strategy, IloCplex::BendersUser);
+	cplex.setParam(IloCplex::Param::Benders::Strategy, IloCplex::BendersFull);
+
+    /* for (int i = 0; i < inp.nF; i++)
+     *     cplex.setAnnotation(benders, y_ilo[i], 0); */
+
 
 }
