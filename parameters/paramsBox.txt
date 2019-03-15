@@ -1,1 +1,1 @@
-0.1 # epsilon (width of the interval to define min and max as d_j*(1 +/- epsilon)
+1.0

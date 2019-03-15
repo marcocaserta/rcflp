@@ -59,6 +59,7 @@ struct INSTANCE { /// See same data structure define in rcflp.cpp
 extern string instanceType;
 extern string versionType;
 extern string supportType;
+extern int support;
 
 
 /// Read benchmark instances
@@ -147,6 +148,10 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 /// Print instance info and algorithmic parameters.
 void printOptions(char * _FILENAME, INSTANCE inp, int timeLimit)
 {
+   double epsilon = 0.0;
+   double delta   = 0.0;
+   double gamma   = 0.0;
+   int    L       = 0;
    cout << "-------------------------------------" << endl;
    cout << "- OPTIONS : " << endl;
    cout << "-------------------------------------" << endl;

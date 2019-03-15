@@ -114,6 +114,7 @@ ILOSTLBEGIN
 
 #include <limits> 
 
+#include <chrono>
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -127,6 +128,7 @@ ILOSTLBEGIN
 #include <cassert>
 #include <random>
 #include <algorithm>
+#include <cstdlib>
 
 /* #include "timer.h" */
 #include "options.h"
@@ -228,6 +230,10 @@ void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
 /************************ main program ******************************/
 int main(int argc, char *argv[])
 {
+<<<<<<< HEAD
+    std::srand ( unsigned ( std::time(0) ) );
+=======
+>>>>>>> f424d651b5011636779deb598c4ce97659366446
 
     int err = parseOptions(argc, argv);
     if (err != 0) exit(1);
@@ -235,9 +241,14 @@ int main(int argc, char *argv[])
     readProblemData(_FILENAME, fType, inp);
     printOptions(_FILENAME, inp, timeLimit);
 
+<<<<<<< HEAD
+    auto start = chrono::system_clock::now();
+
+=======
 
 
     IloCplex cplex(model);
+>>>>>>> f424d651b5011636779deb598c4ce97659366446
     switch(version)
     {
         case 1 :  // single source nominal
@@ -265,8 +276,11 @@ int main(int argc, char *argv[])
     cout << "** " << cplex.getTime() << endl;
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
+    opt.cpuTime = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now()-start).count();
+
     getCplexSol(inp, cplex, opt);
     printSolution(_FILENAME, inp, opt, true, 1);
+
 
     env.end();
     return 0;
@@ -305,19 +319,62 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, 
 int fullOutput)
 {
+<<<<<<< HEAD
+    double epsilon = 0.0;
+    double delta   = 0.0;
+    double gamma   = 0.0;
+    int    L       = 0;
+=======
+    cout << endl << "** SOLUTION **" << endl;
+    cout << " ..z*     \t= " << setprecision(15) << opt.zStar << endl;
+    cout << " ..time   \t= " << opt.cpuTime << endl;
+    cout << " ..status \t= " << opt.zStatus << endl;
+>>>>>>> f424d651b5011636779deb598c4ce97659366446
+
     cout << endl << "** SOLUTION **" << endl;
     cout << " ..z*     \t= " << setprecision(15) << opt.zStar << endl;
     cout << " ..time   \t= " << opt.cpuTime << endl;
     cout << " ..status \t= " << opt.zStatus << endl;
 
+    ofstream fWriter("solution.txt", ios::out);
+    fWriter << _FILENAME << "\t" << instanceType << "\t"
+            << versionType << "\t" << supportType << "\t" 
+            << setprecision(15) << opt.zStar << "\t" 
+            << opt.zStatus << "\t" << opt.cpuTime <<"\t";
+                
+    // print parameters
+    if (version == 4)
     {
+<<<<<<< HEAD
+        switch (support)
+        {
+            case 1 :
+                read_parameters_box(epsilon);
+
+                fWriter << epsilon << endl;
+                break;
+            case 2 : 
+                read_parameters_budget(epsilon, delta, gamma, L);
+                fWriter << epsilon << "\t" << delta << "\t" << gamma << "\t" 
+                        << L << endl;
+                break;
+            default :
+                cout << "ERROR : Support type not defined.\n" << endl;
+                exit(123);
+        }
+=======
         ofstream fWriter("solution.txt", ios::out);
         fWriter << _FILENAME << "\t" << instanceType << "\t"
                 << versionType << "\t" << supportType << "\t" 
                 << setprecision(15) << opt.zStar << "\t" 
                 << opt.zStatus << "\t" << opt.cpuTime << endl;
         fWriter.close();
+>>>>>>> f424d651b5011636779deb598c4ce97659366446
     }
+    else
+        fWriter << endl;
+                
+    fWriter.close();
 
     if (fullOutput >= 1)
     {
@@ -753,13 +810,17 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
     {
         IloEnv env = model.getEnv();
         /* cplex.setOut(env.getNullStream()); */
+<<<<<<< HEAD
+        cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall-clock 
+=======
         cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall clock
+>>>>>>> f424d651b5011636779deb598c4ce97659366446
         cplex.setParam(IloCplex::MIPInterval, 5000);
         cplex.setParam(IloCplex::MIPDisplay, displayLimit);
         cplex.setParam(IloCplex::IntSolLim, solLimit);
         cplex.setParam(IloCplex::TiLim, timeLimit);
 
-        cplex.exportModel("cflp.lp");
+        // cplex.exportModel("cflp.lp");
 
         if (!cplex.solve())
         {
@@ -829,7 +890,6 @@ void define_box_support(INSTANCE & inp)
 {
    double epsilon = 0.0;
    read_parameters_box(epsilon);
-
    inp.nR = 2*inp.nC;
    inp.h  = new double[inp.nR];
    for (int j = 0; j < inp.nC; j++)
@@ -946,13 +1006,13 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
     int    nBl     = 0;
     int  **Bl;
     double *budget;
-    fromDisk =true;
+    // fromDisk =true;
     if (fromDisk==false)
     {
         read_parameters_budget(epsilon, delta, gamma, L);
 
         // initialize random generator (uniform distribution)
-        uniform_int_distribution<> d(0,inp.nC);
+        uniform_int_distribution<> d(0,inp.nC-1);
 
         nBl    = floor(gamma*(double)inp.nC); // cardinality of each B_l
         Bl     = new int*[L];
@@ -964,12 +1024,20 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         cout << "[** |B_l| = " << nBl << "]\n" << endl;
 
         // randomly generate sets B_l and compute budget b_l
+        std::vector<int> shuffled;
+        for (int i = 0; i < inp.nC; ++i) 
+            shuffled.push_back(i); // 0 2 3 ... nC-1
+
+          // using built-in random generator:
+        std::random_shuffle ( shuffled.begin(), shuffled.end() );
+
         for (int l = 0; l < L; l++)
         {
             budget[l] = 0.0;
             for (int k = 0; k < nBl; k++)
             {
-                int el = d(gen);
+                // int el = d(gen);
+                int el = shuffled[k];
                 Bl[l][k] = el;
                 budget[l] += inp.d[el];
             }
@@ -981,13 +1049,14 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
 
         for (int l = 0; l < L; l++)
         {
+            cout <<"Budget constraint # " << l << ":: ";
             for (int k = 0; k < nBl; k++)
                 cout << " " << Bl[l][k];
             cout << endl;
         }
 
         // do we want to save the sets B_l (and the parameters?)
-        bool save2Disk = false;
+        bool save2Disk =false;
         if (save2Disk==true)
             save_instance_2_disk(epsilon, delta, gamma, L, nBl, Bl, budget);
     }
@@ -1004,6 +1073,7 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
     for (int l = 0; l < L; l++)
         for (int k = 0; k < nBl; k++)
             mapping[Bl[l][k]].push_back(l);
+
 
    // total number of rows of W and h
    inp.nR = 2*inp.nC + L;
