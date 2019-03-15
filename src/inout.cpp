@@ -55,6 +55,11 @@ struct INSTANCE { /// See same data structure define in rcflp.cpp
     int *index;    // index of column major format for w
     int *start;    // starting position for elements of column j
 };
+extern double _Omega;
+extern double _epsilon;
+extern double _delta;
+extern double _gamma;
+extern int    L;      
 
 extern string instanceType;
 extern string versionType;
@@ -148,9 +153,9 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 /// Print instance info and algorithmic parameters.
 void printOptions(char * _FILENAME, INSTANCE inp, int timeLimit)
 {
-   double epsilon = 0.0;
-   double delta   = 0.0;
-   double gamma   = 0.0;
+   double _epsilon = 0.0;
+   double _delta   = 0.0;
+   double _gamma   = 0.0;
    int    L       = 0;
    cout << "-------------------------------------" << endl;
    cout << "- OPTIONS : " << endl;
@@ -168,13 +173,14 @@ void printOptions(char * _FILENAME, INSTANCE inp, int timeLimit)
 
 /// Read parameters to define the ellipsoidal uncertainty set.
 /** We need to define two parameters:
- *  * `Omega` : It determines the size of the ellipsoidal, i.e., the size of
+ *  * `_Omega` : It determines the size of the ellipsoidal, i.e., the size of
  *              the uncertainty set.
- *  * `epsilon`: It defines the variance of each variable \f$x_{ij}\f$. We
+ *  * `_epsilon`: It defines the variance of each variable \f$x_{ij}\f$. We
  *               assume that the covariance matrix is diagonal and with
  *               constant values \f$\epsilon\f$ for each element.
  */
-void read_parameters_ellipsoidal(double & epsilon, double & Omega)
+// void read_parameters_ellipsoidal(double & _epsilon, double & _Omega)
+void read_parameters_ellipsoidal()
 {
     ifstream fReader("parameters/paramsEllipsoidal.txt", ios::in);
     if (!fReader)
@@ -184,25 +190,26 @@ void read_parameters_ellipsoidal(double & epsilon, double & Omega)
     }
     cout << "[** Reading parameters from file 'paramsEllipsoidal.txt'.]" << endl;
     string line;
-    fReader >> epsilon; 
+    fReader >> _epsilon; 
     getline(fReader, line); // read comment on same line
-    fReader >> Omega;
+    fReader >> _Omega;
 
-    cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon 
-         << "; Omega = " <<  Omega << "]\n" << endl;
+    cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
+         << "; _Omega = " <<  _Omega << "]\n" << endl;
 
     fReader.close();
 }
 /// Read parameters to define the Box support.
 /**
  *  The file 'paramsBox.txt' has the following format:
- *      - first row : `epsilon`, i.e., the parameter used to define the with of
+ *      - first row : `_epsilon`, i.e., the parameter used to define the with of
  *                    the box. Given a nominal demand value \f$d_j\f$, we define 
  *                    the interval around \f$d_j\f$ as:
- *                    \f[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0
+ *                    \f[ (1-\_epsilon)*d_j <= d_j <= (1+\_epsilon)d_j, \quad 0
  *                    \leq \epsilon \leq 1 \f]
  */
-void read_parameters_box(double & epsilon)
+// void read_parameters_box(double & _epsilon)
+void read_parameters_box()
 {
     ifstream fReader("parameters/paramsBox.txt", ios::in);
     if (!fReader)
@@ -212,8 +219,8 @@ void read_parameters_box(double & epsilon)
     }
 
     cout << "[** Reading parameters from file 'paramsBox.txt'.]" << endl;
-    fReader >> epsilon;
-    cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon << "]" << endl;
+    fReader >> _epsilon;
+    cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon << "]" << endl;
 
     fReader.close();
 }
@@ -221,20 +228,20 @@ void read_parameters_box(double & epsilon)
 /// Read parameters to define the budget support.
 /**
  * * File : `paramsBudget.txt`
- *      - first row : `epsilon`, as above
- *      - second row: `delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
+ *      - first row : `_epsilon`, as above
+ *      - second row: `_delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
  *                    budget constraint) is defined. We define \f$b_l\f$ as a
  *                    percentage of the total demand of customers included in
  *                    the budget constraint, i.e.:
  *                    \f[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq
  *                    \delta \leq 1 \f]
- *      - third row : `gamma`, i.e., percentage of columns included in each
+ *      - third row : `_gamma`, i.e., percentage of columns included in each
  *                    budget constraint:
-                      \f[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\f]
+                      \f[|B_l| = \lfloor \_gamma n \rfloor, \quad 0 \leq \gamma \leq 1\f]
  *      - forth row : \f$L \geq 1\f$, i.e., number of budget constraints.
 */
-void read_parameters_budget(double & epsilon, double & delta, double & gamma, 
-                            int & L)
+// void read_parameters_budget(double & _epsilon, double & _delta, double & gamma,
+void read_parameters_budget()
 {
     ifstream fReader("parameters/paramsBudget.txt", ios::in);
     if (!fReader)
@@ -244,17 +251,17 @@ void read_parameters_budget(double & epsilon, double & delta, double & gamma,
     }
     cout << "[** Reading parameters from file 'paramsBudget.txt'.]" << endl;
     string line;
-    fReader >> epsilon; 
+    fReader >> _epsilon; 
     getline(fReader, line); // read comment on same line
     /* line.erase( find( line.begin(), line.end(), '#' ), line.end() ); */
 
-    fReader >> delta;
+    fReader >> _delta;
     getline(fReader, line); // read comment on same line
-    fReader >> gamma;
+    fReader >> _gamma;
     getline(fReader, line); // read comment on same line
     fReader >> L;
-    cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon 
-         << "; delta = " << delta << "; gamma = " << gamma << "; L = " << L 
+    cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
+         << "; _delta = " << _delta << "; _gamma = " << _gamma << "; L = " << L 
          << "]" << endl;
 
     fReader.close();

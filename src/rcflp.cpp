@@ -129,6 +129,7 @@ ILOSTLBEGIN
 #include <random>
 #include <algorithm>
 #include <cstdlib>
+#include <sstream>
 
 /* #include "timer.h" */
 #include "options.h"
@@ -148,11 +149,17 @@ char * _FILENAME;		//!< Instance name file
 int fType;              //!< instance type (1-4)
 int version;            //!< 1-SS; 2-MS; 3-SOCP
 int support;            //!< 1-Box; 2-Budget
+int readFromDisk;       //!< 0-No; (Generate a new Budget set B_l); 1-Yes
 string instanceType;
 string versionType;
 string supportType;
 
 typedef std::vector <int> MyVect;
+double _Omega;
+double _epsilon;
+double _delta;
+double _gamma;
+int    L;      
 
 /// Structure used to define the instance data
 // NOTE: Change the same structure in the file inout.cpp !!!
@@ -177,6 +184,7 @@ INSTANCE inp; //!< Instance data
 
 /// Optimal solution and obj function value
 struct SOLUTION {
+    int nOpen;
     int  *ySol;
     double **xSol;
     double zStar;
@@ -213,14 +221,15 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
 int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit);
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt);
 void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, int fullOutput);
-void read_parameters_box(double & delta);
-void read_parameters_ellipsoidal(double & epsilon, double & Omega);
-void read_parameters_budget(double & epsilon, double & delta, double & gamma, int & L);
+/* void read_parameters_box(double & _delta); */
+void read_parameters_box();
+void read_parameters_ellipsoidal();
+void read_parameters_budget();
 void define_box_support(INSTANCE & inp);
 void define_budget_support(INSTANCE & inp, bool fromDisk);
-void save_instance_2_disk(double epsilon, double delta, double gamma, int L, 
+void save_instance_2_disk(double _epsilon, double _delta, double _gamma, int L, 
                           int nBl, int ** Bl, double * budget);
-void read_instance_from_disk(double & epsilon, double & delta, double & gamma, 
+void read_instance_from_disk(double & _epsilon, double & _delta, double & _gamma, 
                              int & L, int & nBl, int ** Bl, double * budget);
 void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
 /****************** FUNCTIONS DECLARATION ***************************/
@@ -230,10 +239,11 @@ void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
 /************************ main program ******************************/
 int main(int argc, char *argv[])
 {
-<<<<<<< HEAD
+    _epsilon = 0.0;
+    _delta   = 0.0;
+    _gamma   = 0.0;
+    L        = 0;
     std::srand ( unsigned ( std::time(0) ) );
-=======
->>>>>>> f424d651b5011636779deb598c4ce97659366446
 
     int err = parseOptions(argc, argv);
     if (err != 0) exit(1);
@@ -241,14 +251,9 @@ int main(int argc, char *argv[])
     readProblemData(_FILENAME, fType, inp);
     printOptions(_FILENAME, inp, timeLimit);
 
-<<<<<<< HEAD
     auto start = chrono::system_clock::now();
 
-=======
-
-
     IloCplex cplex(model);
->>>>>>> f424d651b5011636779deb598c4ce97659366446
     switch(version)
     {
         case 1 :  // single source nominal
@@ -268,12 +273,8 @@ int main(int argc, char *argv[])
             exit(123);
     }
 
-    opt.startTime = cplex.getTime();
+    // define_benders(model, cplex, inp);
 
-    define_benders(model, cplex, inp);
-
-    cout << "Starttime is = " << opt.startTime << endl;
-    cout << "** " << cplex.getTime() << endl;
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
     opt.cpuTime = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now()-start).count();
@@ -293,8 +294,7 @@ int main(int argc, char *argv[])
 /// Get and store cplex solution in data structure opt
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 {
-    opt.cpuTime = cplex.getTime()-opt.startTime;
-
+    opt.nOpen = 0;
     opt.ySol = new int[inp.nF];
     opt.xSol = new double*[inp.nF];
     for (int i = 0; i < inp.nF; i++)
@@ -305,13 +305,60 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 
     for (int i = 0; i < inp.nF; i++)
         if (cplex.getValue(y_ilo[i]) >= 1.0-EPSI)
+        {
             opt.ySol[i] = 1;
+            opt.nOpen++;
+        }
         else
             opt.ySol[i] = 0;
 
     for (int i = 0; i < inp.nF; i++)
         for (int j = 0; j < inp.nC; j++)
             opt.xSol[i][j] = cplex.getValue(x_ilo[i][j]);
+
+    switch(version)
+    {
+        case 1 :  // single source nominal
+            versionType = "ss";
+            break;
+        case 2 : // multi source nominal
+            versionType = "ms";
+            break;
+        case 3 : // multi source ellipsoidal
+            versionType = "ellipsoidal";
+            break;
+        case 4 : // robust polyhedral uncertainty set (both SS and MS)
+            if (support==1)
+                versionType = "box";
+            else
+                versionType = "budget";
+            break;
+        default :
+            cout << "ERROR in WRITING SOLUTION: Version type not defined.\n" << endl;
+            exit(123);
+    }
+
+    string  s1      = string(_FILENAME);
+    s1              = s1.substr(s1.find_last_of("\\/"), 100);
+    ostringstream obj;
+    obj << _epsilon << "-" <<  _delta << "-" << _gamma << "-" << L;
+    string filename = "solutions" + s1 + "-" + versionType + "-" + obj.str();
+
+    ofstream fWriter(filename, ios::out);
+    fWriter << inp.nF << " " << inp.nC << endl;
+    fWriter << setprecision(15) << opt.zStar << endl;
+    fWriter << opt.zStatus << endl;
+    fWriter << opt.nOpen << endl;
+    for (int i = 0; i < inp.nF; i++)
+        if (opt.ySol[i] == 1)
+            fWriter << " " << i;
+    fWriter << endl;
+    for (int i = 0; i < inp.nF; i++)
+        for (int j = 0; j < inp.nC; j++)
+            if (opt.xSol[i][j] > 0.0)
+                fWriter << i << " " << j << " " << opt.xSol[i][j] << endl;
+    fWriter.close();
+    cout << "Solution written to disk. ('" << filename <<"')" << endl;
 }
 
 
@@ -319,18 +366,6 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, 
 int fullOutput)
 {
-<<<<<<< HEAD
-    double epsilon = 0.0;
-    double delta   = 0.0;
-    double gamma   = 0.0;
-    int    L       = 0;
-=======
-    cout << endl << "** SOLUTION **" << endl;
-    cout << " ..z*     \t= " << setprecision(15) << opt.zStar << endl;
-    cout << " ..time   \t= " << opt.cpuTime << endl;
-    cout << " ..status \t= " << opt.zStatus << endl;
->>>>>>> f424d651b5011636779deb598c4ce97659366446
-
     cout << endl << "** SOLUTION **" << endl;
     cout << " ..z*     \t= " << setprecision(15) << opt.zStar << endl;
     cout << " ..time   \t= " << opt.cpuTime << endl;
@@ -340,40 +375,9 @@ int fullOutput)
     fWriter << _FILENAME << "\t" << instanceType << "\t"
             << versionType << "\t" << supportType << "\t" 
             << setprecision(15) << opt.zStar << "\t" 
-            << opt.zStatus << "\t" << opt.cpuTime <<"\t";
-                
-    // print parameters
-    if (version == 4)
-    {
-<<<<<<< HEAD
-        switch (support)
-        {
-            case 1 :
-                read_parameters_box(epsilon);
-
-                fWriter << epsilon << endl;
-                break;
-            case 2 : 
-                read_parameters_budget(epsilon, delta, gamma, L);
-                fWriter << epsilon << "\t" << delta << "\t" << gamma << "\t" 
-                        << L << endl;
-                break;
-            default :
-                cout << "ERROR : Support type not defined.\n" << endl;
-                exit(123);
-        }
-=======
-        ofstream fWriter("solution.txt", ios::out);
-        fWriter << _FILENAME << "\t" << instanceType << "\t"
-                << versionType << "\t" << supportType << "\t" 
-                << setprecision(15) << opt.zStar << "\t" 
-                << opt.zStatus << "\t" << opt.cpuTime << endl;
-        fWriter.close();
->>>>>>> f424d651b5011636779deb598c4ce97659366446
-    }
-    else
-        fWriter << endl;
-                
+            << opt.zStatus << "\t" << opt.cpuTime <<"\t"
+            << _Omega << "\t" << _epsilon << "\t" << _delta << "\t" 
+            << _gamma << "\t" << L << endl;
     fWriter.close();
 
     if (fullOutput >= 1)
@@ -528,9 +532,7 @@ void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 /// Define the Multi-source Capacitated Facility Location Model [Ellipsoidal]
 void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 {
-    double epsilon = 0.0;
-    double Omega   = 0.0;
-    read_parameters_ellipsoidal(epsilon, Omega);
+    read_parameters_ellipsoidal();
 
     IloEnv env = model.getEnv();
 
@@ -563,7 +565,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     sum = -w_ilo*w_ilo;
     for (int i = 0; i < inp.nF; i++)
         for (int j = 0; j < inp.nC; j++)
-            sum += x_ilo[i][j]*x_ilo[i][j]*inp.c[i][j]*epsilon*inp.c[i][j]*epsilon;
+            sum += x_ilo[i][j]*x_ilo[i][j]*inp.c[i][j]*_epsilon*inp.c[i][j]*_epsilon;
     model.add(sum <= 0.0);
 
     // Q conic constraints
@@ -573,7 +575,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
         // sum = -q_ilo[i];
         sum = -q_ilo[i]*q_ilo[i];
         for (int j = 0; j < inp.nC; j++)
-            sum += x_ilo[i][j]*x_ilo[i][j]*epsilon*epsilon;
+            sum += x_ilo[i][j]*x_ilo[i][j]*_epsilon*_epsilon;
         model.add(sum <= 0.0);
     }
 
@@ -584,7 +586,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
         for (int j = 0; j < inp.nC; j++)
             sum += x_ilo[i][j]*inp.d[j];
 
-        sum += Omega*q_ilo[i];
+        sum += _Omega*q_ilo[i];
         sum -= y_ilo[i]*inp.s[i];
 
         model.add(sum <= 0.0);
@@ -598,7 +600,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
         for (int j = 0; j < inp.nC; j++)
             totCost += x_ilo[i][j]*inp.c[i][j]*inp.d[j];
     }
-    totCost += Omega*w_ilo;
+    totCost += _Omega*w_ilo;
 
     model.add(IloMinimize(env,totCost));
 }
@@ -635,28 +637,28 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
  * follows:
  *
  * * File : `paramsBox.txt`
- *      - first row : `epsilon`, i.e., the parameter used to define the with of
+ *      - first row : `_epsilon`, i.e., the parameter used to define the with of
  *                    the box. Given a nominal demand value \f$d_j\f$, we define 
  *                    the interval around \f$d_j\f$ as:
  *                    \f[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0
  *                    \leq \epsilon \leq 1 \f]
  *
  * * File : `paramsBudget.txt`
- *      - first row : `epsilon`, as above
- *      - second row: `delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
+ *      - first row : `_epsilon`, as above
+ *      - second row: `_delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
  *                    budget constraint) is defined. We define \f$b_l\f$ as a
  *                    percentage of the total demand of customers included in
  *                    the budget constraint, i.e.:
  *                    \f[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq
  *                    \delta \leq 1 \f]
- *      - third row : `gamma`, i.e., percentage of columns included in each
+ *      - third row : `_gamma`, i.e., percentage of columns included in each
  *                    budget constraint:
-                      \f[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\f]
+                      \f[|B_l| = \lfloor \_gamma n \rfloor, \quad 0 \leq \_gamma \leq 1\f]
  *      - forth row : \f$L \geq 1\f$, i.e., number of budget constraints.
  *
  * To define which columns are included in each budget constraint, we first
- * compute the cardinality of each set \f$B_l\f$ (using `gamma`); next, we randomly
- * select \f$\gamma \times n\f$ columns from the set \f$N = \left\{0, ..., n-1\right\}\f$.
+ * compute the cardinality of each set \f$B_l\f$ (using `_gamma`); next, we randomly
+ * select \f$\_gamma \times n\f$ columns from the set \f$N = \left\{0, ..., n-1\right\}\f$.
  *
  * **Note**: Sets \f$B_l\f$, with \f$l = 1, ..., L\f$, are NOT disjoint, i.e., the same
  * customer j can appear in more than one budget constraint.
@@ -810,11 +812,8 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
     {
         IloEnv env = model.getEnv();
         /* cplex.setOut(env.getNullStream()); */
-<<<<<<< HEAD
         cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall-clock 
-=======
         cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall clock
->>>>>>> f424d651b5011636779deb598c4ce97659366446
         cplex.setParam(IloCplex::MIPInterval, 5000);
         cplex.setParam(IloCplex::MIPDisplay, displayLimit);
         cplex.setParam(IloCplex::IntSolLim, solLimit);
@@ -837,7 +836,7 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
 }
 
 
-/// Define \f$W\f$ and \f$\mathbf{h}\f$, given the value of `epsilon`.
+/// Define \f$W\f$ and \f$\mathbf{h}\f$, given the value of `_epsilon`.
 /**
  * We need to define \f$W\mathbf{d} \leq \mathbf{h}\f$, where:
  * * \f$W\f$ is of size [r x n]
@@ -888,14 +887,13 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
  */
 void define_box_support(INSTANCE & inp)
 {
-   double epsilon = 0.0;
-   read_parameters_box(epsilon);
+   read_parameters_box();
    inp.nR = 2*inp.nC;
    inp.h  = new double[inp.nR];
    for (int j = 0; j < inp.nC; j++)
    {
-       inp.h[j]        = -inp.d[j]*(1.0-epsilon);
-       inp.h[j+inp.nC] =  inp.d[j]*(1.0+epsilon);
+       inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
+       inp.h[j+inp.nC] =  inp.d[j]*(1.0+_epsilon);
    }
 
    // define matrix W in column major format
@@ -933,16 +931,16 @@ void define_box_support(INSTANCE & inp)
  * results of an instance, by recreating the same budget support set.
  *
  * The file `paramsBudget.txt` has the following format:
- *      - first row : `epsilon`, as above
- *      - second row: `delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
+ *      - first row : `_epsilon`, as above
+ *      - second row: `_delta`, i.e., how the \f$b_l\f$ value (the r.h.s. value of each
  *                    budget constraint) is defined. We define \f$b_l\f$ as a
  *                    percentage of the total demand of customers included in
  *                    the budget constraint, i.e.:
  *                    \f[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq
  *                    \delta \leq 1 \f]
- *      - third row : `gamma`, i.e., percentage of columns included in each
+ *      - third row : `_gamma`, i.e., percentage of columns included in each
  *                    budget constraint:
-                      \f[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\f]
+                      \f[|B_l| = \lfloor \_gamma n \rfloor, \quad 0 \leq \_gamma \leq 1\f]
  *      - forth row : \f$L \geq 1\f$, i.e., number of budget constraints.
  *
  *  The structure of \f$W\f$ and \f$\mathbf{h}\f$ and the column-major format
@@ -998,41 +996,34 @@ void define_box_support(INSTANCE & inp)
 void define_budget_support(INSTANCE & inp, bool fromDisk)
 {
 
-    // initialization
-    double epsilon = 0.0;
-    double delta   = 0.0;
-    double gamma   = 0.0;
-    int    L       = 0;
     int    nBl     = 0;
     int  **Bl;
     double *budget;
-    // fromDisk =true;
-    if (fromDisk==false)
-    {
-        read_parameters_budget(epsilon, delta, gamma, L);
 
+    read_parameters_budget();
+
+    nBl    = floor(_gamma*(double)inp.nC); // cardinality of each B_l
+    Bl     = new int*[L];
+    budget = new double[L];
+    for (int l = 0; l < L; l++)
+        Bl[l] = new int[nBl];
+    
+    // cardinality of sets B_l
+    cout << "[** |B_l| = " << nBl << "]\n" << endl;
+
+    // randomly generate sets B_l and compute budget b_l
+    std::vector<int> shuffled;
+    for (int i = 0; i < inp.nC; ++i) 
+        shuffled.push_back(i); // 0 2 3 ... nC-1
+
+    if (readFromDisk==false)
+    {
         // initialize random generator (uniform distribution)
         uniform_int_distribution<> d(0,inp.nC-1);
-
-        nBl    = floor(gamma*(double)inp.nC); // cardinality of each B_l
-        Bl     = new int*[L];
-        budget = new double[L];
-        for (int l = 0; l < L; l++)
-            Bl[l] = new int[nBl];
-        
-        // cardinality of sets B_l
-        cout << "[** |B_l| = " << nBl << "]\n" << endl;
-
-        // randomly generate sets B_l and compute budget b_l
-        std::vector<int> shuffled;
-        for (int i = 0; i < inp.nC; ++i) 
-            shuffled.push_back(i); // 0 2 3 ... nC-1
-
-          // using built-in random generator:
-        std::random_shuffle ( shuffled.begin(), shuffled.end() );
-
         for (int l = 0; l < L; l++)
         {
+            // using built-in random generator:
+            std::random_shuffle(shuffled.begin(), shuffled.end());
             budget[l] = 0.0;
             for (int k = 0; k < nBl; k++)
             {
@@ -1045,27 +1036,50 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         }
         // adjust b_l values
         for (int l = 0; l < L; l++)
-            budget[l] = floor(delta*budget[l]);
-
-        for (int l = 0; l < L; l++)
-        {
-            cout <<"Budget constraint # " << l << ":: ";
-            for (int k = 0; k < nBl; k++)
-                cout << " " << Bl[l][k];
-            cout << endl;
-        }
+            budget[l] = floor(_delta*budget[l]);
 
         // do we want to save the sets B_l (and the parameters?)
-        bool save2Disk =false;
+        bool save2Disk = true;
         if (save2Disk==true)
-            save_instance_2_disk(epsilon, delta, gamma, L, nBl, Bl, budget);
+            save_instance_2_disk(_epsilon, _delta, _gamma, L, nBl, Bl, budget);
     }
-    else // read file from disk to recreate a budget support for this instance
+    else
     {
-        read_instance_from_disk(epsilon, delta, gamma, L, nBl, Bl, budget);
-        cout << "[** Uncertainty Set Parameters :: epsilon = " << epsilon 
-             << "; delta = " << delta << "; gamma = " << gamma << "; L = " << L 
+        string  s1      = string(_FILENAME);
+        s1              = s1.substr(s1.find_last_of("\\/"), 100);
+        string filename = "support" + s1 + ".budget"; 
+
+        ifstream fReader(filename, ios::in);
+        if (!fReader)
+        {
+            cout << "Cannot open file '" << filename << "'." << endl;
+            exit(111);
+        }
+        for (int l = 0; l < L; l++)
+        {
+            int temp = nBl;
+            fReader >> nBl;
+            assert(temp == nBl);
+            Bl[l] = new int[nBl];
+
+            for (int k = 0; k < nBl; k++)
+                fReader >> Bl[l][k];
+            fReader >> budget[l];
+        }
+
+        fReader.close();
+        cout << "[** Instance read from disk. File '" << filename << "']" << endl;
+        cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
+             << "; _delta = " << _delta << "; _gamma = " << _gamma << "; L = " << L 
              << "]\n" << endl;
+    }
+
+    for (int l = 0; l < L; l++)
+    {
+        cout <<"Budget constraint # " << l << ":: ";
+        for (int k = 0; k < nBl; k++)
+            cout << " " << Bl[l][k];
+        cout << endl;
     }
 
     // define mapping: list of budget constraints including column j 
@@ -1074,7 +1088,6 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         for (int k = 0; k < nBl; k++)
             mapping[Bl[l][k]].push_back(l);
 
-
    // total number of rows of W and h
    inp.nR = 2*inp.nC + L;
     // define vector h
@@ -1082,8 +1095,8 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
    inp.h  = new double[inp.nR];
    for (int j = 0; j < inp.nC; j++)
    {
-       inp.h[j]        = -inp.d[j]*(1.0-epsilon);
-       inp.h[j+inp.nC] =  inp.d[j]*(1.0+epsilon);
+       inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
+       inp.h[j+inp.nC] =  inp.d[j]*(1.0+_epsilon);
    }
     // b. budget part
     for (int l = 0; l < L; l++)
@@ -1124,20 +1137,15 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
  *  to save multiple versions of robust instances starting from the same
  *  nominal instances, we will have to come up with a different name coding.
  */
-void save_instance_2_disk(double epsilon, double delta, double gamma, int L, 
+void save_instance_2_disk(double _epsilon, double _delta, double _gamma, int L, 
                           int nBl, int ** Bl, double * budget)
 {
 
     string  s1      = string(_FILENAME);
     s1              = s1.substr(s1.find_last_of("\\/"), 100);
-    string filename = "support" + s1 + ".budget";
-
+    string filename = "support" + s1 + ".budget"; 
     ofstream fWriter(filename, ios::out);
 
-    fWriter << epsilon << endl;
-    fWriter << delta << endl;
-    fWriter << gamma << endl;
-    fWriter << L << endl;
     for (int l = 0; l < L; l++)
     {
         fWriter << nBl;
@@ -1155,20 +1163,22 @@ void save_instance_2_disk(double epsilon, double delta, double gamma, int L,
  *  This ensures reproducibility. We read the set \f$B_l\f$ and the budget
  *  values \f$b_l\f$. Thus, the robust instance can fully be reconstructed.
  * */
-void read_instance_from_disk(double & epsilon, double & delta, double & gamma, 
+void read_instance_from_disk(double & _epsilon, double & _delta, double & _gamma, 
                              int & L, int & nBl, int ** Bl, double * budget)
 {
     string  s1      = string(_FILENAME);
     s1              = s1.substr(s1.find_last_of("\\/"), 100);
-    string filename = "support" + s1 + ".budget";
+    string filename = "support" + s1 + ".budget"; 
+    /* string filename = "support" + s1 + "-budget-" + to_string(_epsilon) +"-" +
+     *                   to_string(_delta) + "-" + to_string(_gamma) + "-" + to_string(L); */
 
     ifstream fReader(filename, ios::in);
     if (!fReader)
     {
-        cout << "Cannot open file 'paramsBudget.txt'." << endl;
+        cout << "Cannot open file '" << filename << "'." << endl;
         exit(111);
     }
-    fReader >> epsilon >> delta >> gamma >> L;
+    fReader >> _epsilon >> _delta >> _gamma >> L;
     Bl     = new int*[L];
     budget = new double[L];
     for (int l = 0; l < L; l++)

@@ -37,6 +37,10 @@
     - **-u** : uncertainty set
             -# Box uncertainty set
             -# Budget uncertanty set
+
+    - **-r** : read from disk
+            -# 0 No: A new Budget set $B_l$ is generated and stored
+            -# 1 Yes: The Budget set is read from disk
 */
 
 #include <iostream>
@@ -44,6 +48,7 @@
 /**********************************************************/
 #define   _TIMELIMITdef  3600   //!< default wall-clock time limit
 #define   _VERSIONdef    1      //!< single source by default
+#define   _FROMDISKdef    1      //!< single source by default
 /**********************************************************/
 
 using namespace std;
@@ -53,6 +58,7 @@ extern int timeLimit;		//!< wall-clock time limit
 extern int fType;           //!< instance type (1-2)
 extern int version;         //!< 1-SS; 2-MS; 3-Ellipsoidal; 4-Polyhedral
 extern int support;         //!< 1-Box; 2-Budget
+extern int readFromDisk;    //!< 0-No; (Generate a new Budget set B_l); 1-Yes
 extern string instanceType;
 extern string versionType;
 extern string supportType;
@@ -67,6 +73,7 @@ int parseOptions(int argc, char* argv[])
    bool setType = false;
    timeLimit    = _TIMELIMITdef;
    version      = _VERSIONdef;
+   readFromDisk= _FROMDISKdef;
    cout <<endl << "R-CLSP v1.0 " << endl;
    if (argc == 1)
    {
@@ -106,8 +113,12 @@ int parseOptions(int argc, char* argv[])
 	       version = atol(argv[i+1]);
 	       i++;
 	       break;
-	    case 'u':
+        case 'u':
 	       support = atol(argv[i+1]);
+	       i++;
+	       break;
+        case 'r':
+	       readFromDisk = atol(argv[i+1]);
 	       i++;
 	       break;
 	    case 'h':
@@ -117,6 +128,7 @@ int parseOptions(int argc, char* argv[])
 	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP; 4- Poly)" << endl;
 	       cout << "-t : instance type (1-OR Library; 2-Avella)" << endl;
 	       cout << "-u : support type (1-Box; 2-Budget)" << endl;
+	       cout << "-r : read Budget support set from disk (0-No; 1-Yes)" << endl;
 	       cout << endl;
 	       return -1;
 	 }
