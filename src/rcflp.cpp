@@ -357,8 +357,18 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
         for (int j = 0; j < inp.nC; j++)
             if (opt.xSol[i][j] > 0.0)
                 fWriter << i << " " << j << " " << opt.xSol[i][j] << endl;
+
+
+    /* for (int i = 0; i < inp.nF; i++)
+     *     for (int t = 0; t < inp.nR; t++)
+     *         if (cplex.getValue(psi_ilo[i][t] > 0.0)
+     *             fWriter << "psi " << i << " " << t << " " << cplex.getValue(psi_ilo[i][t]) << endl; */
+
     fWriter.close();
     cout << "Solution written to disk. ('" << filename <<"')" << endl;
+
+
+    
 }
 
 
@@ -1079,7 +1089,7 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         cout <<"Budget constraint # " << l << ":: ";
         for (int k = 0; k < nBl; k++)
             cout << " " << Bl[l][k];
-        cout << endl;
+        cout << " :: Total Budget = " << budget[l] << endl;
     }
 
     // define mapping: list of budget constraints including column j 
@@ -1095,12 +1105,20 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
    inp.h  = new double[inp.nR];
    for (int j = 0; j < inp.nC; j++)
    {
-       inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
+       // inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
+       inp.h[j]        =  0.9;
        inp.h[j+inp.nC] =  inp.d[j]*(1.0+_epsilon);
    }
+
+
+    
     // b. budget part
     for (int l = 0; l < L; l++)
         inp.h[2*inp.nC+l] = budget[l];
+
+   cout << "H VECTOR " << endl;
+   for (int j = 0; j < 2*inp.nC+L; j++)
+       cout << "h[" << j << "] = " << inp.h[j] << endl;
 
    // define matrix W in column major format
    int nEls  = 2*inp.nC + L*nBl;
