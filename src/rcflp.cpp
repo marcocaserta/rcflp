@@ -107,6 +107,15 @@
   See the makefile to determine how 
   to link the library to the code.
 
+
+  03.08.19: Added code to solve the Instances provided by Roberto B. They are in
+  the same format of the OR Library. However, to solve them in robust format, 
+  i.e., with epsilon > 0, we need to increase the capacity of each facility.
+
+  07.08.19: Modified code to read epsilon from command line. This is useful to
+  make the tests automatic. Note that, in the case of the budget constraints, 
+  all the other parameters are still read from disk.
+
 */
 
 #include <ilcplex/ilocplex.h>
@@ -150,13 +159,13 @@ int fType;              //!< instance type (1-4)
 int version;            //!< 1-SS; 2-MS; 3-SOCP
 int support;            //!< 1-Box; 2-Budget
 int readFromDisk;       //!< 0-No; (Generate a new Budget set B_l); 1-Yes
+double _epsilon;        //!< epsilon used in robust optimization (box and budget)
 string instanceType;
 string versionType;
 string supportType;
 
 typedef std::vector <int> MyVect;
 double _Omega;
-double _epsilon;
 double _delta;
 double _gamma;
 int    L;      
@@ -178,6 +187,8 @@ struct INSTANCE {
     int     *W;    //!< Matrix W in column major format
     int *index;    //!< Index of column major format for w
     int *start;    //!< Starting position for elements of column j
+
+    std::vector <int> listB; //!< List of columns in budget constraints
 
 };
 INSTANCE inp; //!< Instance data
@@ -213,7 +224,7 @@ int timeLimit;
 
 /****************** FUNCTIONS DECLARATION ***************************/
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
-void printOptions(char * _FILENAME, INSTANCE inp, int timeLimit);
+void printOptions(char * _FILENAME, INSTANCE & inp, int timeLimit);
 void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
@@ -232,6 +243,10 @@ void save_instance_2_disk(double _epsilon, double _delta, double _gamma, int L,
 void read_instance_from_disk(double & _epsilon, double & _delta, double & _gamma, 
                              int & L, int & nBl, int ** Bl, double * budget);
 void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
+void define_new_budget_support(INSTANCE & inp, bool fromDisk);
+void define_new2_budget_support(INSTANCE & inp, bool fromDisk);
+void define_new_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex, int support);
+void define_new2_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex, int support);
 /****************** FUNCTIONS DECLARATION ***************************/
 
 /************************ main program ******************************/
@@ -239,7 +254,7 @@ void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
 /************************ main program ******************************/
 int main(int argc, char *argv[])
 {
-    _epsilon = 0.0;
+    // _epsilon = 0.0;
     _delta   = 0.0;
     _gamma   = 0.0;
     L        = 0;
@@ -266,7 +281,9 @@ int main(int argc, char *argv[])
             define_SOCP_CFLP(inp, fType, model, cplex);
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
-            define_POLY_CFLP(inp, fType, model, cplex, support);
+            // define_POLY_CFLP(inp, fType, model, cplex, support);
+            // define_new_POLY_CFLP(inp, fType, model, cplex, support);
+            define_new2_POLY_CFLP(inp, fType, model, cplex, support);
             break;
         default :
             cout << "ERROR : Version type not defined.\n" << endl;
@@ -815,6 +832,373 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
     model.add(IloMinimize(env,totCost));
 }
 
+
+
+void define_new_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex,
+                      int support)
+{
+
+    // select support type
+    // here we get W and h, depending on the type of support
+    switch (support)
+    {
+        case 1 :
+            define_box_support(inp);
+            break;
+        case 2 : 
+            // define_budget_support(inp, false);
+            define_new_budget_support(inp, false);
+            break;
+        default :
+            cout << "ERROR : Support type not defined.\n" << endl;
+            exit(123);
+    }
+
+    char varName[100];
+    char constrName[100];
+    IloEnv env = model.getEnv();
+
+    // location variables
+    y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
+
+    // allocation variables (Note: Change here to switch between MS and SS)
+    x_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS
+        // x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); // SS 
+
+    // set var names
+    for (int i = 0; i < inp.nF; i++)
+    {
+        sprintf(varName, "y.%d", (int)i);
+        y_ilo[i].setName(varName);
+        for (int j = 0; j < inp.nC; j++)
+        {
+            sprintf(varName, "x.%d.%d", (int)i, (int) j);
+            x_ilo[i][j].setName(varName);
+        }
+    }
+
+    // reconstruct the mapping
+    int * setB = new int[inp.nC];
+    for (int j = 0; j < inp.nC; j++)
+        setB[j] = 0;
+    for (int j = 0; j < inp.listB.size(); j++)
+        setB[inp.listB[j]] = 1;
+
+    cout << "Mapping (list of vars in budget constraints :: ";
+    for (int j =0; j < inp.nC; j++)
+        cout << " " << setB[j];
+    cout << endl;
+    cout << "Nr. of rows of matrix W = " << inp.nR << endl;
+
+    // psi variables
+    psi_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        psi_ilo[i] = IloNumVarArray(env, inp.nR, 0.0, IloInfinity, ILOFLOAT);
+
+    // u variables
+    u_ilo = IloNumVarArray(env, inp.nR, 0.0, IloInfinity, ILOFLOAT);
+    
+    // set vars names
+    for (int i = 0; i < inp.nF; i++)
+        for (int t = 0; t < inp.nR; t++)
+        {
+            sprintf(varName, "psi.%d.%d", (int)i, (int) t);
+            psi_ilo[i][t].setName(varName);
+        }
+    for (int t = 0; t < inp.nR; t++)
+    {
+        sprintf(varName, "u.%d", (int)t);
+        u_ilo[t].setName(varName);
+    }
+
+    // delta variable (for the objective function)
+    delta_ilo = IloNumVarArray(env, 1, 0.0, IloInfinity, ILOFLOAT);
+    delta_ilo[0].setName("delta");
+
+    // customers demand
+    for (int j = 0; j < inp.nC; j++)
+    {
+        IloExpr sum(env);
+        for (int i = 0; i < inp.nF; i++)
+            sum += x_ilo[i][j];
+        sprintf(constrName, "demand.%d", (int)j);
+        model.add(IloRange(env, 1.0, sum, 1.0, constrName));
+    }
+
+    // "robust" demand - constr. W*psi >= x
+    int t;
+    for (int i = 0; i < inp.nF; i++)
+        for (int j = 0; j < inp.listB.size(); j++)
+        {
+            IloExpr sum(env);
+            for (int l = inp.start[j]; l < inp.start[j+1]; l++)
+            {
+                t = inp.index[l];
+                sum += inp.W[l]*psi_ilo[i][t];
+            }
+            sum -= x_ilo[i][inp.listB[j]];
+
+            sprintf(constrName, "r.demand.%d.%d", (int)i, (int)inp.listB[j]);
+            model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
+        }
+
+
+    // robust capacity h*psi <= s*y
+    for (int i = 0; i < inp.nF; i++)
+    {
+        IloExpr sum(env);
+        for (int t = 0; t < inp.nR; t++)
+            sum += inp.h[t]*psi_ilo[i][t];
+
+        for (int j = 0; j < inp.nC; j++)
+            if (setB[j] > 0)
+                sum += inp.d[j]*(1.0-_epsilon)*x_ilo[i][j];
+            else
+                sum += inp.d[j]*(1.0+_epsilon)*x_ilo[i][j];
+
+        sum -= inp.s[i]*y_ilo[i];
+
+        sprintf(constrName, "r.capacity.%d", (int)i);
+        model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
+    }
+
+    // "robust" objective function: h*u <= delta
+    IloExpr sum(env);
+    for (int t = 0; t < inp.nR; t++)
+        sum += inp.h[t]*u_ilo[t];
+
+    sum -= delta_ilo[0];
+    sprintf(constrName, "r.delta");
+    model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
+
+
+    // second robust obj function: W*u >= c*x
+    for (int j = 0; j < inp.listB.size(); j++)
+    {
+        int el = inp.listB[j];  // element in budget constraints
+        IloExpr sum(env);
+        for (int l = inp.start[j]; l < inp.start[j+1]; l++)
+        {
+            t    = inp.index[l];
+            sum += inp.W[l]*u_ilo[t];
+        }
+        for (int i = 0; i < inp.nF; i++)
+            sum -= inp.c[i][el]*x_ilo[i][el];
+
+        sprintf(constrName, "r.objective.%d", (int)el);
+        model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
+    }
+    
+    // thightening the model (does not seem to be beneficial)
+    for (int i = 0; i < inp.nF; i++)
+        for (int j = 0; j < inp.nC; j++)
+            model.add(x_ilo[i][j] - y_ilo[i] <= 0.0);
+
+
+    // objective function: min f*y + delta
+    IloExpr totCost(env);
+    for (int i = 0; i < inp.nF; i++)
+        totCost += y_ilo[i]*inp.f[i];
+    totCost += delta_ilo[0];
+
+
+    // new terms (deterministic part of d)
+    for (int j = 0; j < inp.nC; j++)
+        {
+            IloExpr coeff(env); 
+            for (int i = 0; i < inp.nF; i++)
+                coeff += inp.c[i][j]*x_ilo[i][j];
+
+            if (setB[j] == 0)
+                coeff *= inp.d[j]*(1+_epsilon);
+            else
+                coeff *= inp.d[j]*(1-_epsilon);
+
+            totCost += coeff;
+        }
+
+    model.add(IloMinimize(env,totCost));
+}
+
+void define_new2_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex,
+                      int support)
+{
+
+    // select support type
+    // here we get W and h, depending on the type of support
+    switch (support)
+    {
+        case 1 :
+            define_box_support(inp);
+            break;
+        case 2 : 
+            // define_budget_support(inp, false);
+            define_new2_budget_support(inp, false);
+            break;
+        default :
+            cout << "ERROR : Support type not defined.\n" << endl;
+            exit(123);
+    }
+    cout << "EPSILON HERE IS " << _epsilon << endl;
+
+    char varName[100];
+    char constrName[100];
+    IloEnv env = model.getEnv();
+
+    // location variables
+    y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
+
+    // allocation variables (Note: Change here to switch between MS and SS)
+    x_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS
+        // x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); // SS 
+
+    // set var names
+    for (int i = 0; i < inp.nF; i++)
+    {
+        sprintf(varName, "y.%d", (int)i);
+        y_ilo[i].setName(varName);
+        for (int j = 0; j < inp.nC; j++)
+        {
+            sprintf(varName, "x.%d.%d", (int)i, (int) j);
+            x_ilo[i][j].setName(varName);
+        }
+    }
+
+    // reconstruct the mapping
+    int * setB = new int[inp.nC];
+    for (int j = 0; j < inp.nC; j++)
+        setB[j] = 0;
+    for (int j = 0; j < inp.listB.size(); j++)
+        setB[inp.listB[j]] = 1;
+
+    // psi variables
+    psi_ilo = TwoD(env, inp.nF);
+    for (int i = 0; i < inp.nF; i++)
+        psi_ilo[i] = IloNumVarArray(env, inp.nR, 0.0, IloInfinity, ILOFLOAT);
+
+    // u variables
+    u_ilo = IloNumVarArray(env, inp.nR, 0.0, IloInfinity, ILOFLOAT);
+    
+    // set vars names
+    for (int i = 0; i < inp.nF; i++)
+        for (int t = 0; t < inp.nR; t++)
+        {
+            sprintf(varName, "psi.%d.%d", (int)i, (int) t);
+            psi_ilo[i][t].setName(varName);
+        }
+    for (int t = 0; t < inp.nR; t++)
+    {
+        sprintf(varName, "u.%d", (int)t);
+        u_ilo[t].setName(varName);
+    }
+
+    // delta variable (for the objective function)
+    delta_ilo = IloNumVarArray(env, 1, 0.0, IloInfinity, ILOFLOAT);
+    delta_ilo[0].setName("delta");
+
+    // customers demand
+    for (int j = 0; j < inp.nC; j++)
+    {
+        IloExpr sum(env);
+        for (int i = 0; i < inp.nF; i++)
+            sum += x_ilo[i][j];
+        sprintf(constrName, "demand.%d", (int)j);
+        model.add(IloRange(env, 1.0, sum, 1.0, constrName));
+    }
+
+    // "robust" demand - constr. W*psi >= x
+    int t;
+    for (int i = 0; i < inp.nF; i++)
+        for (int j = 0; j < inp.nC; j++)
+        {
+            IloExpr sum(env);
+            for (int l = inp.start[j]; l < inp.start[j+1]; l++)
+            {
+                t    = inp.index[l];
+                sum += inp.W[l]*psi_ilo[i][t];
+            }
+            sum -= x_ilo[i][j];
+
+            sprintf(constrName, "r.demand.%d.%d", (int)i, (int)j);
+            model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
+        }
+
+
+    // robust capacity h*psi <= s*y
+    for (int i = 0; i < inp.nF; i++)
+    {
+        IloExpr sum(env);
+        for (int t = 0; t < inp.nR; t++)
+            sum += inp.h[t]*psi_ilo[i][t];
+
+        for (int j = 0; j < inp.nC; j++)
+            // if (setB[j] >= 0)
+                sum += inp.d[j]*(1.0-_epsilon)*x_ilo[i][j];
+
+        sum -= inp.s[i]*y_ilo[i];
+
+        sprintf(constrName, "r.capacity.%d", (int)i);
+        model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
+    }
+
+    // "robust" objective function: h*u <= delta
+    IloExpr sum(env);
+    for (int j = 0; j < inp.nC; j++)
+        if (setB[j] == 1) // skip terms not in budget constraints
+            sum += inp.h[j]*u_ilo[j];
+    for (int t = inp.nC; t < inp.nR; t++)
+            sum += inp.h[t]*u_ilo[t];
+
+    sum -= delta_ilo[0];
+    sprintf(constrName, "r.delta");
+    model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
+
+
+    // second robust obj function: W*u >= c*x
+    for (int j = 0; j < inp.nC; j++)
+    {
+        IloExpr sum(env);
+        for (int l = inp.start[j]; l < inp.start[j+1]; l++)
+        {
+            int t = inp.index[l];
+            sum += inp.W[l]*u_ilo[t];
+        }
+        for (int i = 0; i < inp.nF; i++)
+            sum -= inp.c[i][j]*x_ilo[i][j];
+
+        sprintf(constrName, "r.objective.%d", (int)j);
+        model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
+    }
+
+    // objective function: min f*y + delta
+    IloExpr totCost(env);
+    for (int i = 0; i < inp.nF; i++)
+        totCost += y_ilo[i]*inp.f[i];
+    totCost += delta_ilo[0];
+    
+    // new terms (deterministic part of d)
+    for (int j = 0; j < inp.nC; j++)
+        {
+            IloExpr coeff(env); 
+            for (int i = 0; i < inp.nF; i++)
+                coeff += inp.c[i][j]*x_ilo[i][j];
+
+            if (setB[j] == 0)
+                coeff *= inp.d[j]*(1+_epsilon);
+            else
+                coeff *= inp.d[j]*(1-_epsilon);
+
+            totCost += coeff;
+        }
+
+    model.add(IloMinimize(env,totCost));
+}
+
+
 /// Set cplex parameters and solve the optimization problem
 int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit)
 {
@@ -829,7 +1213,7 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
         cplex.setParam(IloCplex::IntSolLim, solLimit);
         cplex.setParam(IloCplex::TiLim, timeLimit);
 
-        // cplex.exportModel("cflp.lp");
+        cplex.exportModel("cflp.lp");
 
         if (!cplex.solve())
         {
@@ -1020,6 +1404,8 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
     
     // cardinality of sets B_l
     cout << "[** |B_l| = " << nBl << "]\n" << endl;
+    // nBl = 2;
+    // cout << "HARD CODED HERE !!! " << endl;
 
     // randomly generate sets B_l and compute budget b_l
     std::vector<int> shuffled;
@@ -1069,6 +1455,7 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         {
             int temp = nBl;
             fReader >> nBl;
+            cout << "t vs nBl " << temp << " " << nBl << endl;
             assert(temp == nBl);
             Bl[l] = new int[nBl];
 
@@ -1105,8 +1492,8 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
    inp.h  = new double[inp.nR];
    for (int j = 0; j < inp.nC; j++)
    {
-       // inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
-       inp.h[j]        =  0.9;
+       inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
+       // inp.h[j]        = 0.0;
        inp.h[j+inp.nC] =  inp.d[j]*(1.0+_epsilon);
    }
 
@@ -1115,10 +1502,6 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
     // b. budget part
     for (int l = 0; l < L; l++)
         inp.h[2*inp.nC+l] = budget[l];
-
-   cout << "H VECTOR " << endl;
-   for (int j = 0; j < 2*inp.nC+L; j++)
-       cout << "h[" << j << "] = " << inp.h[j] << endl;
 
    // define matrix W in column major format
    int nEls  = 2*inp.nC + L*nBl;
@@ -1147,6 +1530,346 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
     // NOTE : Remove ASSERT from final version
     assert(pos == nEls);
 
+}
+
+
+void define_new_budget_support(INSTANCE & inp, bool fromDisk)
+{
+
+    int    nBl     = 0;
+    int  **Bl;
+    double *budget;
+
+    read_parameters_budget();
+
+    nBl    = floor(_gamma*(double)inp.nC); // cardinality of each B_l
+    Bl     = new int*[L];
+    budget = new double[L];
+    for (int l = 0; l < L; l++)
+        Bl[l] = new int[nBl];
+    
+    // cardinality of sets B_l
+    cout << "[** |B_l| = " << nBl << "]\n" << endl;
+    /* nBl = 2;
+     * cout << "HARD CODED HERE !!!!!!!!!" << endl; */
+
+    // randomly generate sets B_l and compute budget b_l
+    std::vector<int> shuffled;
+    for (int i = 0; i < inp.nC; ++i) 
+        shuffled.push_back(i); // 0 2 3 ... nC-1
+
+    if (readFromDisk==false)
+    {
+        // initialize random generator (uniform distribution)
+        uniform_int_distribution<> d(0,inp.nC-1);
+        for (int l = 0; l < L; l++)
+        {
+            // using built-in random generator:
+            std::random_shuffle(shuffled.begin(), shuffled.end());
+            budget[l] = 0.0;
+            for (int k = 0; k < nBl; k++)
+            {
+                // int el = d(gen);
+                int el = shuffled[k];
+                Bl[l][k] = el;
+                budget[l] += inp.d[el];
+            }
+            cout << endl;
+        }
+        // adjust b_l values
+        for (int l = 0; l < L; l++)
+            budget[l] = floor(_delta*budget[l]);
+
+        // do we want to save the sets B_l (and the parameters?)
+        bool save2Disk = true;
+        if (save2Disk==true)
+            save_instance_2_disk(_epsilon, _delta, _gamma, L, nBl, Bl, budget);
+    }
+    else
+    {
+        string  s1      = string(_FILENAME);
+        s1              = s1.substr(s1.find_last_of("\\/"), 100);
+        string filename = "support" + s1 + ".budget"; 
+
+        ifstream fReader(filename, ios::in);
+        if (!fReader)
+        {
+            cout << "Cannot open file '" << filename << "'." << endl;
+            exit(111);
+        }
+        for (int l = 0; l < L; l++)
+        {
+            int temp = nBl;
+            fReader >> nBl;
+            cout << "temp vs nBl " << temp << " " << nBl << endl;
+            assert(temp == nBl);
+            Bl[l] = new int[nBl];
+
+            for (int k = 0; k < nBl; k++)
+                fReader >> Bl[l][k];
+            fReader >> budget[l];
+        }
+
+        fReader.close();
+        cout << "[** Instance read from disk. File '" << filename << "']" << endl;
+        cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
+             << "; _delta = " << _delta << "; _gamma = " << _gamma << "; L = " << L 
+             << "]\n" << endl;
+    }
+
+    for (int l = 0; l < L; l++)
+    {
+        cout <<"Budget constraint # " << l << ":: ";
+        for (int k = 0; k < nBl; k++)
+            cout << " " << Bl[l][k];
+        cout << " :: Total Budget = " << budget[l] << endl;
+    }
+    cout << "Corrected Budget :: " << endl;
+    for (int l = 0; l < L; l++)
+    {
+        for (int k = 0; k < nBl; k++)
+            budget[l] -= inp.d[Bl[l][k]]*(1.0-_epsilon);
+        cout << " :: Total Corrected Budget = " << budget[l] << endl;
+    }
+
+
+    // define mapping: list of budget constraints including column j 
+    MyVect * mapping = new MyVect[inp.nC];
+    for (int l = 0; l < L; l++)
+        for (int k = 0; k < nBl; k++)
+            mapping[Bl[l][k]].push_back(l);
+
+    // count cardinality of budget constraints overall: how many vars are used
+    // in all the budget constraints
+    std::vector <int> listB;
+    for (int j = 0; j < inp.nC; j++)
+        if (mapping[j].size() > 0)
+            inp.listB.push_back(j);
+
+    cout << inp.listB.size() << " elements in constraints :: ";
+    for (int j = 0; j < inp.listB.size(); j++)
+        cout << " " << inp.listB[j];
+    cout << endl;
+
+   // total number of rows of W and h
+   int cardB = inp.listB.size();
+   inp.nR = cardB + L;
+    
+    // define vector h
+    // a. box part
+   inp.h  = new double[inp.nR];
+   for (int j = 0; j < cardB; j++)
+       inp.h[j] =  inp.d[inp.listB[j]]*(1.0+_epsilon);
+    
+    // b. budget part
+    for (int l = 0; l < L; l++)
+        inp.h[cardB+l] = budget[l];
+
+   cout << "H VECTOR " << endl;
+   for (int j = 0; j < cardB+L; j++)
+       cout << "h[" << j << "] = " << inp.h[j] << endl;
+
+   // define matrix W in column major format
+   int nEls  = cardB + L*nBl;
+   inp.W     = new int[nEls];
+   inp.index = new int[nEls];
+   inp.start = new int[cardB+1]; // one extra element in last position
+
+    int pos = 0;
+    for (int j = 0; j < cardB; j++)
+    {
+        inp.start[j]     = pos;
+        inp.W[pos]       = 1;
+        inp.index[pos++] = j;
+        int el           = inp.listB[j]; // actual column index
+        if (mapping[el].size() > 0)
+        {
+            for (MyVect::iterator it = mapping[el].begin(); it != mapping[el].end(); it++)
+            {
+                inp.W[pos]       = 1;
+                inp.index[pos++] = cardB + *it;
+            }
+        }
+    }
+    inp.start[cardB] = pos;
+    // NOTE : Remove ASSERT from final version
+    assert(pos == nEls);
+
+    cout << "Column Major Format :: " << endl;
+    for (int j = 0; j < inp.listB.size(); j++)
+    {
+        cout << "  var " << j << " from " << inp.start[j] << " to " << inp.start[j+1] << " :: " << endl;
+        for (int k = inp.start[j]; k < inp.start[j+1]; k++)
+            cout << "... el " << inp.W[k] << " in row " << inp.index[k] << endl;
+    }
+
+
+
+}
+
+void define_new2_budget_support(INSTANCE & inp, bool fromDisk)
+{
+
+    int    nBl     = 0;
+    int  **Bl;
+    double *budget;
+
+    read_parameters_budget();
+
+    nBl    = floor(_gamma*(double)inp.nC); // cardinality of each B_l
+    Bl     = new int*[L];
+    budget = new double[L];
+    for (int l = 0; l < L; l++)
+        Bl[l] = new int[nBl];
+    
+    // cardinality of sets B_l
+    cout << "[** |B_l| = " << nBl << "]\n" << endl;
+    // nBl = 2;
+    // cout << "HARD CODED HERE !!!!!!!!!" << endl;
+
+    // randomly generate sets B_l and compute budget b_l
+    std::vector<int> shuffled;
+    for (int i = 0; i < inp.nC; ++i) 
+        shuffled.push_back(i); // 0 2 3 ... nC-1
+
+    if (readFromDisk==false)
+    {
+        // initialize random generator (uniform distribution)
+        uniform_int_distribution<> d(0,inp.nC-1);
+        for (int l = 0; l < L; l++)
+        {
+            // using built-in random generator:
+            std::random_shuffle(shuffled.begin(), shuffled.end());
+            budget[l] = 0.0;
+            for (int k = 0; k < nBl; k++)
+            {
+                // int el = d(gen);
+                int el = shuffled[k];
+                Bl[l][k] = el;
+                budget[l] += inp.d[el];
+            }
+            cout << endl;
+        }
+        // adjust b_l values
+        for (int l = 0; l < L; l++)
+            budget[l] = floor(_delta*budget[l]);
+
+        // do we want to save the sets B_l (and the parameters?)
+        bool save2Disk = true;
+        if (save2Disk==true)
+            save_instance_2_disk(_epsilon, _delta, _gamma, L, nBl, Bl, budget);
+    }
+    else
+    {
+        string  s1      = string(_FILENAME);
+        s1              = s1.substr(s1.find_last_of("\\/"), 100);
+        string filename = "support" + s1 + ".budget"; 
+
+        ifstream fReader(filename, ios::in);
+        if (!fReader)
+        {
+            cout << "Cannot open file '" << filename << "'." << endl;
+            exit(111);
+        }
+        for (int l = 0; l < L; l++)
+        {
+            int temp = nBl;
+            fReader >> nBl;
+            cout << "temp vs nBl " << temp << " " << nBl << endl;
+            assert(temp == nBl);
+            Bl[l] = new int[nBl];
+
+            for (int k = 0; k < nBl; k++)
+                fReader >> Bl[l][k];
+            fReader >> budget[l];
+        }
+
+        fReader.close();
+        cout << "[** Instance read from disk. File '" << filename << "']" << endl;
+        cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
+             << "; _delta = " << _delta << "; _gamma = " << _gamma << "; L = " << L 
+             << "]\n" << endl;
+    }
+
+    for (int l = 0; l < L; l++)
+    {
+        cout <<"Budget constraint # " << l << ":: ";
+        for (int k = 0; k < nBl; k++)
+            cout << " " << Bl[l][k];
+        cout << " :: Total Budget = " << budget[l] << endl;
+    }
+    cout << "Corrected Budget :: " << endl;
+    for (int l = 0; l < L; l++)
+    {
+        for (int k = 0; k < nBl; k++)
+            budget[l] -= inp.d[Bl[l][k]]*(1.0-_epsilon);
+        cout << " :: Total Corrected Budget = " << budget[l] << endl;
+    }
+
+
+    // define mapping: list of budget constraints including column j 
+    MyVect * mapping = new MyVect[inp.nC];
+    for (int l = 0; l < L; l++)
+        for (int k = 0; k < nBl; k++)
+            mapping[Bl[l][k]].push_back(l);
+
+    // count cardinality of budget constraints overall: how many vars are used
+    // in all the budget constraints
+    std::vector <int> listB;
+    for (int j = 0; j < inp.nC; j++)
+        if (mapping[j].size() > 0)
+            inp.listB.push_back(j);
+
+   // total number of rows of W and h
+   inp.nR = inp.nC + L;
+    
+    // define vector h
+    // a. box part
+   inp.h  = new double[inp.nR];
+   for (int j = 0; j < inp.nC; j++)
+       inp.h[j] =  inp.d[j]*(2.0*_epsilon);
+       // inp.h[j] =  inp.d[j]*(1.0+_epsilon);
+    
+    // b. budget part
+    for (int l = 0; l < L; l++)
+        inp.h[inp.nC+l] = budget[l];
+
+   /* cout << "H VECTOR " << endl;
+    * for (int j = 0; j < inp.nC+L; j++)
+    *     cout << "h[" << j << "] = " << inp.h[j] << endl; */
+
+   // define matrix W in column major format
+   int nEls  = inp.nC + L*nBl;
+   inp.W     = new int[nEls];
+   inp.index = new int[nEls];
+   inp.start = new int[inp.nC+1]; // one extra element in last position
+
+    int pos = 0;
+    for (int j = 0; j <inp.nC; j++)
+    {
+        inp.start[j]     = pos;
+        inp.W[pos]       = 1;
+        inp.index[pos++] = j;
+        if (mapping[j].size() > 0)
+        {
+            for (MyVect::iterator it = mapping[j].begin(); it != mapping[j].end(); it++)
+            {
+                inp.W[pos]       = 1;
+                inp.index[pos++] = inp.nC + *it;
+            }
+        }
+    }
+    inp.start[inp.nC] = pos;
+    // NOTE : Remove ASSERT from final version
+    assert(pos == nEls);
+
+    /* cout << "Column Major Format :: " << endl;
+     * for (int j = 0; j < inp.nC; j++)
+     * {
+     *     cout << "  var " << j << " from " << inp.start[j] << " to " << inp.start[j+1] << " :: " << endl;
+     *     for (int k = inp.start[j]; k < inp.start[j+1]; k++)
+     *         cout << "... el " << inp.W[k] << " in row " << inp.index[k] << endl;
+     * } */
 }
 
 /// Save Budget Uncertainty Set Info on disk.

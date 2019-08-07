@@ -62,6 +62,7 @@ extern int readFromDisk;    //!< 0-No; (Generate a new Budget set B_l); 1-Yes
 extern string instanceType;
 extern string versionType;
 extern string supportType;
+extern double _epsilon;
 
 
 /// Parse command line options.
@@ -121,6 +122,10 @@ int parseOptions(int argc, char* argv[])
 	       readFromDisk = atol(argv[i+1]);
 	       i++;
 	       break;
+        case 'e':
+	       _epsilon= atof(argv[i+1]);
+	       i++;
+	       break;
 	    case 'h':
 	       cout << "OPTIONS :: " << endl;
 	       cout << "-i : problem instance file" << endl;
@@ -129,6 +134,7 @@ int parseOptions(int argc, char* argv[])
 	       cout << "-t : instance type (1-OR Library; 2-Avella)" << endl;
 	       cout << "-u : support type (1-Box; 2-Budget)" << endl;
 	       cout << "-r : read Budget support set from disk (0-No; 1-Yes)" << endl;
+	       cout << "-e : epsilon (for box and budget support) " << endl;
 	       cout << endl;
 	       return -1;
 	 }

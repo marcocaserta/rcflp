@@ -60,6 +60,7 @@ extern double _epsilon;
 extern double _delta;
 extern double _gamma;
 extern int    L;      
+double old_epsilon;  // _epsilon is now read from command line
 
 extern string instanceType;
 extern string versionType;
@@ -98,6 +99,7 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
         for (int i = 0; i < inp.nF; i++)
         {
             fReader >> inp.s[i] >> inp.f[i];
+            inp.s[i] *= 1.75; // <------ REMOVE THIS !!!! Roberto Instances!!!
             inp.totS += inp.s[i];
         }
 
@@ -113,6 +115,36 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
                 fReader >> inp.c[i][j];
                 inp.c[i][j] /= inp.d[j];
             }
+
+
+        // 03.08.19 ::
+        // This part is needed to save the instances in a slightly different
+        // format. The demands and transportation costs are written using
+        // end-of-line.
+        // While in c++ the format is not a problem, if we want to read these
+        // instances in python (for example, to run the scenario simulation
+        // using the rKnap.py code), we need to have an "end-of-line" after
+        // all the demands are written, and an end-of-line after each supplier
+        // (see list for cycle below.)
+        //
+        // ofstream fWriter("temp.txt", ios::out);
+        // fWriter << inp.nF << " " << inp.nC << "\n";
+        // for (int i = 0; i < inp.nF; i++)
+            // fWriter << inp.s[i] << " " << inp.f[i] << "\n";
+//
+        // for (int j = 0; j < inp.nC; j++)
+            // fWriter << inp.d[j] << " ";
+        // fWriter << "\n";
+        // for (int i = 0; i < inp.nF; i++)
+        // {
+            // for (int j = 0; j < inp.nC; j++)
+                // fWriter << inp.c[i][j] <<" ";
+            // fWriter << "\n";
+        // }
+        // fWriter.close();
+        // exit(123);
+
+
 
     }
     // read Avella instances
@@ -151,9 +183,9 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 }
 
 /// Print instance info and algorithmic parameters.
-void printOptions(char * _FILENAME, INSTANCE inp, int timeLimit)
+void printOptions(char * _FILENAME, INSTANCE & inp, int timeLimit)
 {
-   double _epsilon = 0.0;
+   // double _epsilon = 0.0;
    double _delta   = 0.0;
    double _gamma   = 0.0;
    int    L       = 0;
@@ -190,7 +222,7 @@ void read_parameters_ellipsoidal()
     }
     cout << "[** Reading parameters from file 'paramsEllipsoidal.txt'.]" << endl;
     string line;
-    fReader >> _epsilon; 
+    fReader >> old_epsilon; 
     getline(fReader, line); // read comment on same line
     fReader >> _Omega;
 
@@ -219,7 +251,7 @@ void read_parameters_box()
     }
 
     cout << "[** Reading parameters from file 'paramsBox.txt'.]" << endl;
-    fReader >> _epsilon;
+    fReader >> old_epsilon;
     cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon << "]" << endl;
 
     fReader.close();
@@ -251,7 +283,7 @@ void read_parameters_budget()
     }
     cout << "[** Reading parameters from file 'paramsBudget.txt'.]" << endl;
     string line;
-    fReader >> _epsilon; 
+    fReader >> old_epsilon; 
     getline(fReader, line); // read comment on same line
     /* line.erase( find( line.begin(), line.end(), '#' ), line.end() ); */
 
