@@ -147,6 +147,8 @@ int parseOptions(int argc, char* argv[])
             instanceType = "OR Library";
         else if (fType == 2)
             instanceType = "Avella";
+        else if (fType == 0)
+            instanceType = "Original OR Lib";
         else
             instanceType = "***";
 

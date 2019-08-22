@@ -84,8 +84,8 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
         cout << "cannot open file " << _FILENAME << endl;
         exit(1);
     }
-    // read OR Library instances
-    if (fType == 1)
+    // read OR Library instances (official format : email Roberto B., 20.08.19)
+    if (fType == 0)
     {
         
         fReader >> inp.nF >> inp.nC;
@@ -99,7 +99,51 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
         for (int i = 0; i < inp.nF; i++)
         {
             fReader >> inp.s[i] >> inp.f[i];
-            inp.s[i] *= 1.75; // <------ REMOVE THIS !!!! Roberto Instances!!!
+            inp.s[i] *= 2.0; // <------ REMOVE THIS !!!! Roberto Instances!!!
+            inp.totS += inp.s[i];
+            cout << "s[" << i << "] = " <<  inp.s[i] << endl;
+        }
+
+        double maxD = 0.0;
+        for (int j = 0; j < inp.nC; j++)
+        {
+            fReader >> inp.d[j];
+            inp.totD += inp.d[j];
+            if (inp.d[j] > maxD)
+                maxD = inp.d[j];
+            for (int i = 0; i < inp.nF; i++)
+            {
+                fReader >> inp.c[i][j];
+                inp.c[i][j] /= inp.d[j];
+            }
+        }
+
+        cout << "** Tot S vs Tot D " << inp.totS << ", " << inp.totD << endl;
+        cout << "Max D " << maxD << endl;
+
+
+        /* for (int j = 0; j < inp.nC; j++)
+         * {
+         *     cout << "Customer " << j << " d= " << inp.d[j] << " Costs = ";
+         *     for (int i = 0; i < inp.nF; i++)
+         *         cout << " " << inp.c[i][j]*inp.d[j];
+         *     cout << endl;
+         * } */
+    }
+    else if (fType == 1)
+    {
+        
+        fReader >> inp.nF >> inp.nC;
+        inp.s = new double[inp.nF];
+        inp.f = new double[inp.nF];
+        inp.d = new double[inp.nC];
+        inp.c = new double*[inp.nF];
+        for (int i = 0; i < inp.nF; i++)
+            inp.c[i] = new double[inp.nC];
+
+        for (int i = 0; i < inp.nF; i++)
+        {
+            fReader >> inp.s[i] >> inp.f[i];
             inp.totS += inp.s[i];
         }
 

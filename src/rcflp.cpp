@@ -384,6 +384,20 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
     fWriter.close();
     cout << "Solution written to disk. ('" << filename <<"')" << endl;
 
+    // print here capacity consumptions
+    for (int i = 0; i < inp.s[i]; i++)
+    {
+        if (opt.ySol[i] == 1)
+        {
+            float tot = 0.0;
+            for (int j = 0; j < inp.nC; j++)
+                if (opt.xSol[i][j] > 0.0)
+                    tot += opt.xSol[i][j]*inp.d[j];
+            cout << "Facility " << i << " with capacity = " << inp.s[i] << " and consumption = " << tot << endl;
+        }
+        
+    }
+
 
     
 }
@@ -1205,7 +1219,7 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
     try
     {
         IloEnv env = model.getEnv();
-        /* cplex.setOut(env.getNullStream()); */
+        cplex.setOut(env.getNullStream());
         cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall-clock 
         cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall clock
         cplex.setParam(IloCplex::MIPInterval, 5000);
@@ -1288,6 +1302,7 @@ void define_box_support(INSTANCE & inp)
    {
        inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
        inp.h[j+inp.nC] =  inp.d[j]*(1.0+_epsilon);
+       cout << "left and write " << inp.h[j] << " and " << inp.h[j+inp.nC] << endl;
    }
 
    // define matrix W in column major format
