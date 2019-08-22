@@ -281,9 +281,9 @@ int main(int argc, char *argv[])
             define_SOCP_CFLP(inp, fType, model, cplex);
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
-            // define_POLY_CFLP(inp, fType, model, cplex, support);
+            define_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new_POLY_CFLP(inp, fType, model, cplex, support);
-            define_new2_POLY_CFLP(inp, fType, model, cplex, support);
+            // define_new2_POLY_CFLP(inp, fType, model, cplex, support);
             break;
         default :
             cout << "ERROR : Version type not defined.\n" << endl;
@@ -1302,7 +1302,6 @@ void define_box_support(INSTANCE & inp)
    {
        inp.h[j]        = -inp.d[j]*(1.0-_epsilon);
        inp.h[j+inp.nC] =  inp.d[j]*(1.0+_epsilon);
-       cout << "left and write " << inp.h[j] << " and " << inp.h[j+inp.nC] << endl;
    }
 
    // define matrix W in column major format
