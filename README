@@ -1,20 +1,31 @@
 27.05.18 : First implementation of the Capacitated Facility Location.
+11.02.20 : Updated the command line options (added -e for epsilon)
 
 Compile it using:
 
 > make
+
+(after adjusting the dependencies, e.g, cplex, etc.)
 
 and run it with:
 
 > ./bin/cflp -h
 
 The option "-h" provides some guidance on how to setup the command line to
-define some parameters. For example, use:
+define some parameters. A detailed description of the command line parameters
+can be found in the documentation, under Doc/html/index.html. Once the
+documentation is open in a browser, look for "options.cpp" and then the
+Detailed Description.
 
-> ./bin/cflp -i data/orLibrary/cap61 -t 1 -v 2
+For example, to run the code on cap95NEW5 using a budget uncertainty set with
+epsilon equal to 0.1, use
 
-to solve a small problem from the OR Library using the Multi-source
-formulation. Other options can be obtained calling the "-h" flag.
+> ./bin/rcflp -i data/orLibrary/cap94NEW5 -v 4 -t 1 -u 2 -r 0 -e 0.1 
+
+Other options can be obtained calling the "-h" flag.
+
+NOTE: Please, be aware of the meaning of the flag "-r", as explained in the
+documentation.
 
 
 
