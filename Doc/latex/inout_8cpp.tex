@@ -19,23 +19,37 @@ struct \textbf{ I\+N\+S\+T\+A\+N\+CE}
 \item 
 int \textbf{ read\+Problem\+Data} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, int \textbf{ f\+Type}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp})
 \begin{DoxyCompactList}\small\item\em Read benchmark instances. \end{DoxyCompactList}\item 
-void \textbf{ print\+Options} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \textbf{ inp}, int \textbf{ time\+Limit})
+void \textbf{ print\+Options} (char $\ast$\textbf{ \+\_\+\+F\+I\+L\+E\+N\+A\+ME}, \textbf{ I\+N\+S\+T\+A\+N\+CE} \&\textbf{ inp}, int \textbf{ time\+Limit})
 \begin{DoxyCompactList}\small\item\em Print instance info and algorithmic parameters. \end{DoxyCompactList}\item 
-void \textbf{ read\+\_\+parameters\+\_\+ellipsoidal} (double \&epsilon, double \&Omega)
+void \textbf{ read\+\_\+parameters\+\_\+ellipsoidal} ()
 \begin{DoxyCompactList}\small\item\em Read parameters to define the ellipsoidal uncertainty set. \end{DoxyCompactList}\item 
-void \textbf{ read\+\_\+parameters\+\_\+box} (double \&epsilon)
+void \textbf{ read\+\_\+parameters\+\_\+box} ()
 \begin{DoxyCompactList}\small\item\em Read parameters to define the Box support. \end{DoxyCompactList}\item 
-void \textbf{ read\+\_\+parameters\+\_\+budget} (double \&epsilon, double \&delta, double \&gamma, int \&L)
+void \textbf{ read\+\_\+parameters\+\_\+budget} ()
 \begin{DoxyCompactList}\small\item\em Read parameters to define the budget support. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
+\item 
+double \textbf{ \+\_\+\+Omega}
+\item 
+double \textbf{ \+\_\+epsilon}
+\begin{DoxyCompactList}\small\item\em epsilon used in robust optimization (box and budget) \end{DoxyCompactList}\item 
+double \textbf{ \+\_\+delta}
+\item 
+double \textbf{ \+\_\+gamma}
+\item 
+int \textbf{ L}
+\item 
+double \textbf{ old\+\_\+epsilon}
 \item 
 string \textbf{ instance\+Type}
 \item 
 string \textbf{ version\+Type}
 \item 
 string \textbf{ support\+Type}
-\end{DoxyCompactItemize}
+\item 
+int \textbf{ support}
+\begin{DoxyCompactList}\small\item\em 1-\/\+Box; 2-\/\+Budget \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -46,18 +60,18 @@ We manage here the following operations\+:
 \item Read nominal instance from disk (both OR Library and Avella). See the introduction part of \doxyref{rcflp.\+cpp}{p.}{rcflp_8cpp} to see how the costs $c_{ij}$ are managed in the two instance types.
 \item Read parameters for the different support sets. Currently, we read parameters for the following sets\+:
 \begin{DoxyItemize}
-\item Ellipsoidal support set. See \doxyref{read\+\_\+parameters\+\_\+ellipsoidal()}{p.}{inout_8cpp_ad0cfc2a0a7960353ae10a37028cf97aa}
-\item Box support set. See \doxyref{read\+\_\+parameters\+\_\+box()}{p.}{inout_8cpp_a62d78cce6f4f2da0b01932777977f854}
-\item Budget support set. See \doxyref{read\+\_\+parameters\+\_\+budget()}{p.}{inout_8cpp_a2f56c555090ec900ef22670c4fc774e0} 
+\item Ellipsoidal support set. See \doxyref{read\+\_\+parameters\+\_\+ellipsoidal()}{p.}{inout_8cpp_a4533d4b560d6c318d2e26bea2e0317c2}
+\item Box support set. See \doxyref{read\+\_\+parameters\+\_\+box()}{p.}{inout_8cpp_a6e694ece3832c26a48b6a156e1c925b5}
+\item Budget support set. See \doxyref{read\+\_\+parameters\+\_\+budget()}{p.}{inout_8cpp_ac6dd46d8d9977c73586196164cab23f3} 
 \end{DoxyItemize}
 \end{DoxyItemize}
 
 \subsection{Function Documentation}
-\mbox{\label{inout_8cpp_a98548654c51508f12f8dbdaf1d9574bf}} 
+\mbox{\label{inout_8cpp_a5bde74cc86dc4bc8e1a6185bc4ec65bd}} 
 \index{inout.\+cpp@{inout.\+cpp}!print\+Options@{print\+Options}}
 \index{print\+Options@{print\+Options}!inout.\+cpp@{inout.\+cpp}}
 \subsubsection{print\+Options()}
-{\footnotesize\ttfamily void print\+Options (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE}}]{inp,  }\item[{int}]{time\+Limit }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void print\+Options (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+\+F\+I\+L\+E\+N\+A\+ME,  }\item[{\textbf{ I\+N\+S\+T\+A\+N\+CE} \&}]{inp,  }\item[{int}]{time\+Limit }\end{DoxyParamCaption})}
 
 
 
@@ -65,17 +79,17 @@ Print instance info and algorithmic parameters.
 
 
 
-References instance\+Type, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, support\+Type, and version\+Type.
+References \+\_\+delta, \+\_\+gamma, instance\+Type, L, I\+N\+S\+T\+A\+N\+C\+E\+::nC, I\+N\+S\+T\+A\+N\+C\+E\+::nF, support\+Type, and version\+Type.
 
 
 
 Referenced by main().
 
-\mbox{\label{inout_8cpp_a62d78cce6f4f2da0b01932777977f854}} 
+\mbox{\label{inout_8cpp_a6e694ece3832c26a48b6a156e1c925b5}} 
 \index{inout.\+cpp@{inout.\+cpp}!read\+\_\+parameters\+\_\+box@{read\+\_\+parameters\+\_\+box}}
 \index{read\+\_\+parameters\+\_\+box@{read\+\_\+parameters\+\_\+box}!inout.\+cpp@{inout.\+cpp}}
 \subsubsection{read\+\_\+parameters\+\_\+box()}
-{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+box (\begin{DoxyParamCaption}\item[{double \&}]{epsilon }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+box (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
 
 
@@ -83,16 +97,18 @@ Read parameters to define the Box support.
 
 The file \textquotesingle{}params\+Box.\+txt\textquotesingle{} has the following format\+:
 \begin{DoxyItemize}
-\item first row \+: {\ttfamily epsilon}, i.\+e., the parameter used to define the with of the box. Given a nominal demand value $d_j$, we define the interval around $d_j$ as\+: \[ (1-\epsilon)*d_j <= d_j <= (1+\epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \] 
+\item first row \+: {\ttfamily \+\_\+epsilon}, i.\+e., the parameter used to define the with of the box. Given a nominal demand value $d_j$, we define the interval around $d_j$ as\+: \[ (1-\_epsilon)*d_j <= d_j <= (1+\_epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \]
 \end{DoxyItemize}
 
-Referenced by define\+\_\+box\+\_\+support().
+M\+A\+R\+CO 11.\+02.\+20\+: This is no longer used, since the only parameter of a box set, i.\+e., epsilon, is now read from command line with flag -\/e. 
 
-\mbox{\label{inout_8cpp_a2f56c555090ec900ef22670c4fc774e0}} 
+References \+\_\+epsilon, and old\+\_\+epsilon.
+
+\mbox{\label{inout_8cpp_ac6dd46d8d9977c73586196164cab23f3}} 
 \index{inout.\+cpp@{inout.\+cpp}!read\+\_\+parameters\+\_\+budget@{read\+\_\+parameters\+\_\+budget}}
 \index{read\+\_\+parameters\+\_\+budget@{read\+\_\+parameters\+\_\+budget}!inout.\+cpp@{inout.\+cpp}}
 \subsubsection{read\+\_\+parameters\+\_\+budget()}
-{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+budget (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{delta,  }\item[{double \&}]{gamma,  }\item[{int \&}]{L }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+budget (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
 
 
@@ -102,20 +118,24 @@ Read parameters to define the budget support.
 \begin{DoxyItemize}
 \item File \+: {\ttfamily params\+Budget.\+txt}
 \begin{DoxyItemize}
-\item first row \+: {\ttfamily epsilon}, as above
-\item second row\+: {\ttfamily delta}, i.\+e., how the $b_l$ value (the r.\+h.\+s. value of each budget constraint) is defined. We define $b_l$ as a percentage of the total demand of customers included in the budget constraint, i.\+e.\+: \[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
-\item third row \+: {\ttfamily gamma}, i.\+e., percentage of columns included in each budget constraint\+: \[|B_l| = \lfloor \gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\item first row \+: {\ttfamily \+\_\+epsilon}, as above
+\item second row\+: {\ttfamily \+\_\+delta}, i.\+e., how the $b_l$ value (the r.\+h.\+s. value of each budget constraint) is defined. We define $b_l$ as a percentage of the total demand of customers included in the budget constraint, i.\+e.\+: \[ b_l = \delta* (\sum_{j \in B_l} d_j), \quad 0 \leq \delta \leq 1 \]
+\item third row \+: {\ttfamily \+\_\+gamma}, i.\+e., percentage of columns included in each budget constraint\+: \[|B_l| = \lfloor \_gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
 \item forth row \+: $L \geq 1$, i.\+e., number of budget constraints. 
 \end{DoxyItemize}
 \end{DoxyItemize}
 
-Referenced by define\+\_\+budget\+\_\+support().
+References \+\_\+delta, \+\_\+epsilon, \+\_\+gamma, and L.
 
-\mbox{\label{inout_8cpp_ad0cfc2a0a7960353ae10a37028cf97aa}} 
+
+
+Referenced by define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), and define\+\_\+new\+\_\+budget\+\_\+support().
+
+\mbox{\label{inout_8cpp_a4533d4b560d6c318d2e26bea2e0317c2}} 
 \index{inout.\+cpp@{inout.\+cpp}!read\+\_\+parameters\+\_\+ellipsoidal@{read\+\_\+parameters\+\_\+ellipsoidal}}
 \index{read\+\_\+parameters\+\_\+ellipsoidal@{read\+\_\+parameters\+\_\+ellipsoidal}!inout.\+cpp@{inout.\+cpp}}
 \subsubsection{read\+\_\+parameters\+\_\+ellipsoidal()}
-{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+ellipsoidal (\begin{DoxyParamCaption}\item[{double \&}]{epsilon,  }\item[{double \&}]{Omega }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily void read\+\_\+parameters\+\_\+ellipsoidal (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
 
 
 
@@ -123,9 +143,13 @@ Read parameters to define the ellipsoidal uncertainty set.
 
 We need to define two parameters\+:
 \begin{DoxyItemize}
-\item {\ttfamily Omega} \+: It determines the size of the ellipsoidal, i.\+e., the size of the uncertainty set.
-\item {\ttfamily epsilon}\+: It defines the variance of each variable $x_{ij}$. We assume that the covariance matrix is diagonal and with constant values $\epsilon$ for each element. 
+\item {\ttfamily \+\_\+\+Omega} \+: It determines the size of the ellipsoidal, i.\+e., the size of the uncertainty set.
+\item {\ttfamily \+\_\+epsilon}\+: It defines the variance of each variable $x_{ij}$. We assume that the covariance matrix is diagonal and with constant values $\epsilon$ for each element. 
 \end{DoxyItemize}
+
+References \+\_\+epsilon, \+\_\+\+Omega, and old\+\_\+epsilon.
+
+
 
 Referenced by define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P().
 
@@ -150,6 +174,50 @@ Referenced by main().
 
 
 \subsection{Variable Documentation}
+\mbox{\label{inout_8cpp_a9ea96de704dfc86300fee21c012cb140}} 
+\index{inout.\+cpp@{inout.\+cpp}!\+\_\+delta@{\+\_\+delta}}
+\index{\+\_\+delta@{\+\_\+delta}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{\+\_\+delta}
+{\footnotesize\ttfamily double \+\_\+delta}
+
+
+
+Referenced by define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+budget\+\_\+support(), get\+Cplex\+Sol(), main(), print\+Options(), print\+Solution(), and read\+\_\+parameters\+\_\+budget().
+
+\mbox{\label{inout_8cpp_a5f1bf5c9d677b8a8e18bd6ea5c4da0bb}} 
+\index{inout.\+cpp@{inout.\+cpp}!\+\_\+epsilon@{\+\_\+epsilon}}
+\index{\+\_\+epsilon@{\+\_\+epsilon}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{\+\_\+epsilon}
+{\footnotesize\ttfamily double \+\_\+epsilon}
+
+
+
+epsilon used in robust optimization (box and budget) 
+
+
+
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Solution(), read\+\_\+parameters\+\_\+box(), read\+\_\+parameters\+\_\+budget(), and read\+\_\+parameters\+\_\+ellipsoidal().
+
+\mbox{\label{inout_8cpp_a09c94aa5a87671fca3499dcf7b41d84a}} 
+\index{inout.\+cpp@{inout.\+cpp}!\+\_\+gamma@{\+\_\+gamma}}
+\index{\+\_\+gamma@{\+\_\+gamma}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{\+\_\+gamma}
+{\footnotesize\ttfamily double \+\_\+gamma}
+
+
+
+Referenced by define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+budget\+\_\+support(), get\+Cplex\+Sol(), main(), print\+Options(), print\+Solution(), and read\+\_\+parameters\+\_\+budget().
+
+\mbox{\label{inout_8cpp_ad4dc73c47f4623f4b93ad13715b66975}} 
+\index{inout.\+cpp@{inout.\+cpp}!\+\_\+\+Omega@{\+\_\+\+Omega}}
+\index{\+\_\+\+Omega@{\+\_\+\+Omega}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{\+\_\+\+Omega}
+{\footnotesize\ttfamily double \+\_\+\+Omega}
+
+
+
+Referenced by define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), print\+Solution(), and read\+\_\+parameters\+\_\+ellipsoidal().
+
 \mbox{\label{inout_8cpp_a98f2e84701105ad45ed7158de7bfdfd0}} 
 \index{inout.\+cpp@{inout.\+cpp}!instance\+Type@{instance\+Type}}
 \index{instance\+Type@{instance\+Type}!inout.\+cpp@{inout.\+cpp}}
@@ -159,6 +227,40 @@ Referenced by main().
 
 
 Referenced by print\+Options(), and print\+Solution().
+
+\mbox{\label{inout_8cpp_a61b43f3326e96036caf1c76875b794cc}} 
+\index{inout.\+cpp@{inout.\+cpp}!L@{L}}
+\index{L@{L}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{L}
+{\footnotesize\ttfamily int L}
+
+
+
+Referenced by define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+budget\+\_\+support(), get\+Cplex\+Sol(), main(), print\+Options(), print\+Solution(), read\+\_\+instance\+\_\+from\+\_\+disk(), read\+\_\+parameters\+\_\+budget(), and save\+\_\+instance\+\_\+2\+\_\+disk().
+
+\mbox{\label{inout_8cpp_a85fbf5df44085849d44fa392ca60f37f}} 
+\index{inout.\+cpp@{inout.\+cpp}!old\+\_\+epsilon@{old\+\_\+epsilon}}
+\index{old\+\_\+epsilon@{old\+\_\+epsilon}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{old\+\_\+epsilon}
+{\footnotesize\ttfamily double old\+\_\+epsilon}
+
+
+
+Referenced by read\+\_\+parameters\+\_\+box(), and read\+\_\+parameters\+\_\+ellipsoidal().
+
+\mbox{\label{inout_8cpp_ae8470b9dfef111e0d72a983ce72e4c9c}} 
+\index{inout.\+cpp@{inout.\+cpp}!support@{support}}
+\index{support@{support}!inout.\+cpp@{inout.\+cpp}}
+\subsubsection{support}
+{\footnotesize\ttfamily int support}
+
+
+
+1-\/\+Box; 2-\/\+Budget 
+
+
+
+Referenced by get\+Cplex\+Sol(), and main().
 
 \mbox{\label{inout_8cpp_a3853824cedf4d86c04beb83f79c09c92}} 
 \index{inout.\+cpp@{inout.\+cpp}!support\+Type@{support\+Type}}
@@ -178,5 +280,5 @@ Referenced by print\+Options(), and print\+Solution().
 
 
 
-Referenced by print\+Options(), and print\+Solution().
+Referenced by get\+Cplex\+Sol(), print\+Options(), and print\+Solution().
 

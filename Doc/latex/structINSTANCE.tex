@@ -33,7 +33,9 @@ int $\ast$ \textbf{ W}
 int $\ast$ \textbf{ index}
 \begin{DoxyCompactList}\small\item\em Index of column major format for w. \end{DoxyCompactList}\item 
 int $\ast$ \textbf{ start}
-\begin{DoxyCompactList}\small\item\em Starting position for elements of column j. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Starting position for elements of column j. \end{DoxyCompactList}\item 
+std\+::vector$<$ int $>$ \textbf{ listB}
+\begin{DoxyCompactList}\small\item\em List of columns in budget constraints. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -52,7 +54,7 @@ Allocation costs.
 
 
 
-Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
 
 \mbox{\label{structINSTANCE_a00874e63b46c70e0026936f1665d628a}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!d@{d}}
@@ -66,7 +68,7 @@ Demand.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), and read\+Problem\+Data().
 
 \mbox{\label{structINSTANCE_aa7de92540b6e7ae91b99d9e5496558f8}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!f@{f}}
@@ -80,7 +82,7 @@ Fixed costs.
 
 
 
-Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
 
 \mbox{\label{structINSTANCE_a2f7e162c34135519e7f8bdefb25f1ba1}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!h@{h}}
@@ -94,7 +96,7 @@ Rhs of polyhedron definining support.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
 
 \mbox{\label{structINSTANCE_a93a64cd052f91a00e14b0e62e4a624a2}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!index@{index}}
@@ -108,7 +110,21 @@ Index of column major format for w.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+
+\mbox{\label{structINSTANCE_a06421caf4351984f46f5b16ff72710f8}} 
+\index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!listB@{listB}}
+\index{listB@{listB}!I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}}
+\subsubsection{listB}
+{\footnotesize\ttfamily std\+::vector$<$int$>$ I\+N\+S\+T\+A\+N\+C\+E\+::listB}
+
+
+
+List of columns in budget constraints. 
+
+
+
+Referenced by define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), and define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
 
 \mbox{\label{structINSTANCE_af6905f684cf4316a2b705bab350fd9d0}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!nC@{nC}}
@@ -122,7 +138,7 @@ Number of customers.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Options(), print\+Solution(), and read\+Problem\+Data().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Options(), print\+Solution(), and read\+Problem\+Data().
 
 \mbox{\label{structINSTANCE_a54e4bf10cfa62c3a5dbe009bb551aebf}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!nF@{nF}}
@@ -136,7 +152,7 @@ See same data structure define in \doxyref{rcflp.\+cpp}{p.}{rcflp_8cpp}.
 
 Number of facilities. 
 
-Referenced by define\+\_\+benders(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Options(), print\+Solution(), and read\+Problem\+Data().
+Referenced by define\+\_\+benders(), define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), print\+Options(), print\+Solution(), and read\+Problem\+Data().
 
 \mbox{\label{structINSTANCE_abab3dd99a8b8918a21414121498ec223}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!nR@{nR}}
@@ -150,7 +166,7 @@ Number of constraints polyhedron uncertainty set.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
 
 \mbox{\label{structINSTANCE_acaf03f2d06fe92857fa693d69925c7fa}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!s@{s}}
@@ -164,7 +180,7 @@ Capacity.
 
 
 
-Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), and read\+Problem\+Data().
+Referenced by define\+\_\+\+M\+S\+\_\+\+C\+F\+L\+P(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+O\+C\+P\+\_\+\+C\+F\+L\+P(), define\+\_\+\+S\+S\+\_\+\+C\+F\+L\+P(), get\+Cplex\+Sol(), and read\+Problem\+Data().
 
 \mbox{\label{structINSTANCE_ae6f8f841169c539d43f46246ef432bc5}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!start@{start}}
@@ -178,7 +194,7 @@ Starting position for elements of column j.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
 
 \mbox{\label{structINSTANCE_a22c08ad1ed5ff7035bf58ac919ce3caa}} 
 \index{I\+N\+S\+T\+A\+N\+CE@{I\+N\+S\+T\+A\+N\+CE}!totD@{totD}}
@@ -220,7 +236,7 @@ Matrix W in column major format.
 
 
 
-Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
+Referenced by define\+\_\+box\+\_\+support(), define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), define\+\_\+new\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P(), and define\+\_\+\+P\+O\+L\+Y\+\_\+\+C\+F\+L\+P().
 
 
 

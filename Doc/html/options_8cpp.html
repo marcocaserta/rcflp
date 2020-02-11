@@ -64,6 +64,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a23960294bead220b397fe29bcb293ac5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#a23960294bead220b397fe29bcb293ac5">_VERSIONdef</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a23960294bead220b397fe29bcb293ac5"><td class="mdescLeft">&#160;</td><td class="mdescRight">single source by default  <a href="#a23960294bead220b397fe29bcb293ac5">More...</a><br /></td></tr>
 <tr class="separator:a23960294bead220b397fe29bcb293ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d016c1b13d583badc8d8b1a187a5fc9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#a1d016c1b13d583badc8d8b1a187a5fc9">_FROMDISKdef</a>&#160;&#160;&#160;1</td></tr>
+<tr class="memdesc:a1d016c1b13d583badc8d8b1a187a5fc9"><td class="mdescLeft">&#160;</td><td class="mdescRight">single source by default  <a href="#a1d016c1b13d583badc8d8b1a187a5fc9">More...</a><br /></td></tr>
+<tr class="separator:a1d016c1b13d583badc8d8b1a187a5fc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -88,12 +91,18 @@ Variables</h2></td></tr>
 <tr class="memitem:ae8470b9dfef111e0d72a983ce72e4c9c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#ae8470b9dfef111e0d72a983ce72e4c9c">support</a></td></tr>
 <tr class="memdesc:ae8470b9dfef111e0d72a983ce72e4c9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">1-Box; 2-Budget  <a href="#ae8470b9dfef111e0d72a983ce72e4c9c">More...</a><br /></td></tr>
 <tr class="separator:ae8470b9dfef111e0d72a983ce72e4c9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3966e4eb4b54a626d5def41e2d32c36"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#af3966e4eb4b54a626d5def41e2d32c36">readFromDisk</a></td></tr>
+<tr class="memdesc:af3966e4eb4b54a626d5def41e2d32c36"><td class="mdescLeft">&#160;</td><td class="mdescRight">0-No; (Generate a new Budget set B_l); 1-Yes  <a href="#af3966e4eb4b54a626d5def41e2d32c36">More...</a><br /></td></tr>
+<tr class="separator:af3966e4eb4b54a626d5def41e2d32c36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98f2e84701105ad45ed7158de7bfdfd0"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#a98f2e84701105ad45ed7158de7bfdfd0">instanceType</a></td></tr>
 <tr class="separator:a98f2e84701105ad45ed7158de7bfdfd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5623197573ddafe3e66247fc9eda58ac"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#a5623197573ddafe3e66247fc9eda58ac">versionType</a></td></tr>
 <tr class="separator:a5623197573ddafe3e66247fc9eda58ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3853824cedf4d86c04beb83f79c09c92"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#a3853824cedf4d86c04beb83f79c09c92">supportType</a></td></tr>
 <tr class="separator:a3853824cedf4d86c04beb83f79c09c92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f1bf5c9d677b8a8e18bd6ea5c4da0bb"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="options_8cpp.html#a5f1bf5c9d677b8a8e18bd6ea5c4da0bb">_epsilon</a></td></tr>
+<tr class="memdesc:a5f1bf5c9d677b8a8e18bd6ea5c4da0bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">epsilon used in robust optimization (box and budget)  <a href="#a5f1bf5c9d677b8a8e18bd6ea5c4da0bb">More...</a><br /></td></tr>
+<tr class="separator:a5f1bf5c9d677b8a8e18bd6ea5c4da0bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Read options from command line. </p>
@@ -115,11 +124,36 @@ Variables</h2></td></tr>
 </li>
 <li><b>-u</b> : uncertainty set<ol type="1">
 <li>Box uncertainty set</li>
-<li>Budget uncertanty set </li>
+<li>Budget uncertanty set</li>
 </ol>
 </li>
+<li><b>-r</b> : read from disk<ol type="1">
+<li>0 No: A new Budget set <img class="formulaInl" alt="$B_l$" src="form_24.png"/> is generated and stored</li>
+<li>1 Yes: The Budget set is read from disk</li>
+</ol>
+</li>
+<li><b>-e</b> : epsilon, i.e., the size of the uncertainty set used during the optimization phase. Typically, <img class="formulaInl" alt="$\varepsilon \in \left[0.1, 1\right]$" src="form_70.png"/>.</li>
 </ul>
+<p><b>Note:</b> The meaning of the flag <code>-r</code> is as follows. When a budget uncertainty set is used, we randomly select which customers, i.e., columns, will be included in the budget constraint. Next, this set, <img class="formulaInl" alt="$B_l$" src="form_24.png"/>, is used to find a robust optimal solution for a given <img class="formulaInl" alt="$\varepsilon$" src="form_71.png"/>. If we want to compare solutions obtained for different values of <img class="formulaInl" alt="$\varepsilon$" src="form_71.png"/>, we need to ensure that the same budget constraint(s) is(are) used in the optimziation phase. Otherwise, the comparison would be meaningless. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a1d016c1b13d583badc8d8b1a187a5fc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d016c1b13d583badc8d8b1a187a5fc9">&#9670;&nbsp;</a></span>_FROMDISKdef</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define _FROMDISKdef&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>single source by default </p>
+
+<p class="reference">Referenced by <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
+
+</div>
+</div>
 <a id="a5021799111603289a1084abb31211d59"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5021799111603289a1084abb31211d59">&#9670;&nbsp;</a></span>_TIMELIMITdef</h2>
 
@@ -186,13 +220,31 @@ Variables</h2></td></tr>
 <p>Parse command line options. </p>
 <p>Use -h to visualize the list of options. </p>
 
-<p class="reference">References <a class="el" href="options_8cpp.html#ab602cefd46d5e616c87e034f4db68854">_FILENAME</a>, <a class="el" href="options_8cpp.html#a5021799111603289a1084abb31211d59">_TIMELIMITdef</a>, <a class="el" href="options_8cpp.html#a23960294bead220b397fe29bcb293ac5">_VERSIONdef</a>, <a class="el" href="options_8cpp.html#adf90957b4e032f69aba1e81ab396fa2f">fType</a>, <a class="el" href="options_8cpp.html#a98f2e84701105ad45ed7158de7bfdfd0">instanceType</a>, <a class="el" href="options_8cpp.html#ae8470b9dfef111e0d72a983ce72e4c9c">support</a>, <a class="el" href="options_8cpp.html#a3853824cedf4d86c04beb83f79c09c92">supportType</a>, <a class="el" href="options_8cpp.html#a4c4841c2a2303b528024625ed83c3b4f">timeLimit</a>, <a class="el" href="options_8cpp.html#aad880fc4455c253781e8968f2239d56f">version</a>, and <a class="el" href="options_8cpp.html#a5623197573ddafe3e66247fc9eda58ac">versionType</a>.</p>
+<p class="reference">References <a class="el" href="options_8cpp.html#a5f1bf5c9d677b8a8e18bd6ea5c4da0bb">_epsilon</a>, <a class="el" href="options_8cpp.html#ab602cefd46d5e616c87e034f4db68854">_FILENAME</a>, <a class="el" href="options_8cpp.html#a1d016c1b13d583badc8d8b1a187a5fc9">_FROMDISKdef</a>, <a class="el" href="options_8cpp.html#a5021799111603289a1084abb31211d59">_TIMELIMITdef</a>, <a class="el" href="options_8cpp.html#a23960294bead220b397fe29bcb293ac5">_VERSIONdef</a>, <a class="el" href="options_8cpp.html#adf90957b4e032f69aba1e81ab396fa2f">fType</a>, <a class="el" href="options_8cpp.html#a98f2e84701105ad45ed7158de7bfdfd0">instanceType</a>, <a class="el" href="options_8cpp.html#af3966e4eb4b54a626d5def41e2d32c36">readFromDisk</a>, <a class="el" href="options_8cpp.html#ae8470b9dfef111e0d72a983ce72e4c9c">support</a>, <a class="el" href="options_8cpp.html#a3853824cedf4d86c04beb83f79c09c92">supportType</a>, <a class="el" href="options_8cpp.html#a4c4841c2a2303b528024625ed83c3b4f">timeLimit</a>, <a class="el" href="options_8cpp.html#aad880fc4455c253781e8968f2239d56f">version</a>, and <a class="el" href="options_8cpp.html#a5623197573ddafe3e66247fc9eda58ac">versionType</a>.</p>
 
 <p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main()</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a5f1bf5c9d677b8a8e18bd6ea5c4da0bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f1bf5c9d677b8a8e18bd6ea5c4da0bb">&#9670;&nbsp;</a></span>_epsilon</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double _epsilon</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>epsilon used in robust optimization (box and budget) </p>
+
+<p class="reference">Referenced by <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
+
+</div>
+</div>
 <a id="ab602cefd46d5e616c87e034f4db68854"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab602cefd46d5e616c87e034f4db68854">&#9670;&nbsp;</a></span>_FILENAME</h2>
 
@@ -208,7 +260,7 @@ Variables</h2></td></tr>
 <p>name of the instance file </p>
 <p>name of the instance file </p>
 
-<p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main()</a>, <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>, <a class="el" href="rcflp_8cpp.html#ae557a2d951038f4519fc97ef5792fd09">read_instance_from_disk()</a>, and <a class="el" href="rcflp_8cpp.html#aa1ed199c88138cfce98475ba73f39a87">save_instance_2_disk()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a9f4b77051bfce7da6ff6e224587980b7">define_budget_support()</a>, <a class="el" href="rcflp_8cpp.html#a60323ca2fd9b5f853ff0813ad73e56aa">define_new2_budget_support()</a>, <a class="el" href="rcflp_8cpp.html#a1ba777997037ecc54de78c998b9bc5ab">define_new_budget_support()</a>, <a class="el" href="rcflp_8cpp.html#a85ed16cba2763a88cef0783d87a35151">getCplexSol()</a>, <a class="el" href="rcflp_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main()</a>, <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>, <a class="el" href="rcflp_8cpp.html#a07509146ad7a81069c94a59a0b904c44">read_instance_from_disk()</a>, and <a class="el" href="rcflp_8cpp.html#a070fc8927718cfceff2bb6d00aae2aca">save_instance_2_disk()</a>.</p>
 
 </div>
 </div>
@@ -247,6 +299,24 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="af3966e4eb4b54a626d5def41e2d32c36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3966e4eb4b54a626d5def41e2d32c36">&#9670;&nbsp;</a></span>readFromDisk</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int readFromDisk</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0-No; (Generate a new Budget set B_l); 1-Yes </p>
+
+<p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a9f4b77051bfce7da6ff6e224587980b7">define_budget_support()</a>, <a class="el" href="rcflp_8cpp.html#a60323ca2fd9b5f853ff0813ad73e56aa">define_new2_budget_support()</a>, <a class="el" href="rcflp_8cpp.html#a1ba777997037ecc54de78c998b9bc5ab">define_new_budget_support()</a>, and <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
+
+</div>
+</div>
 <a id="ae8470b9dfef111e0d72a983ce72e4c9c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae8470b9dfef111e0d72a983ce72e4c9c">&#9670;&nbsp;</a></span>support</h2>
 
@@ -261,7 +331,7 @@ Variables</h2></td></tr>
 
 <p>1-Box; 2-Budget </p>
 
-<p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main()</a>, and <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
 
 </div>
 </div>
@@ -314,7 +384,7 @@ Variables</h2></td></tr>
 <p>1-SS; 2-MS; 3-Ellipsoidal; 4-Polyhedral </p>
 <p>1-SS; 2-MS; 3-Ellipsoidal; 4-Polyhedral </p>
 
-<p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main()</a>, and <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="rcflp_8cpp.html#a85ed16cba2763a88cef0783d87a35151">getCplexSol()</a>, <a class="el" href="rcflp_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main()</a>, and <a class="el" href="options_8cpp.html#a8ddddf1e9743696419ce3747d49a54e6">parseOptions()</a>.</p>
 
 </div>
 </div>
@@ -336,7 +406,7 @@ Variables</h2></td></tr>
 </div>
 </div><!-- contents -->
 <hr size="1"><address style="align: right;"><small>
-Generated on Sat Feb 23 2019 17:17:22 for ROBUST CAPACITATED FACILITY LOCATION by Marco Caserta 2019 (c) (<a
+Generated on Tue Feb 11 2020 13:05:05 for ROBUST CAPACITATED FACILITY LOCATION by Marco Caserta 2019 (c) (<a
 href="">name dot lastname at ie dot edu</a>).</small></address>
 </body>
 </html>

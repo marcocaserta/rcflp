@@ -13,6 +13,8 @@ Read options from command line.
 \#define \textbf{ \+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}~3600
 \begin{DoxyCompactList}\small\item\em default wall-\/clock time limit \end{DoxyCompactList}\item 
 \#define \textbf{ \+\_\+\+V\+E\+R\+S\+I\+O\+Ndef}~1
+\begin{DoxyCompactList}\small\item\em single source by default \end{DoxyCompactList}\item 
+\#define \textbf{ \+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef}~1
 \begin{DoxyCompactList}\small\item\em single source by default \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
@@ -32,12 +34,16 @@ int \textbf{ version}
 \begin{DoxyCompactList}\small\item\em 1-\/\+SS; 2-\/\+MS; 3-\/\+Ellipsoidal; 4-\/\+Polyhedral \end{DoxyCompactList}\item 
 int \textbf{ support}
 \begin{DoxyCompactList}\small\item\em 1-\/\+Box; 2-\/\+Budget \end{DoxyCompactList}\item 
+int \textbf{ read\+From\+Disk}
+\begin{DoxyCompactList}\small\item\em 0-\/\+No; (Generate a new Budget set B\+\_\+l); 1-\/\+Yes \end{DoxyCompactList}\item 
 string \textbf{ instance\+Type}
 \item 
 string \textbf{ version\+Type}
 \item 
 string \textbf{ support\+Type}
-\end{DoxyCompactItemize}
+\item 
+double \textbf{ \+\_\+epsilon}
+\begin{DoxyCompactList}\small\item\em epsilon used in robust optimization (box and budget) \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -64,11 +70,33 @@ Command line options are\+:
 \item {\bfseries -\/u} \+: uncertainty set
 \begin{DoxyEnumerate}
 \item Box uncertainty set
-\item Budget uncertanty set 
+\item Budget uncertanty set
 \end{DoxyEnumerate}
+\item {\bfseries -\/r} \+: read from disk
+\begin{DoxyEnumerate}
+\item 0 No\+: A new Budget set $B_l$ is generated and stored
+\item 1 Yes\+: The Budget set is read from disk
+\end{DoxyEnumerate}
+\item {\bfseries -\/e} \+: epsilon, i.\+e., the size of the uncertainty set used during the optimization phase. Typically, $\varepsilon \in \left[0.1, 1\right]$.
 \end{DoxyItemize}
 
+{\bfseries Note\+:} The meaning of the flag {\ttfamily -\/r} is as follows. When a budget uncertainty set is used, we randomly select which customers, i.\+e., columns, will be included in the budget constraint. Next, this set, $B_l$, is used to find a robust optimal solution for a given $\varepsilon$. If we want to compare solutions obtained for different values of $\varepsilon$, we need to ensure that the same budget constraint(s) is(are) used in the optimziation phase. Otherwise, the comparison would be meaningless. 
+
 \subsection{Macro Definition Documentation}
+\mbox{\label{options_8cpp_a1d016c1b13d583badc8d8b1a187a5fc9}} 
+\index{options.\+cpp@{options.\+cpp}!\+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef@{\+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef}}
+\index{\+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef@{\+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef}!options.\+cpp@{options.\+cpp}}
+\subsubsection{\+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef}
+{\footnotesize\ttfamily \#define \+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef~1}
+
+
+
+single source by default 
+
+
+
+Referenced by parse\+Options().
+
 \mbox{\label{options_8cpp_a5021799111603289a1084abb31211d59}} 
 \index{options.\+cpp@{options.\+cpp}!\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef@{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}}
 \index{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef@{\+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef}!options.\+cpp@{options.\+cpp}}
@@ -112,7 +140,7 @@ Parse command line options.
 
 Use -\/h to visualize the list of options. 
 
-References \+\_\+\+F\+I\+L\+E\+N\+A\+ME, \+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef, \+\_\+\+V\+E\+R\+S\+I\+O\+Ndef, f\+Type, instance\+Type, support, support\+Type, time\+Limit, version, and version\+Type.
+References \+\_\+epsilon, \+\_\+\+F\+I\+L\+E\+N\+A\+ME, \+\_\+\+F\+R\+O\+M\+D\+I\+S\+Kdef, \+\_\+\+T\+I\+M\+E\+L\+I\+M\+I\+Tdef, \+\_\+\+V\+E\+R\+S\+I\+O\+Ndef, f\+Type, instance\+Type, read\+From\+Disk, support, support\+Type, time\+Limit, version, and version\+Type.
 
 
 
@@ -121,6 +149,20 @@ Referenced by main().
 
 
 \subsection{Variable Documentation}
+\mbox{\label{options_8cpp_a5f1bf5c9d677b8a8e18bd6ea5c4da0bb}} 
+\index{options.\+cpp@{options.\+cpp}!\+\_\+epsilon@{\+\_\+epsilon}}
+\index{\+\_\+epsilon@{\+\_\+epsilon}!options.\+cpp@{options.\+cpp}}
+\subsubsection{\+\_\+epsilon}
+{\footnotesize\ttfamily double \+\_\+epsilon}
+
+
+
+epsilon used in robust optimization (box and budget) 
+
+
+
+Referenced by parse\+Options().
+
 \mbox{\label{options_8cpp_ab602cefd46d5e616c87e034f4db68854}} 
 \index{options.\+cpp@{options.\+cpp}!\+\_\+\+F\+I\+L\+E\+N\+A\+ME@{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}}
 \index{\+\_\+\+F\+I\+L\+E\+N\+A\+ME@{\+\_\+\+F\+I\+L\+E\+N\+A\+ME}!options.\+cpp@{options.\+cpp}}
@@ -133,7 +175,7 @@ name of the instance file
 
 name of the instance file 
 
-Referenced by main(), parse\+Options(), read\+\_\+instance\+\_\+from\+\_\+disk(), and save\+\_\+instance\+\_\+2\+\_\+disk().
+Referenced by define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+budget\+\_\+support(), get\+Cplex\+Sol(), main(), parse\+Options(), read\+\_\+instance\+\_\+from\+\_\+disk(), and save\+\_\+instance\+\_\+2\+\_\+disk().
 
 \mbox{\label{options_8cpp_adf90957b4e032f69aba1e81ab396fa2f}} 
 \index{options.\+cpp@{options.\+cpp}!f\+Type@{f\+Type}}
@@ -159,6 +201,20 @@ Referenced by main(), and parse\+Options().
 
 Referenced by parse\+Options().
 
+\mbox{\label{options_8cpp_af3966e4eb4b54a626d5def41e2d32c36}} 
+\index{options.\+cpp@{options.\+cpp}!read\+From\+Disk@{read\+From\+Disk}}
+\index{read\+From\+Disk@{read\+From\+Disk}!options.\+cpp@{options.\+cpp}}
+\subsubsection{read\+From\+Disk}
+{\footnotesize\ttfamily int read\+From\+Disk}
+
+
+
+0-\/\+No; (Generate a new Budget set B\+\_\+l); 1-\/\+Yes 
+
+
+
+Referenced by define\+\_\+budget\+\_\+support(), define\+\_\+new2\+\_\+budget\+\_\+support(), define\+\_\+new\+\_\+budget\+\_\+support(), and parse\+Options().
+
 \mbox{\label{options_8cpp_ae8470b9dfef111e0d72a983ce72e4c9c}} 
 \index{options.\+cpp@{options.\+cpp}!support@{support}}
 \index{support@{support}!options.\+cpp@{options.\+cpp}}
@@ -171,7 +227,7 @@ Referenced by parse\+Options().
 
 
 
-Referenced by main(), and parse\+Options().
+Referenced by parse\+Options().
 
 \mbox{\label{options_8cpp_a3853824cedf4d86c04beb83f79c09c92}} 
 \index{options.\+cpp@{options.\+cpp}!support\+Type@{support\+Type}}
@@ -209,7 +265,7 @@ Referenced by main(), and parse\+Options().
 
 1-\/\+SS; 2-\/\+MS; 3-\/\+Ellipsoidal; 4-\/\+Polyhedral 
 
-Referenced by main(), and parse\+Options().
+Referenced by get\+Cplex\+Sol(), main(), and parse\+Options().
 
 \mbox{\label{options_8cpp_a5623197573ddafe3e66247fc9eda58ac}} 
 \index{options.\+cpp@{options.\+cpp}!version\+Type@{version\+Type}}

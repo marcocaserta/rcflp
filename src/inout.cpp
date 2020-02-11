@@ -101,7 +101,7 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
             fReader >> inp.s[i] >> inp.f[i];
             // inp.s[i] *= 1.001; // <------ REMOVE THIS !!!! Roberto Instances!!!
             inp.totS += inp.s[i];
-            cout << "s[" << i << "] = " <<  inp.s[i] << endl;
+            // cout << "s[" << i << "] = " <<  inp.s[i] << endl;
         }
 
         double maxD = 0.0;
@@ -283,6 +283,9 @@ void read_parameters_ellipsoidal()
  *                    the interval around \f$d_j\f$ as:
  *                    \f[ (1-\_epsilon)*d_j <= d_j <= (1+\_epsilon)d_j, \quad 0
  *                    \leq \epsilon \leq 1 \f]
+ *
+ *  MARCO 11.02.20: This is no longer used, since the only parameter of a box
+ *  set, i.e., epsilon, is now read from command line with flag -e.
  */
 // void read_parameters_box(double & _epsilon)
 void read_parameters_box()
@@ -327,8 +330,10 @@ void read_parameters_budget()
     }
     cout << "[** Reading parameters from file 'paramsBudget.txt'.]" << endl;
     string line;
-    fReader >> old_epsilon; 
-    getline(fReader, line); // read comment on same line
+    // MARCO 11.02.20: The next two lines are commented out, since epsilon is
+    // now read from command line with flag -e
+    // fReader >> old_epsilon;
+    // getline(fReader, line); // read comment on same line
     /* line.erase( find( line.begin(), line.end(), '#' ), line.end() ); */
 
     fReader >> _delta;

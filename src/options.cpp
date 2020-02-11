@@ -39,8 +39,19 @@
             -# Budget uncertanty set
 
     - **-r** : read from disk
-            -# 0 No: A new Budget set $B_l$ is generated and stored
+            -# 0 No: A new Budget set \f$B_l\f$ is generated and stored
             -# 1 Yes: The Budget set is read from disk
+
+    - **-e** : epsilon, i.e., the size of the uncertainty set used during the 
+                optimization phase. Typically, \f$\varepsilon \in \left[0.1, 1\right]\f$.
+
+    <b>Note:</b> The meaning of the flag `-r` is as follows. When a budget 
+            uncertainty set is used, we randomly select which customers, i.e., 
+            columns, will be included in the budget constraint. Next, this set, \f$B_l\f$,
+            is used to find a robust optimal solution for a given \f$\varepsilon\f$.
+            If we want to compare solutions obtained for different values of \f$\varepsilon\f$, 
+            we need to ensure that the same budget constraint(s) is(are) used in the
+            optimziation phase. Otherwise, the comparison would be meaningless.
 */
 
 #include <iostream>

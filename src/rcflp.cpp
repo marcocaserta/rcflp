@@ -225,10 +225,10 @@ int timeLimit;
 /****************** FUNCTIONS DECLARATION ***************************/
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
 void printOptions(char * _FILENAME, INSTANCE & inp, int timeLimit);
-void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
-void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
-void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex);
-void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex, int support);
+void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex);
+void define_SS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex);
+void define_SOCP_CFLP(INSTANCE &inp, int fType, IloModel & model, IloCplex & cplex);
+void define_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex, int support);
 int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit);
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt);
 void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, int fullOutput);
@@ -245,8 +245,8 @@ void read_instance_from_disk(double & _epsilon, double & _delta, double & _gamma
 void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp);
 void define_new_budget_support(INSTANCE & inp, bool fromDisk);
 void define_new2_budget_support(INSTANCE & inp, bool fromDisk);
-void define_new_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex, int support);
-void define_new2_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex, int support);
+void define_new_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex, int support);
+void define_new2_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex, int support);
 /****************** FUNCTIONS DECLARATION ***************************/
 
 /************************ main program ******************************/
@@ -281,6 +281,7 @@ int main(int argc, char *argv[])
             define_SOCP_CFLP(inp, fType, model, cplex);
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
+
             define_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new2_POLY_CFLP(inp, fType, model, cplex, support);
@@ -304,11 +305,33 @@ int main(int argc, char *argv[])
     return 0;
 }
 /************************ main program ******************************/
-/// END main program
+// END main program
 /************************ main program ******************************/
 
 /****************** FUNCTIONS DEFINITION ***************************/
 /// Get and store cplex solution in data structure opt
+/** Structure of the solution (all the solutions are saved under the folder
+ * `solutions`):
+ *<ul>
+ <li> <b>filename</b>: instancename-versiontype-epsilon-delta-gamma-L, where:
+ <ul>
+ <li> versiontype is single-source, multi-source, ellipsoidal, box, or budget
+ <li> epsilon is the size of the support set
+ <li> delta is the % of demand allowed in the right hand side of the budget constraint
+ <li> gamma is the % of columns included in the Budget constraint, i.e., \f$|B_l|\f$
+ <li> L is the number of budget constraints defined 
+ </ul>
+ <li> File structure:
+ <ul>
+ <li> row 1: nr facilities, nr customers in the instance 
+ <li> row 2: obj function value of the solution 
+ <li> row 3: solution status (optimal, feasible, etc.)
+ <li> row 4: number of open facilities
+ <li> row 5: list of open facilities 
+ <li> row 6 onward: for each facility and each customer: facility number, customer number, x_ij
+ </ul>
+
+ */
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 {
     opt.nOpen = 0;
@@ -384,7 +407,8 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
     fWriter.close();
     cout << "Solution written to disk. ('" << filename <<"')" << endl;
 
-    // print here capacity consumptions
+    // TEST: double check that used capacity does not exceed capacity of each
+    // facility
     for (int i = 0; i < inp.s[i]; i++)
     {
         if (opt.ySol[i] == 1)
@@ -393,7 +417,8 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
             for (int j = 0; j < inp.nC; j++)
                 if (opt.xSol[i][j] > 0.0)
                     tot += opt.xSol[i][j]*inp.d[j];
-            cout << "Facility " << i << " with capacity = " << inp.s[i] << " and consumption = " << tot << endl;
+            // cout << "Facility " << i << " with capacity = " << inp.s[i] << " and consumption = " << tot << endl;
+            assert(inp.s[i] >= tot);
         }
         
     }
@@ -441,7 +466,7 @@ int fullOutput)
 }
 
 /// Define the Multi-source Capacitated Facility Location Model [Nominal]
-void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
+void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex)
 {
     IloEnv env = model.getEnv();
 
@@ -506,7 +531,7 @@ void define_MS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 }
 
 /// Define the Single-source Capacitated Facility Location Model [Nominal] 
-void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
+void define_SS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex)
 {
 
     char varName[100];
@@ -571,7 +596,7 @@ void define_SS_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
 }
 
 /// Define the Multi-source Capacitated Facility Location Model [Ellipsoidal]
-void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex)
+void define_SOCP_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex)
 {
     read_parameters_ellipsoidal();
 
@@ -710,7 +735,7 @@ void define_SOCP_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
  * a robust problem into a nomimal one (e.g., setting \f$\epsilon = 0\f$ in box
  * support.)
  */
-void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex,
+void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & cplex,
                       int support)
 {
 
@@ -722,6 +747,7 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
             define_box_support(inp);
             break;
         case 2 : 
+            
             define_budget_support(inp, false);
             break;
         default :
@@ -848,7 +874,7 @@ void define_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cple
 
 
 
-void define_new_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex,
+void define_new_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex,
                       int support)
 {
 
@@ -1036,7 +1062,7 @@ void define_new_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & 
     model.add(IloMinimize(env,totCost));
 }
 
-void define_new2_POLY_CFLP(INSTANCE inp, int fType, IloModel & model, IloCplex & cplex,
+void define_new2_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex,
                       int support)
 {
 
@@ -1295,7 +1321,9 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
  */
 void define_box_support(INSTANCE & inp)
 {
-   read_parameters_box();
+   // MARCO 11.02.20: The next line is commented out, since there is no need to
+   // read epsilon from a file. We can now define it via command line with -e
+   // read_parameters_box();
    inp.nR = 2*inp.nC;
    inp.h  = new double[inp.nR];
    for (int j = 0; j < inp.nC; j++)

@@ -63,3 +63,10 @@
 \form#62:$L=1$
 \form#63:$B_l =\left\{1,2,3\right\}$
 \form#64:\[ W = \left[\begin{array}{rrr} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \\ 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 1 & 1 \\ \end{array}\right] \quad \textbf{d} = \left[\begin{array}{ccc} d_1 \\ d_2 \\ d_3 \end{array}\right] \quad \textbf{h} =\left[ \begin{array}{r} -d_0(1-\epsilon) \\ -d_1(1-\epsilon) \\ -d_2(1-\epsilon) \\ d_0(1+\epsilon) \\ d_1(1+\epsilon) \\ d_2(1+\epsilon) \\ 4 \\ \end{array}\right] \]
+\form#65:\[ (1-\_epsilon)*d_j <= d_j <= (1+\_epsilon)d_j, \quad 0 \leq \epsilon \leq 1 \]
+\form#66:\[|B_l| = \lfloor \_gamma n \rfloor, \quad 0 \leq \gamma \leq 1\]
+\form#67:$|B_l|$
+\form#68:\[|B_l| = \lfloor \_gamma n \rfloor, \quad 0 \leq \_gamma \leq 1\]
+\form#69:$\_gamma \times n$
+\form#70:$\varepsilon \in \left[0.1, 1\right]$
+\form#71:$\varepsilon$
