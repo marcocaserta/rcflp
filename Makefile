@@ -16,14 +16,16 @@ LIBFORMAT  = static_pic
 # ---------------------------------------------------------------------
 CONCERTDIR    = /home/marco/opt/ILOG/cplex127/concert
 CPLEXDIR      = /home/marco/opt/ILOG/cplex127/cplex
+# CONCERTDIR    = /home/marco/opt/ILOG/cplex1210/concert
+# CPLEXDIR      = /home/marco/opt/ILOG/cplex1210/cplex
 CPLEXBINDIR   = $(CPLEXDIR)/bin/$(BINDIST)
 CPLEXLIBDIR   = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
 CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
 CONCERTINCDIR = $(CONCERTDIR)/include
 CPLEXINCDIR   = $(CPLEXDIR)/include
 
-# BE CAREFULL: All warnings have been disables!!!!
-CCOPT     = -std=c++11 -std=gnu++11 -m64 -O -w -fPIC -fexceptions  -DIL_STD #-D_LIBCXX_DEBU -DOPTIMAL -DNDEBUG 
+# BE CAREFULL: All warnings have been disabled!!!!
+CCOPT     = -std=c++11 -std=gnu++11 -m64 -O -w -fPIC -fexceptions  -DIL_STD -D_LIBCXX_DEBUG -DOPTIMAL -DNDEBUG 
 CCLNFLAGS = -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -pthread 
 CCFLAGS   = $(CCOPT) -I$(CPLEXINCDIR) -I$(CONCERTINCDIR) 
 
@@ -44,14 +46,14 @@ OPTLEVEL = -O -DEBIAN_BUILDARCH=pentium
 FLAGS =  -fomit-frame-pointer -pipe -Wparentheses -Wreturn-type -Wcast-qual -Wpointer-arith -Wwrite-strings
 #-Wconversion
 
-default: $(OBJDIR)/rcflp.o $(OBJDIR)/options.o $(OBJDIR)/inout.o 
+default: $(OBJDIR)/rcflp.o $(OBJDIR)/options.o $(OBJDIR)/inout.o  
 	$(CC) $(CCFLAGS) $(OBJDIR)/options.o $(OBJDIR)/inout.o $(OBJDIR)/rcflp.o -o $(BINDIR)/$(EXEC) $(CCLNFLAGS) 
-$(OBJDIR)/rcflp.o: $(SRCDIR)/rcflp.cpp $(SRCDIR)/inout.cpp 
+$(OBJDIR)/rcflp.o: $(SRCDIR)/rcflp.cpp $(SRCDIR)/inout.cpp $(SRCDIR)/binPacking.cpp $(SRCDIR)/binPacking.h $(SRCDIR)/mmcf.cpp $(SRCDIR)/mmcf.h
 	$(CC) -c -Wignored-attributes $(CCFLAGS) $(SRCDIR)/rcflp.cpp -o $(OBJDIR)/rcflp.o
 $(OBJDIR)/options.o: $(SRCDIR)/options.cpp
 	$(CC) -c $(FLAGS) $(SRCDIR)/options.cpp -o $(OBJDIR)/options.o
 $(OBJDIR)/inout.o: $(SRCDIR)/inout.cpp
-	$(CC) -c $(FLAGS) $(SRCDIR)/inout.cpp -o $(OBJDIR)/inout.o
+	$(CC) -c $(CCFLAGS) $(SRCDIR)/inout.cpp -o $(OBJDIR)/inout.o
 # $(OBJDIR)/timer.o: $(SRCDIR)/timer.cpp
 #     $(CC) -c $(FLAGS) $(SRCDIR)/timer.cpp -o $(OBJDIR)/timer.o
 

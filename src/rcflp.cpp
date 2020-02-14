@@ -139,9 +139,12 @@ ILOSTLBEGIN
 #include <algorithm>
 #include <cstdlib>
 #include <sstream>
+#include <vector>
 
 /* #include "timer.h" */
 #include "options.h"
+#include "binPacking.cpp"
+#include "mmcf.cpp"
 
 using namespace std;
 
@@ -154,6 +157,7 @@ mt19937_64 gen(seed); //!< 64-bit Mersenne Twister by Matsumoto and Nishimura, 2
 /* mt19937_64 gen(seed()); */
 
 /****************** VARIABLES DECLARATION ***************************/
+string versionLabel[6]  = {"CFLP-SS", "CFLP-MS", "CFLP-SOCP", "CFLP-POLY", "BINPACK", "MMCF"};
 char * _FILENAME;		//!< Instance name file
 int fType;              //!< instance type (1-4)
 int version;            //!< 1-SS; 2-MS; 3-SOCP
@@ -192,17 +196,10 @@ struct INSTANCE {
 
 };
 INSTANCE inp; //!< Instance data
+InstanceBin inpBin;
+InstanceMMCF inpMMCF;
 
 /// Optimal solution and obj function value
-struct SOLUTION {
-    int nOpen;
-    int  *ySol;
-    double **xSol;
-    double zStar;
-    IloAlgorithm::Status zStatus;
-    IloNum startTime;
-    IloNum cpuTime;
-};
 SOLUTION opt; //!< Solution data structure
 
 
@@ -224,14 +221,17 @@ int timeLimit;
 
 /****************** FUNCTIONS DECLARATION ***************************/
 int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
+int readBinPacking(char* _FILENAME, InstanceBin& inpBin);
+int readMMCF(char* _FILENAME, InstanceMMCF& inpMMCF);
 void printOptions(char * _FILENAME, INSTANCE & inp, int timeLimit);
 void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SOCP_CFLP(INSTANCE &inp, int fType, IloModel & model, IloCplex & cplex);
 void define_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex, int support);
+void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & cplex, int support);
 int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit, int timeLimit, int displayLimit);
 void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt);
-void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, int fullOutput);
+void printSolution(char * _FILENAME, int version, SOLUTION opt, bool toDisk, int fullOutput);
 /* void read_parameters_box(double & _delta); */
 void read_parameters_box();
 void read_parameters_ellipsoidal();
@@ -263,8 +263,8 @@ int main(int argc, char *argv[])
     int err = parseOptions(argc, argv);
     if (err != 0) exit(1);
 
-    readProblemData(_FILENAME, fType, inp);
-    printOptions(_FILENAME, inp, timeLimit);
+    
+
 
     auto start = chrono::system_clock::now();
 
@@ -281,25 +281,40 @@ int main(int argc, char *argv[])
             define_SOCP_CFLP(inp, fType, model, cplex);
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
-
+            readProblemData(_FILENAME, fType, inp);
+            printOptions(_FILENAME, inp, timeLimit);
             define_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new2_POLY_CFLP(inp, fType, model, cplex, support);
+            break;
+        case 5 : // bin packing
+            readBinPacking(_FILENAME, inpBin);
+            define_POLY_BINPACKING(inpBin, model, cplex, support);
+            break;
+        case 6 : // MMCF
+            readMMCF(_FILENAME, inpMMCF);
+            define_POLY_MMCF(inpMMCF, model, cplex, support);
             break;
         default :
             cout << "ERROR : Version type not defined.\n" << endl;
             exit(123);
     }
 
+    cout << "VERSION LABEL  = " << versionLabel[version-1] << endl;
     // define_benders(model, cplex, inp);
 
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
 
     opt.cpuTime = chrono::duration_cast<chrono::seconds>(chrono::system_clock::now()-start).count();
 
-    getCplexSol(inp, cplex, opt);
-    printSolution(_FILENAME, inp, opt, true, 1);
+    if (version >= 1 && version <= 4)
+        getCplexSol(inp, cplex, opt);
+    else if (version == 5)
+        getCplexSolBIN(inpBin, cplex, opt);
+    else if (version == 6)
+        getCplexSolMMCF(inpMMCF, cplex, opt);
 
+    printSolution(_FILENAME, version, opt, true, 1);
 
     env.end();
     return 0;
@@ -409,7 +424,7 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 
     // TEST: double check that used capacity does not exceed capacity of each
     // facility
-    for (int i = 0; i < inp.s[i]; i++)
+    for (int i = 0; i < inp.nF; i++)
     {
         if (opt.ySol[i] == 1)
         {
@@ -422,18 +437,15 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
         }
         
     }
-
-
-    
 }
 
-
 /// Print solution to screen (and disk, if required)
-void printSolution(char * _FILENAME, INSTANCE inp, SOLUTION opt, bool toDisk, 
+void printSolution(char* _FILENAME, int version, SOLUTION opt, bool toDisk,
 int fullOutput)
 {
     cout << endl << "** SOLUTION **" << endl;
-    cout << " ..z*     \t= " << setprecision(15) << opt.zStar << endl;
+    cout << "PROBLEM TYPE = " << versionLabel[version-1] << endl;
+    cout << " ..z*     \t= " << setprecision(2) << std::fixed << opt.zStar << endl;
     cout << " ..time   \t= " << opt.cpuTime << endl;
     cout << " ..status \t= " << opt.zStatus << endl;
 
@@ -445,25 +457,8 @@ int fullOutput)
             << _Omega << "\t" << _epsilon << "\t" << _delta << "\t" 
             << _gamma << "\t" << L << endl;
     fWriter.close();
-
-    if (fullOutput >= 1)
-    {
-        cout << "Open Facilities: ";
-        for (int i = 0; i < inp.nF; i++)
-            if (opt.ySol[i] == 1)
-                cout << setw(4) << i;
-        cout << endl;
-        if (fullOutput >= 2)
-        {
-            cout << "Allocation variables :: " << endl;
-            for (int i = 0; i < inp.nF; i++)
-                for (int j = 0; j < inp.nC; j++)
-                    if (opt.xSol[i][j] >= EPSI)
-                        cout << "x(" << i << "," << j << ") = " << setprecision(3) 
-                        << opt.xSol[i][j] << endl;
-        }
-    }
 }
+
 
 /// Define the Multi-source Capacitated Facility Location Model [Nominal]
 void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex)
@@ -670,6 +665,7 @@ void define_SOCP_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cp
 
     model.add(IloMinimize(env,totCost));
 }
+
 
 /// Define robust model based on polyhedral uncertainty set
 /**
@@ -1244,14 +1240,14 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
 {
     try
     {
-        IloEnv env = model.getEnv();
-        cplex.setOut(env.getNullStream());
-        cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall-clock 
+        // IloEnv env = model.getEnv();
+        // cplex.setOut(env.getNullStream());
         cplex.setParam(IloCplex::ClockType, 2); // 1 --> Cpu Time; 2 --> Wall clock
         cplex.setParam(IloCplex::MIPInterval, 5000);
         cplex.setParam(IloCplex::MIPDisplay, displayLimit);
         cplex.setParam(IloCplex::IntSolLim, solLimit);
         cplex.setParam(IloCplex::TiLim, timeLimit);
+        cplex.setParam(IloCplex::TiLim, 4);
 
         cplex.exportModel("cflp.lp");
 

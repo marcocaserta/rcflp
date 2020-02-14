@@ -35,6 +35,9 @@
 #include <iomanip>
 #include <cstdlib>
 #include <fstream>
+#include <vector>
+#include "binPacking.h"
+#include "mmcf.h"
 
 using namespace std;
 
@@ -66,6 +69,89 @@ extern string instanceType;
 extern string versionType;
 extern string supportType;
 extern int support;
+
+
+int readMMCF(char* _FILENAME, InstanceMMCF& inpMMCF)
+{
+    int origin, destin, source, sink;
+    double cost, cap, fixed, temp1, temp2, dem;
+
+    ifstream fReader(_FILENAME, ios::in);
+    if (!fReader) {
+        cout << "cannot open file " << _FILENAME << endl;
+        exit(1);
+    }
+    string ss;
+    getline(fReader, ss);
+    
+    fReader >> inpMMCF.nNodes >> inpMMCF.nArcs >> inpMMCF.nK;
+
+    std::vector<int> aux;
+    for (int j = 0; j < inpMMCF.nNodes; j++) {
+        inpMMCF.outbound.push_back(aux);
+        inpMMCF.inbound.push_back(aux);
+    }
+    
+    for (int j = 0; j < inpMMCF.nArcs; j++) {
+        fReader >> origin >> destin >> cost >> cap >> fixed >> temp1 >> temp2;
+        origin -= 1;
+        destin -= 1;
+        inpMMCF.origin.push_back(origin);
+        inpMMCF.destin.push_back(destin);
+        inpMMCF.c.push_back(cost);
+        inpMMCF.cap.push_back(cap);
+        inpMMCF.fixed.push_back(fixed);
+
+        inpMMCF.outbound[origin].push_back(j);
+        inpMMCF.inbound[destin].push_back(j);
+
+    }
+
+    for (int j = 0; j < inpMMCF.nK; j++) {
+        fReader >> source >> sink >> dem;
+        source -= 1;
+        sink   -= 1;
+        inpMMCF.source.push_back(source);
+        inpMMCF.sink.push_back(sink);
+        inpMMCF.d.push_back(dem);
+    }
+
+    /* for (int j = 0; j < inpMMCF.nArcs; j++) 
+     *     cout << "Arc " << j << " from " << inpMMCF.origin[j] << " to " << inpMMCF.destin[j] << endl; */
+        
+    return 1;
+
+}
+
+int readBinPacking(char * _FILENAME, InstanceBin& inpBin)
+{
+    ifstream fReader(_FILENAME, ios::in);
+    if (!fReader)
+    {
+        cout << "cannot open file " << _FILENAME << endl;
+        exit(1);
+    }
+    string ss;
+    getline(fReader, ss);
+    getline(fReader, ss);
+
+    fReader >> inpBin.totS >> inpBin.nI >> inpBin.opt;
+    double temp;
+    for (int j = 0; j < inpBin.nI; j++)
+    {
+        fReader >> temp;
+        inpBin.d.push_back(temp);
+    }
+
+
+    cout << "BIN Packing Instance " << endl;
+    cout << "Tot Capacity  :  " << inpBin.totS << endl;
+    cout << "Tot Items  :  " << inpBin.nI << endl;
+    cout << "Optimum    :  " << inpBin.opt << endl;
+
+    return 1;
+
+}
 
 
 /// Read benchmark instances
