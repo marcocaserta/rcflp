@@ -42,6 +42,11 @@ struct InstanceMMCF {
     std::vector<std::vector<int>> inbound;
     // int ** outbound;
     // int ** inbound;
+    int     nR;    //!< Number of constraints polyhedron uncertainty set
+    double  *h;    //!< Rhs of polyhedron definining support
+    int     *W;    //!< Matrix W in column major format
+    int *index;    //!< Index of column major format for w
+    int *start;    //!< Starting position for elements of column j
 };
 
 void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex, int support);

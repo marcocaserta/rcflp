@@ -141,8 +141,8 @@ int parseOptions(int argc, char* argv[])
 	       cout << "OPTIONS :: " << endl;
 	       cout << "-i : problem instance file" << endl;
 	       cout << "-l : time limit (real)" << endl;
-	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP; 4- Poly)" << endl;
-	       cout << "-t : instance type (1-OR Library; 2-Avella)" << endl;
+	       cout << "-v : problem version (1-SS; 2-MS; 3-SOCP; 4- Poly; 5 - Bin Packing; 6- MMCF)" << endl;
+	       cout << "-t : instance type (1-OR Library; 2-Avella). Relevant only if CFLP" << endl;
 	       cout << "-u : support type (1-Box; 2-Budget)" << endl;
 	       cout << "-r : read Budget support set from disk (0-No; 1-Yes)" << endl;
 	       cout << "-e : epsilon (for box and budget support) " << endl;
@@ -160,22 +160,22 @@ int parseOptions(int argc, char* argv[])
             instanceType = "Avella";
         else if (fType == 0)
             instanceType = "Original OR Lib";
-        else
+        else 
             instanceType = "***";
 
-        if (version == 1)
-            versionType = "Single-source-Nominal";
-        else if (version == 2)
-            versionType = "Multi-source-Nominal";
-        else if (version == 3)
-            versionType = "Multi-source-Ellipsoidal";
-        else if (version == 4)
-            versionType = "Polyhedral Uncertainty (Wd <= h)";
-
-        if (support == 1)
-            supportType = "Box Uncertainty Set";
-        else if (support == 2)
-            supportType = "Budget Uncertainty Set";
+        // if (version == 1)
+            // versionType = "Single-source-Nominal";
+        // else if (version == 2)
+            // versionType = "Multi-source-Nominal";
+        // else if (version == 3)
+            // versionType = "Multi-source-Ellipsoidal";
+        // else if (version == 4)
+            // versionType = "Polyhedral Uncertainty (Wd <= h)";
+//
+        // if (support == 1)
+            // supportType = "Box Uncertainty Set";
+        // else if (support == 2)
+            // supportType = "Budget Uncertainty Set";
 
         return 0;
    }

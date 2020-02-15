@@ -22,6 +22,9 @@
 extern char* _FILENAME;
 extern int time_limit;
 
+std::string versionLabel[6]  = {"CFLP-SS", "CFLP-MS", "CFLP-SOCP", "CFLP-POLY", "BINPACK", "MMCF"};
+std::string supportLabel[2]  = {"box", "budget"};
+
 int parseOptions(int argc, char* argv[]);
 
 

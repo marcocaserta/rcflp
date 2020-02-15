@@ -118,6 +118,7 @@
 
 */
 
+
 #include <ilcplex/ilocplex.h>
 ILOSTLBEGIN
 
@@ -137,12 +138,12 @@ ILOSTLBEGIN
 #include <cassert>
 #include <random>
 #include <algorithm>
-#include <cstdlib>
 #include <sstream>
 #include <vector>
 
 /* #include "timer.h" */
-#include "options.h"
+#ifndef options.h
+#define options.h
 #include "binPacking.cpp"
 #include "mmcf.cpp"
 
@@ -157,7 +158,9 @@ mt19937_64 gen(seed); //!< 64-bit Mersenne Twister by Matsumoto and Nishimura, 2
 /* mt19937_64 gen(seed()); */
 
 /****************** VARIABLES DECLARATION ***************************/
-string versionLabel[6]  = {"CFLP-SS", "CFLP-MS", "CFLP-SOCP", "CFLP-POLY", "BINPACK", "MMCF"};
+// string versionLabel[6]  = {"CFLP-SS", "CFLP-MS", "CFLP-SOCP", "CFLP-POLY", "BINPACK", "MMCF"};
+// string supportLabel[2]  = {"box", "budget"};
+
 char * _FILENAME;		//!< Instance name file
 int fType;              //!< instance type (1-4)
 int version;            //!< 1-SS; 2-MS; 3-SOCP
@@ -165,8 +168,10 @@ int support;            //!< 1-Box; 2-Budget
 int readFromDisk;       //!< 0-No; (Generate a new Budget set B_l); 1-Yes
 double _epsilon;        //!< epsilon used in robust optimization (box and budget)
 string instanceType;
-string versionType;
-string supportType;
+
+extern string versionLabel[6];
+extern string supportLabel[2];
+
 
 typedef std::vector <int> MyVect;
 double _Omega;
@@ -220,10 +225,10 @@ int displayLimit = 4;
 int timeLimit;
 
 /****************** FUNCTIONS DECLARATION ***************************/
-int readProblemData(char * _FILENAME, int fType, INSTANCE & inp);
+int readCFLP(char * _FILENAME, int fType, INSTANCE & inp);
 int readBinPacking(char* _FILENAME, InstanceBin& inpBin);
 int readMMCF(char* _FILENAME, InstanceMMCF& inpMMCF);
-void printOptions(char * _FILENAME, INSTANCE & inp, int timeLimit);
+void printOptions(char * _FILENAME, int timeLimit);
 void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cplex);
 void define_SOCP_CFLP(INSTANCE &inp, int fType, IloModel & model, IloCplex & cplex);
@@ -262,9 +267,7 @@ int main(int argc, char *argv[])
 
     int err = parseOptions(argc, argv);
     if (err != 0) exit(1);
-
-    
-
+    printOptions(_FILENAME, timeLimit);
 
     auto start = chrono::system_clock::now();
 
@@ -281,8 +284,7 @@ int main(int argc, char *argv[])
             define_SOCP_CFLP(inp, fType, model, cplex);
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
-            readProblemData(_FILENAME, fType, inp);
-            printOptions(_FILENAME, inp, timeLimit);
+            readCFLP(_FILENAME, fType, inp);
             define_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new2_POLY_CFLP(inp, fType, model, cplex, support);
@@ -300,7 +302,6 @@ int main(int argc, char *argv[])
             exit(123);
     }
 
-    cout << "VERSION LABEL  = " << versionLabel[version-1] << endl;
     // define_benders(model, cplex, inp);
 
     solveCplexProblem(model, cplex, inp, solLimit, timeLimit, displayLimit);
@@ -371,27 +372,10 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
         for (int j = 0; j < inp.nC; j++)
             opt.xSol[i][j] = cplex.getValue(x_ilo[i][j]);
 
-    switch(version)
-    {
-        case 1 :  // single source nominal
-            versionType = "ss";
-            break;
-        case 2 : // multi source nominal
-            versionType = "ms";
-            break;
-        case 3 : // multi source ellipsoidal
-            versionType = "ellipsoidal";
-            break;
-        case 4 : // robust polyhedral uncertainty set (both SS and MS)
-            if (support==1)
-                versionType = "box";
-            else
-                versionType = "budget";
-            break;
-        default :
-            cout << "ERROR in WRITING SOLUTION: Version type not defined.\n" << endl;
-            exit(123);
-    }
+    string versionType = versionLabel[version-1];
+    if (version > 3) 
+        versionType += "-" + supportLabel[support-1];
+
 
     string  s1      = string(_FILENAME);
     s1              = s1.substr(s1.find_last_of("\\/"), 100);
@@ -443,6 +427,8 @@ void getCplexSol(INSTANCE inp, IloCplex cplex, SOLUTION & opt)
 void printSolution(char* _FILENAME, int version, SOLUTION opt, bool toDisk,
 int fullOutput)
 {
+    string versionType = versionLabel[version-1];
+    string supportType = supportLabel[support-1];
     cout << endl << "** SOLUTION **" << endl;
     cout << "PROBLEM TYPE = " << versionLabel[version-1] << endl;
     cout << " ..z*     \t= " << setprecision(2) << std::fixed << opt.zStar << endl;
@@ -466,6 +452,7 @@ void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cple
     IloEnv env = model.getEnv();
 
     char varName[100];
+    char constrName[100];
 
     // location variables 
     y_ilo = IloNumVarArray(env, inp.nF, 0, 1, ILOINT);
@@ -494,7 +481,8 @@ void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cple
         IloExpr sum(env);
         for (int i = 0; i < inp.nF; i++)
             sum += x_ilo[i][j];
-        model.add(sum == 1.0);
+        sprintf(constrName, "demand.%d", (int)j);
+        model.add(IloRange(env, 1.0, sum,  1.0, constrName));
     }
 
     // facility capacity 
@@ -504,8 +492,9 @@ void define_MS_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex & cple
         for (int j = 0; j < inp.nC; j++)
             sum += x_ilo[i][j]*inp.d[j];
         sum -= y_ilo[i]*inp.s[i];
-
-        model.add(sum <= 0.0);
+        
+        sprintf(constrName, "capacity.%d", (int)i);
+        model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
     }
 
     // thightening the model (does not seem to be beneficial)
@@ -752,6 +741,7 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
     }
 
     char varName[100];
+    char constrName[100];
     IloEnv env = model.getEnv();
 
     // location variables
@@ -806,7 +796,9 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
         IloExpr sum(env);
         for (int i = 0; i < inp.nF; i++)
             sum += x_ilo[i][j];
-        model.add(sum == 1.0);
+
+        sprintf(constrName, "demand.%d", (int)j);
+        model.add(IloRange(env, 1.0, sum,  1.0, constrName));
     }
 
     // "robust" demand - constr. W*psi >= x
@@ -821,7 +813,8 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
             }
             sum -= x_ilo[i][j];
 
-            model.add(sum >= 0.0);
+            sprintf(constrName, "robustDemand.%d%d", (int)i, (int)j);
+            model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
         }
 
     // robust capacity h*psi <= s*y
@@ -832,7 +825,9 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
             sum += inp.h[t]*psi_ilo[i][t];
 
         sum -= inp.s[i]*y_ilo[i];
-        model.add(sum <= 0.0);
+
+        sprintf(constrName, "robustCapacity.%d", (int)i);
+        model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
     }
 
     // "robust" objective function: h*u <= delta
@@ -841,7 +836,9 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
         sum += inp.h[t]*u_ilo[t];
 
     sum -= delta_ilo[0];
-    model.add(sum <= 0.0);
+
+    sprintf(constrName, "robustObj1");
+    model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
 
 
     // second robust obj function: W*u >= c*x
@@ -857,6 +854,9 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
             sum -= inp.c[i][j]*x_ilo[i][j];
 
         model.add(sum >= 0.0);
+
+        sprintf(constrName, "robustObj2.%d", (int)j);
+        model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
     }
 
     // objective function: min f*y + delta
@@ -2003,3 +2003,4 @@ void define_benders(IloModel & model, IloCplex & cplex, INSTANCE inp)
 
 
 }
+#endif

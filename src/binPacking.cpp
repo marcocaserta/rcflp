@@ -39,10 +39,13 @@ extern double _delta;
 extern double _gamma;
 extern int    L;      
 
+extern string versionLabel[6];
+extern string supportLabel[2];
 extern string instanceType;
-extern string versionType;
-extern string supportType;
+// extern string versionType;
+// extern string supportType;
 extern int support;
+extern int version;
 
 extern IloNumVarArray y_ilo;
 typedef IloArray <IloNumVarArray> TwoD;
@@ -98,6 +101,7 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
     }
 
     char varName[100];
+    char constrName[100];
     IloEnv env = model.getEnv();
 
     y_ilo = IloNumVarArray(env, inpBin.nI, 0, 1, ILOINT);
@@ -120,7 +124,9 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
         IloExpr sum(env);
         for (int j = 0; j < inpBin.nI; j++)
             sum += x_ilo[i][j];
-        model.add(sum == 1.0);
+
+        sprintf(constrName, "packing.%d", i);
+        model.add(IloRange(env, 1.0, sum, 1.0, constrName));
     }
 
     // capacity constraint
@@ -130,7 +136,8 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
             sum += (1.+_epsilon)*inpBin.d[i]*x_ilo[i][j]; // update this in robust formulation
         sum -= y_ilo[j]*inpBin.totS;
 
-        model.add(sum <= 0.0);
+        sprintf(constrName, "capacity.%d", j);
+        model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
     }
 
 
@@ -141,6 +148,7 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
 
     model.add(IloMinimize(env,totCost));
 }
+
 void getCplexSolBIN(InstanceBin inpBin, IloCplex cplex, SOLUTION & opt)
 {
     opt.nOpen = 0;
@@ -165,14 +173,10 @@ void getCplexSolBIN(InstanceBin inpBin, IloCplex cplex, SOLUTION & opt)
         for (int j = 0; j < inpBin.nI; j++)
             opt.xSol[i][j] = cplex.getValue(x_ilo[i][j]);
 
-    if (support==1)
-        versionType = "box";
-    else if (support== 2)
-        versionType = "budget";
-    else {
-        cout << "ERROR in WRITING SOLUTION: Version type not defined.\n" << endl;
-        exit(123);
-    }
+    string versionType = versionLabel[version-1];
+    if (version > 3) 
+        versionType += "-" + supportLabel[support-1];
+    
 
     string  s1      = string(_FILENAME);
     s1              = s1.substr(s1.find_last_of("\\/"), 100);

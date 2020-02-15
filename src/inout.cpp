@@ -36,6 +36,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include "options.h"
 #include "binPacking.h"
 #include "mmcf.h"
 
@@ -65,10 +66,13 @@ extern double _gamma;
 extern int    L;      
 double old_epsilon;  // _epsilon is now read from command line
 
-extern string instanceType;
-extern string versionType;
-extern string supportType;
+// extern string instanceType;
+// extern string versionType;
+// extern string supportType;
 extern int support;
+extern int version;
+
+
 
 
 int readMMCF(char* _FILENAME, InstanceMMCF& inpMMCF)
@@ -118,6 +122,12 @@ int readMMCF(char* _FILENAME, InstanceMMCF& inpMMCF)
 
     /* for (int j = 0; j < inpMMCF.nArcs; j++) 
      *     cout << "Arc " << j << " from " << inpMMCF.origin[j] << " to " << inpMMCF.destin[j] << endl; */
+    cout << "MMCF Instance " << endl;
+    cout << "---------------------" << endl;
+    cout << "Tot Nodes \t :  " << inpMMCF.nNodes << endl;
+    cout << "Tot Arcs  \t :  " << inpMMCF.nArcs << endl;
+    cout << "Tot Commodities\t :  " << inpMMCF.nK << endl;
+    cout << "---------------------" << endl;
         
     return 1;
 
@@ -145,9 +155,11 @@ int readBinPacking(char * _FILENAME, InstanceBin& inpBin)
 
 
     cout << "BIN Packing Instance " << endl;
-    cout << "Tot Capacity  :  " << inpBin.totS << endl;
-    cout << "Tot Items  :  " << inpBin.nI << endl;
-    cout << "Optimum    :  " << inpBin.opt << endl;
+    cout << "---------------------" << endl;
+    cout << "Tot Capacity \t :  " << inpBin.totS << endl;
+    cout << "Tot Items  \t :  " << inpBin.nI << endl;
+    cout << "Optimum    \t :  " << inpBin.opt << endl;
+    cout << "---------------------" << endl;
 
     return 1;
 
@@ -160,7 +172,7 @@ int readBinPacking(char * _FILENAME, InstanceBin& inpBin)
  * type 1: OR Library
  * type 2: Avella (Test Bed 1, Test Bed A. Test Bed B)
  */
-int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
+int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
 {
     inp.totS = 0.0;
     inp.totD = 0.0;
@@ -309,26 +321,28 @@ int readProblemData(char * _FILENAME, int fType, INSTANCE & inp)
 
     fReader.close();
 
+    cout << "CFLP Instance " << endl;
+    cout << "---------------------" << endl;
+    cout << "Tot Facilities \t :  " << inp.nF << endl;
+    cout << "Tot Customers  \t :  " << inp.nC << endl;
+    cout << "Instance Type  \t :  " << ((fType==1) ? "OR Library" : "Avella") << endl;
+    cout << "---------------------" << endl;
+
     return 1;
 }
 
 /// Print instance info and algorithmic parameters.
-void printOptions(char * _FILENAME, INSTANCE & inp, int timeLimit)
+void printOptions(char * _FILENAME, int timeLimit)
 {
-   // double _epsilon = 0.0;
-   double _delta   = 0.0;
-   double _gamma   = 0.0;
-   int    L       = 0;
+   string versionType = versionLabel[version-1];
+   string supportType  = supportLabel[support-1];
    cout << "-------------------------------------" << endl;
    cout << "- OPTIONS : " << endl;
    cout << "-------------------------------------" << endl;
    cout << "  DATA FILE      = " << _FILENAME        << endl;
-   cout << "  Instance type  = " << instanceType << endl;
    cout << "  Version        = " << versionType << endl;
    cout << "  Support        = " << supportType << endl;
    cout << "  Time Limit     = " << timeLimit << endl;
-   cout << "  Nr. Facilities = " << inp.nF << endl;
-   cout << "  Nr. Customers  = " << inp.nC << endl;
    cout << "-------------------------------------" <<  endl << endl;   
 }
 

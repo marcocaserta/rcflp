@@ -31,7 +31,41 @@
 
 using namespace std;
 
+extern int version;
+extern string versionLabel[6];
+extern string supportLabel[2];
 
+
+void define_box_support(InstanceMMCF & inp)
+{
+   // define number of constraints in Wd <= h
+   inp.nR = 2*inp.nK;
+   inp.h  = new double[inp.nR];
+   for (int k = 0; k < inp.nK; k++)
+   {
+       inp.h[k]        = -inp.d[k]*(1.0-_epsilon);
+       inp.h[k+inp.nK] =  inp.d[k]*(1.0+_epsilon);
+   }
+
+   // define matrix W in column major format
+   inp.W     = new int[inp.nK*2];
+   inp.index = new int[inp.nK*2];
+   inp.start = new int[inp.nK+1]; // one extra element in last position
+
+    int pos = 0;
+    for (int k = 0; k < inp.nK; k++)
+    {
+        inp.start[k]   = pos;
+        inp.W[pos]     = -1;
+        inp.index[pos] = k;
+        pos++;
+        inp.W[pos]     = 1;
+        inp.index[pos] = k+inp.nK;
+        pos++;
+    }
+    inp.start[inp.nK] = pos;
+    assert(pos == inp.nK*2);
+}
 
 void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex, int support)
 {
@@ -39,7 +73,7 @@ void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex
     // here we get W and h, depending on the type of support
     switch (support) {
         case 1 :
-            // define_box_support(inpBin);
+            define_box_support(inpMMCF);
             break;
         case 2 :
             // define_budget_support(inpBin, false);
@@ -51,6 +85,7 @@ void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex
     }
 
     char varName[100];
+    char constrName[100];
     IloEnv env = model.getEnv();
 
 
@@ -71,7 +106,9 @@ void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex
 
 
     // flow constraints
-    // flow at node n of commodity k
+    // flow at node n of commodity k: For each commodity k, the demand is zero
+    // for all nodes, except for source and sink. Note that demands here are
+    // for each commodity and each node, i.e., d_n^k.
     for (int k = 0; k < inpMMCF.nK; k++) {
 
         std::vector<double> d(inpMMCF.nNodes, 0.0);
@@ -96,7 +133,8 @@ void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex
                 sum -= x_ilo[el][k];
             }
 
-            model.add(sum >= d[n]);
+            sprintf(constrName, "flow.%d%d", k, n);
+            model.add(IloRange(env, d[n], sum, IloInfinity, constrName));
         }
     }
 
@@ -108,7 +146,8 @@ void define_POLY_MMCF(InstanceMMCF & inpMMCF, IloModel & model, IloCplex & cplex
 
         sum -= y_ilo[i]*inpMMCF.cap[i];
 
-        model.add(sum <= 0.0);
+        sprintf(constrName, "logical.%d", i);
+        model.add(IloRange(env, -IloInfinity, sum, 0.0, constrName));
     }
 
     IloExpr totCost(env);
@@ -145,14 +184,9 @@ void getCplexSolMMCF(InstanceMMCF inpMMCF, IloCplex cplex, SOLUTION & opt)
         for (int j = 0; j < inpMMCF.nK; j++)
             opt.xSol[i][j] = cplex.getValue(x_ilo[i][j]);
 
-    if (support==1)
-        versionType = "box";
-    else if (support== 2)
-        versionType = "budget";
-    else {
-        cout << "ERROR in WRITING SOLUTION: Version type not defined.\n" << endl;
-        exit(123);
-    }
+    string versionType = versionLabel[version-1];
+    if (version > 3) 
+        versionType += "-" + supportLabel[support-1];
 
     string  s1      = string(_FILENAME);
     s1              = s1.substr(s1.find_last_of("\\/"), 100);
