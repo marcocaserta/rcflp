@@ -1466,7 +1466,6 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
                 Bl[l][k] = el;
                 budget[l] += inp.d[el];
             }
-            cout << endl;
         }
         // adjust b_l values
         for (int l = 0; l < L; l++)
