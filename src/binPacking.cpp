@@ -279,11 +279,9 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
     switch (support) {
         case 1 :
             define_box_support(inpBin);
-            cout << "BOX SUPPORT defined here!!!\n";
             break;
         case 2 :
             define_budget_support(inpBin, false);
-            cout << "BUDGET SUPPORT not defined here!!!\n";
             break;
         default :
             cout << "ERROR : Support type not defined.\n" << endl;
@@ -337,7 +335,7 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
         for (int j = 0; j < inpBin.nI; j++) {
             IloExpr sum(env);
             for (int i = 0; i < inpBin.nI; i++)
-                sum += (1.0 + _epsilon)*inpBin.d[i]*x_ilo[i][j]; // update this in robust formulation
+                sum += (1.0 + _epsilon)*inpBin.d[i]*x_ilo[i][j];
             sum -= y_ilo[j]*inpBin.totS;
 
             sprintf(constrName, "capacity.%d", j);
@@ -348,9 +346,8 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
         
         // "robust" demand - constr. W*psi >= x
         // Rem. W is in column major format
-        for (int j = 0; j < inpBin.nI; j++)
-            for (int i = 0; i < inpBin.nI; i++)
-            {
+        for (int i = 0; i < inpBin.nI; i++) {
+            for (int j = 0; j < inpBin.nI; j++) {
                 IloExpr sum(env);
                 for (int l = inpBin.start[i]; l < inpBin.start[i+1]; l++)
                 {
@@ -359,9 +356,10 @@ void define_POLY_BINPACKING(InstanceBin & inpBin, IloModel & model, IloCplex & c
                 }
                 sum -= x_ilo[i][j];
 
-                sprintf(constrName, "robustDemand.%d%d", (int)j, (int)i);
+                sprintf(constrName, "robustDemand.%d.%d", (int)i, (int)j);
                 model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
             }
+        }
 
         // robust capacity h*psi <= s*y
         for (int j = 0; j < inpBin.nI; j++)
@@ -508,15 +506,15 @@ void getCplexSolBIN(InstanceBin inpBin, IloCplex cplex, SOLUTION & opt)
     // TEST: check that used capacity does not exceed capacity of each bin
     for (int j = 0; j < inpBin.nI; j++)
         if (opt.ySol[j] == 1) {
-            cout << "Assigned to bin " << j << " :: ";
+            // cout << "Assigned to bin " << j << " :: ";
             float tot = 0.0;
             for (int i = 0; i < inpBin.nI; i++) {
                 if (opt.xSol[i][j] > 0.0)
-                    cout << " " << i;
+                    // cout << " " << i;
                     tot += opt.xSol[i][j]*(1.0+_epsilon)*inpBin.d[i];
             }
-            cout << "\nBin " << j << " with capacity = " << inpBin.totS << " and consumption = " << tot << endl;
-            assert(inpBin.totS >= tot);
+            // cout << "\nBin " << j << " with capacity = " << inpBin.totS << " and consumption = " << tot << endl;
+            assert(inpBin.totS >= 100.0*tot);
         }
 }
 

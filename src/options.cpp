@@ -86,7 +86,7 @@ int parseOptions(int argc, char* argv[])
    timeLimit    = _TIMELIMITdef;
    version      = _VERSIONdef;
    readFromDisk= _FROMDISKdef;
-   cout <<endl << "R-CLSP v1.0 " << endl;
+   cout <<endl << "R-CLSP v2.0 " << endl;
    if (argc == 1)
    {
       cout << "No options specified. Try -h " << endl;

@@ -259,6 +259,7 @@ void define_new2_POLY_CFLP(INSTANCE & inp, int fType, IloModel & model, IloCplex
 /************************ main program ******************************/
 int main(int argc, char *argv[])
 {
+
     // _epsilon = 0.0;
     _delta   = 0.0;
     _gamma   = 0.0;
@@ -853,8 +854,6 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
         for (int i = 0; i < inp.nF; i++)
             sum -= inp.c[i][j]*x_ilo[i][j];
 
-        model.add(sum >= 0.0);
-
         sprintf(constrName, "robustObj2.%d", (int)j);
         model.add(IloRange(env, 0.0, sum, IloInfinity, constrName));
     }
@@ -1247,7 +1246,7 @@ int solveCplexProblem(IloModel model, IloCplex cplex, INSTANCE inp, int solLimit
         cplex.setParam(IloCplex::MIPDisplay, displayLimit);
         cplex.setParam(IloCplex::IntSolLim, solLimit);
         cplex.setParam(IloCplex::TiLim, timeLimit);
-        cplex.setParam(IloCplex::TiLim, 4);
+        // cplex.setParam(IloCplex::TiLim, 4);
 
         cplex.exportModel("cflp.lp");
 

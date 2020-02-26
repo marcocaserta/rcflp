@@ -87,7 +87,7 @@ int readMMCF(char* _FILENAME, InstanceMMCF& inpMMCF)
     }
     string ss;
     getline(fReader, ss);
-    
+
     fReader >> inpMMCF.nNodes >> inpMMCF.nArcs >> inpMMCF.nK;
 
     std::vector<int> aux;
