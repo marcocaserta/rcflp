@@ -1,5 +1,7 @@
 27.05.18 : First implementation of the Capacitated Facility Location.
 11.02.20 : Updated the command line options (added -e for epsilon)
+26.02.20 : Completed implementation of Box and Budget for the three problems
+(CFLP, BINPACKING, MMCF)
 
 Compile it using:
 
@@ -22,7 +24,10 @@ epsilon equal to 0.1, use
 
 > ./bin/rcflp -i data/orLibrary/cap94NEW5 -v 4 -t 1 -u 2 -r 0 -e 0.1 
 
-Other options can be obtained calling the "-h" flag.
+Other options can be obtained calling the "-h" flag. 
+
+An important option is "-v", which takes values from 1 to 6, to define the
+different problems implemented in this code.
 
 NOTE: Please, be aware of the meaning of the flag "-r", as explained in the
 documentation.

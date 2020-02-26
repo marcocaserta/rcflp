@@ -152,36 +152,44 @@ int parseOptions(int argc, char* argv[])
       }
    }
  
-   if (setFile && setType)
-   {
-        if (fType == 1)
-            instanceType = "OR Library";
-        else if (fType == 2)
-            instanceType = "Avella";
-        else if (fType == 0)
-            instanceType = "Original OR Lib";
-        else 
-            instanceType = "***";
+   if (version <= 4) {
+       if (setFile && setType)
+       {
+            if (fType == 1)
+                instanceType = "OR Library";
+            else if (fType == 2)
+                instanceType = "Avella";
+            else if (fType == 0)
+                instanceType = "Original OR Lib";
+            else 
+                instanceType = "***";
 
-        // if (version == 1)
-            // versionType = "Single-source-Nominal";
-        // else if (version == 2)
-            // versionType = "Multi-source-Nominal";
-        // else if (version == 3)
-            // versionType = "Multi-source-Ellipsoidal";
-        // else if (version == 4)
-            // versionType = "Polyhedral Uncertainty (Wd <= h)";
-//
-        // if (support == 1)
-            // supportType = "Box Uncertainty Set";
-        // else if (support == 2)
-            // supportType = "Budget Uncertainty Set";
+            // if (version == 1)
+                // versionType = "Single-source-Nominal";
+            // else if (version == 2)
+                // versionType = "Multi-source-Nominal";
+            // else if (version == 3)
+                // versionType = "Multi-source-Ellipsoidal";
+            // else if (version == 4)
+                // versionType = "Polyhedral Uncertainty (Wd <= h)";
+    //
+            // if (support == 1)
+                // supportType = "Box Uncertainty Set";
+            // else if (support == 2)
+                // supportType = "Budget Uncertainty Set";
 
-        return 0;
+            return 0;
+       }
+       else
+       {
+          cout <<"Options -i and -t are mandatory. Try ./rcflp -h" << endl;
+          return -1;
+       }
    }
-   else
-   {
-      cout <<"Options -i and -t are mandatory. Try ./rcflp -h" << endl;
-      return -1;
+   else {
+       if (!setFile) {
+          cout <<"Option -i is mandatory. Try ./rcflp -h" << endl;
+          return -1;
+       }
    }
 }
