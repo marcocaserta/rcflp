@@ -139,6 +139,12 @@ void define_budget_support(InstanceMMCF & inp, bool fromDisk)
     
     // cardinality of sets B_l
     cout << "[** |B_l| = " << nBl << "]\n" << endl;
+    if (nBl <= 1)
+    {
+        cout << "[ERROR] :: Budget set not properly defined. |B_l| <= 1" << endl;
+        cout << "Increase gamma in 'paramsBudget.txt'." << endl;
+        exit(999);
+    }
     // nBl = 2;
     // cout << "HARD CODED HERE !!! " << endl;
 
