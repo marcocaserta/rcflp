@@ -198,7 +198,8 @@ struct INSTANCE {
     int *start;    //!< Starting position for elements of column j
 
     std::vector <int> listB; //!< List of columns in budget constraints
-
+    int * customer_type; //!< 1, 2, 3 (for Roberto B. instances, otherwise not used)
+    int  *nType;
 };
 INSTANCE inp; //!< Instance data
 InstanceBin inpBin;
@@ -286,6 +287,12 @@ int main(int argc, char *argv[])
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
             readCFLP(_FILENAME, fType, inp);
+            cout << "HERE budgets " << endl;
+            
+            cout << "Total number of customers in each budget constraint :: ";
+            for (int l = 0; l < 3; l++)
+                cout << " " << inp.nType[l];
+            cout << endl;
             define_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new2_POLY_CFLP(inp, fType, model, cplex, support);
@@ -733,7 +740,6 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
             define_box_support(inp);
             break;
         case 2 : 
-            
             define_budget_support(inp, false);
             break;
         default :
@@ -751,8 +757,8 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
     // allocation variables (Note: Change here to switch between MS and SS)
     x_ilo = TwoD(env, inp.nF);
     for (int i = 0; i < inp.nF; i++)
-        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS
-        // x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); // SS 
+        /* x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS */
+        x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); // SS
 
     // set var names
     for (int i = 0; i < inp.nF; i++)
@@ -1431,86 +1437,130 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
     int  **Bl;
     double *budget;
 
-    read_parameters_budget();
-
-    nBl    = floor(_gamma*(double)inp.nC); // cardinality of each B_l
-    Bl     = new int*[L];
-    budget = new double[L];
-    for (int l = 0; l < L; l++)
-        Bl[l] = new int[nBl];
-    
-    // cardinality of sets B_l
-    cout << "[** |B_l| = " << nBl << "]\n" << endl;
-    if (nBl <= 1)
-    {
-        cout << "[ERROR] :: Budget set not properly defined. |B_l| <= 1" << endl;
-        cout << "Increase gamma in 'paramsBudget.txt'." << endl;
-        exit(999);
-    }
-    // nBl = 2;
-    // cout << "HARD CODED HERE !!! " << endl;
-
-    // randomly generate sets B_l and compute budget b_l
-    std::vector<int> shuffled;
-    for (int i = 0; i < inp.nC; ++i) 
-        shuffled.push_back(i); // 0 2 3 ... nC-1
-
-    if (readFromDisk==false)
-    {
-        // initialize random generator (uniform distribution)
-        uniform_int_distribution<> d(0,inp.nC-1);
-        for (int l = 0; l < L; l++)
-        {
-            // using built-in random generator:
-            std::random_shuffle(shuffled.begin(), shuffled.end());
+    if (fType == 0) { // 11.06.20: Roberto B. instances
+        cout << "BUDGET TYPE R.B." << endl;
+        cout << "Total number of customers in each budget constraint :: ";
+        for (int l = 0; l < 3; l++)
+            cout << " " << inp.nType[l];
+        cout << endl;
+        // we define 3 budget constraints, depending on customer_type
+        // customers of type 0 are the smallest (more uncertainty)
+        double beta[L] = {0.9, 0.8, 0.7};
+        L = 3;
+        Bl = new int*[L];
+        budget = new double[L];
+        int * index = new int[L];
+        for (int l = 0; l < L; l++) {
+            Bl[l] = new int[inp.nType[l]];
             budget[l] = 0.0;
-            for (int k = 0; k < nBl; k++)
-            {
-                // int el = d(gen);
-                int el = shuffled[k];
-                Bl[l][k] = el;
-                budget[l] += inp.d[el];
-            }
+            index[l] = 0;
         }
-        // adjust b_l values
+        for (int j = 0; j < inp.nC; j++) {
+            int group = inp.customer_type[j];
+            //cout << "adding customer " << j << " to budget constr " << group << endl;
+            budget[group] += inp.d[j];
+            Bl[group][index[group]] = j;
+            index[group]++;
+        }
+        // adjust budget
         for (int l = 0; l < L; l++)
-            budget[l] = floor(_delta*budget[l]);
+            cout << "budget " << l << " " << budget[l] << endl;
+        for (int l = 0; l < L; l++)
+            // budget[l] *= beta[l];
+            // budget[l] *= (1.0+_epsilon)*beta[l];
+            budget[l] = max(budget[l], (1.0+_epsilon)*beta[l]*budget[l]);
 
-        // do we want to save the sets B_l (and the parameters?)
-        bool save2Disk = true;
-        if (save2Disk==true)
-            save_instance_2_disk(_epsilon, _delta, _gamma, L, nBl, Bl, budget);
+        
+        for (int l = 0; l < L; l++) {
+            cout << " constraint " << l << " ::";
+            for (int k = 0; k < inp.nType[l]; k++)
+                cout << " " << Bl[l][k];
+            cout << " --> budget " << budget[l] << endl;
+        }
+
+
+
     }
-    else
-    {
-        string  s1      = string(_FILENAME);
-        s1              = s1.substr(s1.find_last_of("\\/"), 100);
-        string filename = "support" + s1 + ".budget"; 
+    else { // orLibrary instances
+        read_parameters_budget();
 
-        ifstream fReader(filename, ios::in);
-        if (!fReader)
-        {
-            cout << "Cannot open file '" << filename << "'." << endl;
-            exit(111);
-        }
+        nBl    = floor(_gamma*(double)inp.nC); // cardinality of each B_l
+        Bl     = new int*[L];
+        budget = new double[L];
         for (int l = 0; l < L; l++)
-        {
-            int temp = nBl;
-            fReader >> nBl;
-            cout << "t vs nBl " << temp << " " << nBl << endl;
-            assert(temp == nBl);
             Bl[l] = new int[nBl];
-
-            for (int k = 0; k < nBl; k++)
-                fReader >> Bl[l][k];
-            fReader >> budget[l];
+        
+        // cardinality of sets B_l
+        cout << "[** |B_l| = " << nBl << "]\n" << endl;
+        if (nBl <= 1)
+        {
+            cout << "[ERROR] :: Budget set not properly defined. |B_l| <= 1" << endl;
+            cout << "Increase gamma in 'paramsBudget.txt'." << endl;
+            exit(999);
         }
 
-        fReader.close();
-        cout << "[** Instance read from disk. File '" << filename << "']" << endl;
-        cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
-             << "; _delta = " << _delta << "; _gamma = " << _gamma << "; L = " << L 
-             << "]\n" << endl;
+        // randomly generate sets B_l and compute budget b_l
+        std::vector<int> shuffled;
+        for (int i = 0; i < inp.nC; ++i) 
+            shuffled.push_back(i); // 0 2 3 ... nC-1
+
+        if (readFromDisk==false)
+        {
+            // initialize random generator (uniform distribution)
+            uniform_int_distribution<> d(0,inp.nC-1);
+            for (int l = 0; l < L; l++)
+            {
+                // using built-in random generator:
+                std::random_shuffle(shuffled.begin(), shuffled.end());
+                budget[l] = 0.0;
+                for (int k = 0; k < nBl; k++)
+                {
+                    // int el = d(gen);
+                    int el = shuffled[k];
+                    Bl[l][k] = el;
+                    budget[l] += inp.d[el];
+                }
+            }
+            // adjust b_l values
+            for (int l = 0; l < L; l++)
+                budget[l] = floor(_delta*budget[l]);
+
+            // do we want to save the sets B_l (and the parameters?)
+            bool save2Disk = true;
+            if (save2Disk==true)
+                save_instance_2_disk(_epsilon, _delta, _gamma, L, nBl, Bl, budget);
+        }
+        else
+        {
+            string  s1      = string(_FILENAME);
+            s1              = s1.substr(s1.find_last_of("\\/"), 100);
+            string filename = "support" + s1 + ".budget"; 
+
+            ifstream fReader(filename, ios::in);
+            if (!fReader)
+            {
+                cout << "Cannot open file '" << filename << "'." << endl;
+                exit(111);
+            }
+            for (int l = 0; l < L; l++)
+            {
+                int temp = nBl;
+                fReader >> nBl;
+                cout << "t vs nBl " << temp << " " << nBl << endl;
+                assert(temp == nBl);
+                Bl[l] = new int[nBl];
+
+                for (int k = 0; k < nBl; k++)
+                    fReader >> Bl[l][k];
+                fReader >> budget[l];
+            }
+
+            fReader.close();
+            cout << "[** Instance read from disk. File '" << filename << "']" << endl;
+            cout << "[** Uncertainty Set Parameters :: _epsilon = " << _epsilon 
+                 << "; _delta = " << _delta << "; _gamma = " << _gamma << "; L = " << L 
+                 << "]\n" << endl;
+        }
     }
 
     for (int l = 0; l < L; l++)

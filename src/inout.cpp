@@ -42,22 +42,25 @@
 
 using namespace std;
 
+struct INSTANCE {
+    int nF;        //!< Number of facilities
+    int nC;        //!< Number of customers
+    double  *f;    //!< Fixed costs
+    double  *s;    //!< Capacity
+    double  *d;    //!< Demand
+    double **c;    //!< Allocation costs
+    double   totS; //!< Total supply
+    double   totD; //!< Total demand
 
-struct INSTANCE { /// See same data structure define in rcflp.cpp
-    int nF;
-    int nC;
-    double  *f;
-    double  *s;
-    double  *d;
-    double **c;
-    double   totS;
-    double   totD;
+    int     nR;    //!< Number of constraints polyhedron uncertainty set
+    double  *h;    //!< Rhs of polyhedron definining support
+    int     *W;    //!< Matrix W in column major format
+    int *index;    //!< Index of column major format for w
+    int *start;    //!< Starting position for elements of column j
 
-    int nR;        // number of constraints polyhedron uncertainty set
-    double  *h;    // rhs of polyhedron definining support
-    int     *W;    // matrix W in column major format
-    int *index;    // index of column major format for w
-    int *start;    // starting position for elements of column j
+    std::vector <int> listB; //!< List of columns in budget constraints
+    int * customer_type; //!< 1, 2, 3 (for Roberto B. instances, otherwise not used)
+    int  *nType;
 };
 extern double _Omega;
 extern double _epsilon;
@@ -174,6 +177,7 @@ int readBinPacking(char * _FILENAME, InstanceBin& inpBin)
  */
 int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
 {
+    double temp = 0.0;
     inp.totS = 0.0;
     inp.totD = 0.0;
     ifstream fReader(_FILENAME, ios::in);
@@ -191,6 +195,7 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
         inp.f = new double[inp.nF];
         inp.d = new double[inp.nC];
         inp.c = new double*[inp.nF];
+        inp.customer_type = new int[inp.nC];
         for (int i = 0; i < inp.nF; i++)
             inp.c[i] = new double[inp.nC];
 
@@ -219,6 +224,25 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
         cout << "** Tot S vs Tot D " << inp.totS << ", " << inp.totD << endl;
         cout << "Max D " << maxD << endl;
 
+        // skip coordinates (for each facility and each customer)
+        for (int i = 0; i < inp.nF; i++)
+            fReader >> temp >> temp;
+
+        for (int j = 0; j < inp.nC; j++)
+            fReader >> temp >> temp;
+
+        // read customer type (1,2, or 3) and rescale to 0, 1, 2
+        inp.nType = new int[3];
+        for (int j = 0; j < inp.nC; j++) {
+            fReader >> inp.customer_type[j];
+            inp.customer_type[j] -= 1;
+            inp.nType[inp.customer_type[j]]++;
+        }
+        cout << "Total number of customers in each budget constraint :: ";
+        for (int l = 0; l < 3; l++)
+            cout << " " << inp.nType[l];
+        cout << endl;
+        
 
         /* for (int j = 0; j < inp.nC; j++)
          * {
@@ -325,7 +349,7 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
     cout << "---------------------" << endl;
     cout << "Tot Facilities \t :  " << inp.nF << endl;
     cout << "Tot Customers  \t :  " << inp.nC << endl;
-    cout << "Instance Type  \t :  " << ((fType==1) ? "OR Library" : "Avella") << endl;
+    cout << "Instance Type  \t :  " << ((fType==1 || fType==0) ? "OR Library" : "Avella") << endl;
     cout << "---------------------" << endl;
 
     return 1;
