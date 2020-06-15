@@ -202,7 +202,7 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
         for (int i = 0; i < inp.nF; i++)
         {
             fReader >> inp.s[i] >> inp.f[i];
-            // inp.s[i] *= 1.001; // <------ REMOVE THIS !!!! Roberto Instances!!!
+            inp.s[i] *= 2.5; // <------ REMOVE THIS !!!! Roberto Instances!!!
             inp.totS += inp.s[i];
             // cout << "s[" << i << "] = " <<  inp.s[i] << endl;
         }

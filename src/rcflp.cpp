@@ -287,12 +287,6 @@ int main(int argc, char *argv[])
             break;
         case 4 : // robust polyhedral uncertainty set (both SS and MS)
             readCFLP(_FILENAME, fType, inp);
-            cout << "HERE budgets " << endl;
-            
-            cout << "Total number of customers in each budget constraint :: ";
-            for (int l = 0; l < 3; l++)
-                cout << " " << inp.nType[l];
-            cout << endl;
             define_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new_POLY_CFLP(inp, fType, model, cplex, support);
             // define_new2_POLY_CFLP(inp, fType, model, cplex, support);
@@ -757,7 +751,7 @@ void define_POLY_CFLP(INSTANCE  & inp, int fType, IloModel & model, IloCplex & c
     // allocation variables (Note: Change here to switch between MS and SS)
     x_ilo = TwoD(env, inp.nF);
     for (int i = 0; i < inp.nF; i++)
-        /* x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS */
+        // x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOFLOAT); // MS
         x_ilo[i] = IloNumVarArray(env, inp.nC, 0.0, 1.0, ILOINT); // SS
 
     // set var names
@@ -1446,6 +1440,7 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         // we define 3 budget constraints, depending on customer_type
         // customers of type 0 are the smallest (more uncertainty)
         double beta[L] = {0.9, 0.8, 0.7};
+        // double beta[L] = {0.7, 0.8, 0.9};
         L = 3;
         Bl = new int*[L];
         budget = new double[L];
