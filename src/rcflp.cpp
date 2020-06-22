@@ -178,6 +178,9 @@ double _Omega;
 double _delta;
 double _gamma;
 int    L;      
+double _beta0;
+double _beta1;
+double _beta2;
 
 /// Structure used to define the instance data
 // NOTE: Change the same structure in the file inout.cpp !!!
@@ -1439,7 +1442,8 @@ void define_budget_support(INSTANCE & inp, bool fromDisk)
         cout << endl;
         // we define 3 budget constraints, depending on customer_type
         // customers of type 0 are the smallest (more uncertainty)
-        double beta[L] = {0.9, 0.8, 0.7};
+        //double beta[L] = {0.9, 0.8, 0.7};
+        double beta[L] = {_beta0, _beta1, _beta2};
         // double beta[L] = {0.7, 0.8, 0.9};
         L = 3;
         Bl = new int*[L];

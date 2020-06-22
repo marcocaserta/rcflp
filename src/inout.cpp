@@ -66,6 +66,9 @@ extern double _Omega;
 extern double _epsilon;
 extern double _delta;
 extern double _gamma;
+extern double _beta0;
+extern double _beta1;
+extern double _beta2;
 extern int    L;      
 double old_epsilon;  // _epsilon is now read from command line
 
@@ -177,6 +180,7 @@ int readBinPacking(char * _FILENAME, InstanceBin& inpBin)
  */
 int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
 {
+    char * iType = "";
     double temp = 0.0;
     inp.totS = 0.0;
     inp.totD = 0.0;
@@ -187,9 +191,10 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
         exit(1);
     }
     // read OR Library instances (official format : email Roberto B., 20.08.19)
+    // June 2020: Added part used to read customer type
     if (fType == 0)
     {
-        
+        iType = "Baldacci"; 
         fReader >> inp.nF >> inp.nC;
         inp.s = new double[inp.nF];
         inp.f = new double[inp.nF];
@@ -202,7 +207,7 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
         for (int i = 0; i < inp.nF; i++)
         {
             fReader >> inp.s[i] >> inp.f[i];
-            inp.s[i] *= 2.5; // <------ REMOVE THIS !!!! Roberto Instances!!!
+            // inp.s[i] *= 2.5; // <------ REMOVE THIS !!!! Roberto Instances!!!
             inp.totS += inp.s[i];
             // cout << "s[" << i << "] = " <<  inp.s[i] << endl;
         }
@@ -255,6 +260,7 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
     else if (fType == 1)
     {
         
+        iType = "OR-Library";
         fReader >> inp.nF >> inp.nC;
         inp.s = new double[inp.nF];
         inp.f = new double[inp.nF];
@@ -316,6 +322,7 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
     // read Avella instances
     else if (fType == 2)
     {
+        iType = "Avella";
         fReader >> inp.nC >> inp.nF;
         inp.f = new double[inp.nF];
         inp.s = new double[inp.nF];
@@ -349,7 +356,13 @@ int readCFLP(char * _FILENAME, int fType, INSTANCE & inp)
     cout << "---------------------" << endl;
     cout << "Tot Facilities \t :  " << inp.nF << endl;
     cout << "Tot Customers  \t :  " << inp.nC << endl;
-    cout << "Instance Type  \t :  " << ((fType==1 || fType==0) ? "OR Library" : "Avella") << endl;
+    cout << "Instance Type  \t :  " << iType << endl;
+    if (fType == 0) {
+        cout << "Beta0 = \t : " << _beta0 << endl;
+        cout << "Beta1 = \t : " << _beta1 << endl;
+        cout << "Beta2 = \t : " << _beta2 << endl;
+    }
+        
     cout << "---------------------" << endl;
 
     return 1;
